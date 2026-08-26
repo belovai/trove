@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Only the files that were already staged get re-staged at the end. Anything
+# the formatters touch outside that set stays unstaged, so the hook can never
+# widen a commit behind your back.
+staged=$(mktemp)
+trap 'rm -f "$staged"' EXIT
+git diff --cached --name-only -z --diff-filter=ACM > "$staged"
+
+# -u www-data: running these as root leaves root-owned files in the container,
+# which breaks php-fpm afterwards. Both commands write to the working tree.
+echo "[pre-commit] ide-helper:models"
+docker compose exec -T -u www-data php php artisan ide-helper:models -RW --no-interaction
+
+echo "[pre-commit] pint"
+docker compose exec -T -u www-data php ./vendor/bin/pint
+
+#echo "[pre-commit] phpstan"
+#docker compose exec -T -u www-data php ./vendor/bin/phpstan analyse --memory-limit=2G
+
+if [ -s "$staged" ]; then
+    xargs -0 git add -- < "$staged"
+fi

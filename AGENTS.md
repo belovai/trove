@@ -35,6 +35,18 @@ docker compose up -d
 Run PHP commands as `-u www-data`. Running them as root leaves root-owned files
 in `storage/`, `bootstrap/cache/` and `vendor/`, which breaks php-fpm afterwards.
 
+### Git hooks
+
+The repository ships a `pre-commit` hook in `.githooks/`. `core.hooksPath` is
+local git configuration and is not cloned, so enable it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook regenerates the IDE helper model docblocks and runs Pint inside the
+container, then re-stages the tracked files it touched.
+
 ### Services
 
 - **php** — php-fpm 8.4, plus a `queue:work` and a `schedule:work` process under
@@ -60,12 +72,18 @@ Modules live under `modules/{ModuleName}/` — `User`, `Auth`, `Media`, `Tag`,
 and tests, and registers them from its own `{Module}ModuleServiceProvider`.
 Nothing module-specific belongs in `AppServiceProvider`.
 
+The `Modules\` PSR-4 namespace maps to `modules/` alongside `App\`. Module
+tests live under `modules/{Module}/Tests/{Unit,Feature}/` and run as their own
+`Modules` testsuite in `phpunit.xml`, distinct from `tests/`.
+
 Controllers stay slim: validation, authorization, calling an Action, shaping the
 response. All domain logic lives in single-purpose Action classes so the Inertia
 endpoints, the REST API, artisan commands and queued jobs can call the same code.
 
 PHP: `declare(strict_types=1)`, `final` classes, constructor property promotion,
-typed properties, PHP enums for enum-like values. Format with Pint before finishing.
+typed properties, PHP enums for enum-like values. Eloquent models declare
+`$fillable` and `$hidden` through the `#[Fillable]` and `#[Hidden]` attributes,
+not protected properties. Format with Pint before finishing.
 
 Frontend: Vue 3 `<script setup lang="ts">` single-file components under
 `resources/js/pages/`, resolved by name through Inertia. `@/` is aliased to
@@ -90,9 +108,10 @@ These are load-bearing. Breaking one is a bug even if the tests pass.
 - **Visibility goes through one query scope.** Every query that returns media
   applies it. No ad-hoc `where('visibility', ...)` anywhere else.
 - **No hardcoded user-facing strings.** Everything goes through Laravel
-  localization, in module-scoped files under `lang/{locale}/`. Vue receives
-  translations as an Inertia shared prop. Tag and category names are user content
-  and are never translated.
+  localization, in module-scoped files under `modules/{Module}/Lang/{locale}/`.
+  Vue receives translations as a flat, namespaced Inertia shared prop
+  (`auth::login.title`). Tag and category names are user content and are never
+  translated.
 - **Ship no opinionated taxonomy.** Migrations create exactly one tag category
   (`general`, the default). Everything else is an optional seeder or a JSON import.
 

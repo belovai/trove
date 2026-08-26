@@ -93,9 +93,9 @@ Controllers are slim. All domain operations live in single-purpose Action classe
 
 ### Module Responsibilities
 
-**User** — Registration (open / invite / closed, runtime-configurable), profile management, user preferences (default safety filter, locale, UI settings), invitation system (generate, track, expire invite tokens).
+**User** — Owns the `users` table, the five-rank `UserRank` enum, the ban model, and account self-management (display name, locale, password, deletion). Registration modes (`open` / `closed`) are config-driven for now; an invitation system is deferred (§4).
 
-**Auth** — Login/logout, two roles: `admin` and `user`. Admin has full access to all content and management features. Regular users can only manage their own uploads. Implemented via middleware and Laravel Gates; no RBAC package.
+**Auth** — Login, logout, and registration flows, owning no table of its own. Authorization is five ordered ranks (`Restricted` → `Administrator`) plus a per-module `Config/privileges.php` map that generates Laravel Gates — an administrator's full access is just the highest rank clearing every gate's minimum, not a special case. No RBAC package.
 
 **Media** — The core module. File upload (single and bulk), storage abstraction, thumbnail generation pipeline, metadata extraction, visibility control, safety rating, anonymity flag, and user favorites. Favorites are a boolean pivot and do not warrant a separate module; they live here.
 
@@ -111,52 +111,41 @@ Auto-increment `id` is used internally. Public-facing URLs use `hash_id` (random
 
 ### `users`
 
+No `hash_id`: usernames are already the public, URL-safe identifier — `getRouteKeyName()` returns `username`, so the internal `id` never needs to leak.
+
 | Column | Type | Notes |
 |---|---|---|
 | id | bigint PK | |
-| name | varchar (unique) | Display name, used in URLs |
-| email | varchar (unique) | Nullable if email is optional in open registration |
+| username | varchar (unique) | Public identifier, used in URLs — immutable |
+| display_name | varchar | Nullable — shown instead of the username; falls back to it |
+| email | varchar (unique) | Nullable — email is optional by default |
 | email_verified_at | timestamp | Nullable |
 | password | varchar | |
-| role | varchar | `admin`, `user` — indexed |
-| status | varchar | `active`, `pending`, `banned` — indexed |
-| default_safety_filter | varchar | `safe`, `sketchy`, `unsafe` |
+| rank | varchar | `restricted`, `regular`, `power`, `moderator`, `administrator` — indexed |
+| banned_at | timestamp | Nullable — presence means banned, independent of rank |
+| ban_reason | varchar | Nullable |
 | locale | varchar | Nullable — falls back to browser header, then site default |
+| default_safety_filter | varchar | `safe`, `sketchy`, `unsafe` |
+| last_login_at | timestamp | Nullable |
+| remember_token | varchar | Nullable |
+| deleted_at | timestamp | Nullable — soft delete; see §9 |
 | timestamps | | |
 
 ### `invitations`
 
-| Column | Type | Notes |
-|---|---|---|
-| id | bigint PK | |
-| token | varchar (unique) | Random token for invite URL |
-| invited_by | bigint FK → users | |
-| invited_email | varchar | Nullable — invite may not be email-bound |
-| used_at | timestamp | Nullable — set when redeemed |
-| used_by | bigint FK → users | Nullable |
-| expires_at | timestamp | |
-| timestamps | | |
+**Not yet implemented.** Registration currently has two modes only, `open` and `closed`, configured through `config/trove.php` (`TROVE_REGISTRATION_MODE` in `.env`); `closed` covers what `invite` with `admin_only` was meant for. An invite system with per-user tokens is deferred until there is demand for finer-grained control than mode + approval gives.
 
 ### `site_settings`
 
-Key-value store for runtime configuration.
+**Not yet implemented.** Everything this table was meant to hold is, for now, static configuration in `config/trove.php`, read from `.env`:
 
-| Column | Type | Notes |
-|---|---|---|
-| key | varchar PK | |
-| value | text | JSON-encoded value |
+- `TROVE_REGISTRATION_MODE` — `open` / `closed`
+- `TROVE_REGISTRATION_EMAIL` — `optional` / `required` / `off`
+- `TROVE_REGISTRATION_APPROVAL` — boolean; `true` creates new accounts at the `Restricted` rank instead of `Regular`, for an administrator to promote
 
-**Known keys:**
+The supported locale list (`config('trove.locales')`) is not `.env`-driven; it is a fixed array in `config/trove.php`.
 
-- `registration_mode` — `open` / `invite`
-- `registration_email_required` — boolean
-- `registration_email_verification` — boolean
-- `registration_admin_approval` — boolean
-- `invite_who_can_invite` — `everyone` / `permitted` / `admin_only`
-- `allow_anonymous_posting` — boolean, whether users may hide their attribution
-- `default_visibility` — default for new uploads
-- `default_safety_rating` — default for new uploads
-- `duplicate_upload_policy` — `warn` / `reject`
+A runtime, database-backed settings table remains the plan for anything an administrator should be able to change without a deploy — see §13.
 
 ### `media`
 
@@ -535,29 +524,34 @@ Implemented as a dedicated query scope applied consistently across search, brows
 
 ## 9. Users & Authentication
 
-### Roles
+### Ranks
 
-- **admin** — Full access: manage all media, tags, categories, implications, users, and site settings. Sees real uploaders behind anonymity flags.
-- **user** — Upload media, manage own uploads, apply tags, manage favorites. Cannot see others' private content.
+Five ordered ranks, `level()` 1–5, replace the earlier two-role model:
 
-Enforced via Laravel Gates and middleware. No RBAC package.
+| Rank | Level |
+|---|---|
+| Restricted | 1 |
+| Regular | 2 |
+| Power | 3 |
+| Moderator | 4 |
+| Administrator | 5 |
+
+Each module declares its own privileges in a `Config/privileges.php` map — ability name to minimum rank — which the module's service provider turns into a Laravel Gate named `{module}.{ability}` at boot. For example, `modules/User/Config/privileges.php` returns `['manage' => UserRank::Administrator]`, which registers the gate `user.manage`. No RBAC package, no permissions table; the map and the enum are the whole mechanism.
 
 ### Tag Editing Permissions
 
-Any active user may add or remove tags on any media item they can see. This is the booru convention and it is what makes collaborative tagging work. Destructive taxonomy operations — creating implications, merging tags, deleting tags, editing categories — are admin-only, because they affect the whole collection rather than a single item.
+Any user at or above the rank configured for `tag.edit` may add or remove tags on any media item they can see — this is the booru convention and it is what makes collaborative tagging work. Destructive taxonomy operations — creating implications, merging tags, deleting tags, editing categories — sit at `Moderator` or `Administrator`, because they affect the whole collection rather than a single item. The permissive-tagging policy itself is unchanged: no minimum tag count, no required category, no validation rules.
 
 ### Registration Modes
 
-Controlled via `site_settings`, switchable at runtime:
+Controlled via `config/trove.php` / `.env` (see §4, `site_settings`), not yet a runtime setting:
 
-**Open:** optionally require email, email verification, and/or admin approval (user created `pending`).
-**Invite:** configurable who may invite (`everyone` / `permitted` / `admin_only`), tokens stored with expiry. `admin_only` is effectively closed registration.
+**`mode=open`:** anyone may register; email is `optional` / `required` / `off` per `TROVE_REGISTRATION_EMAIL`. `TROVE_REGISTRATION_APPROVAL=true` creates the account at `Restricted` instead of `Regular`, standing in for the old `pending` status until an administrator promotes it.
+**`mode=closed`:** the registration routes are not registered at all — this is what `invite` + `admin_only` was for.
 
-### User Status
+### Ban Model
 
-- `active` — normal access
-- `pending` — awaiting admin approval; can log in, cannot interact
-- `banned` — no access
+A ban is `banned_at` (nullable timestamp) plus `ban_reason`, not a status enum: presence of `banned_at` means banned, independent of rank, so a `Moderator` can be banned without losing their rank on unban. Enforcement is a `Gate::before` in `UserModuleServiceProvider` that returns `false` for a banned user regardless of ability, plus `EnsureUserIsNotBanned` middleware that signs out a user banned mid-session on their next request.
 
 ---
 
@@ -565,8 +559,9 @@ Controlled via `site_settings`, switchable at runtime:
 
 - All user-facing strings go through Laravel's localization system. No hardcoded strings in Vue components or Blade templates.
 - Vue receives translations via an Inertia shared prop; the same lang files serve both sides.
-- Language files organized by module: `lang/{locale}/{user,auth,media,tag,search}.php`
-- Locale resolution: user preference → `Accept-Language` header → site default
+- Language files live under `modules/{Module}/Lang/{locale}/{group}.php` and are auto-registered by `ModuleServiceProvider`, namespaced to the module key — e.g. `auth::login.title`, `user::rank.regular`.
+- The shared prop is a flat map keyed `namespace::group.key` to a string, built by `App\Support\Translations::forLocale()` by walking every registered translation namespace; a new module's strings are picked up with no change to the collector.
+- Locale resolution (`SetLocale` middleware, runs before `HandleInertiaRequests`): user preference (`users.locale`) → `Accept-Language` header, intersected with `config('trove.locales')` → site default (`config('app.locale')`).
 - Timestamps stored as UTC, displayed in the user's timezone
 - **Tag and category names are not translated.** They are user-generated content; multilingual needs are served by aliases (§5.2).
 
@@ -574,9 +569,9 @@ Controlled via `site_settings`, switchable at runtime:
 
 ## 11. API Design
 
-Inertia endpoints serve the first-party frontend. A separate, narrower, versioned REST API serves external clients. Both call the same Action classes.
+**Today, only session authentication exists**, and the Inertia endpoints (`/login`, `/register`, `/logout`, `/account`, …) are the whole surface. Sanctum and the `/api/v1/*` REST API below are deferred until an external client actually needs them — building a versioned API against a one-user-facing frontend has no test signal. The plan is unchanged; only its timing is.
 
-Authentication: session-based for the web frontend, Laravel Sanctum tokens for the API.
+Once built: Inertia endpoints serve the first-party frontend, a separate, narrower, versioned REST API serves external clients, and both call the same Action classes. Authentication: session-based for the web frontend, Laravel Sanctum tokens for the API.
 
 ```
 # Auth
@@ -645,7 +640,7 @@ Rate limiting via Laravel's built-in limiter; Cloudflare as an optional addition
 - **Ship no opinionated taxonomy.** One default category, everything else optional or imported.
 - **One media per post.** No albums, ever. This constraint is what keeps the data model and the URL space simple.
 - **i18n from day one.** No hardcoded user-facing strings.
-- **No premature abstraction.** Two roles, no RBAC. Simple favorites, no collections.
+- **No premature abstraction.** Five ranks and a privilege map, no RBAC package. Simple favorites, no collections.
 
 ---
 
@@ -664,6 +659,8 @@ Deliberately excluded from the MVP, recorded here so the design does not foreclo
 **Post relationships.** Parent/child links between media items (original vs. edit, different resolutions of the same image).
 
 **Federation / external sync.** Pulling from or mirroring other instances.
+
+**`site_settings` table.** Runtime, database-backed configuration an administrator could change without a deploy. Everything it was meant to hold — registration mode, email policy, approval — lives in `config/trove.php` / `.env` for now (§4); this table is worth adding once a setting needs to change without redeploying.
 
 ---
 
