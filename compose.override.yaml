@@ -1,0 +1,6 @@
+# Local development overrides. Committed on purpose: everything here is
+# development-only. Delete this file for a production deployment.
+services:
+    php:
+        environment:
+            PHP_IDE_CONFIG: serverName=trove

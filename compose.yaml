@@ -1,0 +1,45 @@
+# php + nginx + node. SQLite, file cache and database queue mean no other
+# service is required.
+name: trove
+
+services:
+    php:
+        container_name: trove-php
+        build:
+            context: ./docker/php
+            args:
+                UID: ${DOCKER_UID:-1000}
+                GID: ${DOCKER_GID:-1000}
+        volumes:
+            - .:/var/www
+        networks:
+            - trove
+
+    nginx:
+        container_name: trove-nginx
+        image: nginx:1.29-alpine
+        ports:
+            - "${APP_PORT:-8000}:80"
+        volumes:
+            - .:/var/www:ro
+            - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf:ro
+        depends_on:
+            - php
+        networks:
+            - trove
+
+    node:
+        container_name: trove-node
+        image: node:22-alpine
+        working_dir: /var/www
+        ports:
+            - "${VITE_PORT:-5173}:5173"
+        volumes:
+            - .:/var/www
+        command: sh -c "npm install && npm run dev"
+        networks:
+            - trove
+
+networks:
+    trove:
+        driver: bridge
