@@ -78,14 +78,17 @@ A default installation requires only PHP, the application, and a writable direct
 The application is organized as a modular monolith. Each module encapsulates its own domain logic, models, routes, controllers, actions, and services.
 
 ```
-app/
-└── Modules/
-    ├── User/          # Registration, profile, preferences, invitations
-    ├── Auth/          # Authentication, authorization, roles, middleware
-    ├── Media/         # Upload, storage, thumbnails, metadata, visibility, favorites
-    ├── Tag/           # Tags, categories, aliases, implications, import/export
-    └── Search/        # Search interface, engines, query parsing
+modules/
+├── User/          # Registration, profile, preferences, invitations
+├── Auth/          # Authentication, authorization, roles, middleware
+├── Media/         # Upload, storage, thumbnails, metadata, visibility, favorites
+├── Tag/           # Tags, categories, aliases, implications, import/export
+└── Search/        # Search interface, engines, query parsing
 ```
+
+Namespace `Modules\{ModuleName}`, PSR-4 mapped to `modules/`. Not `app/Modules/` —
+the project's `laravel-modular-craft` skill convention wins over an earlier
+draft of this document.
 
 ### Controller / Action Pattern
 
@@ -184,6 +187,8 @@ A runtime, database-backed settings table remains the plan for anything an admin
 **On `content_hash`:** a unique constraint is wrong for a multi-user system. A user would be blocked from uploading a file that already exists in someone else's private collection, which leaks information and produces a confusing error. Duplicates are detected at upload time and handled per `duplicate_upload_policy`: `warn` shows the existing item (if the user may see it) and lets them proceed, `reject` blocks the upload.
 
 **Video columns are intentionally absent.** See §13.
+
+**Implemented note:** `tag_count` defaults to `0` and stays there until the Tag module exists — `StoreUploadedMedia` writes it but nothing increments it yet.
 
 ### `tags`
 
@@ -436,20 +441,39 @@ storage/
 
 ### Thumbnail Generation
 
+Implemented as `ThumbnailGenerator::generate(Media $media, ThumbnailSize $size): string`,
+bound to `InterventionThumbnailGenerator` (Intervention Image v3, GD or Imagick
+via `trove.media.image_driver`). `thumb` is a square crop, `preview` scales
+down (never up) — both driven by the `ThumbnailSize` enum. `read()` on an
+animated source takes its first frame, so no separate animated-thumbnail class
+was needed. Dispatched as the queued job `GenerateMediaThumbnails`, which
+writes the `thumbnails` JSON column once both sizes exist; queue connection
+`sync` runs it inline.
+
+All thumbnails are WebP.
+
+### Storage Abstraction (implemented)
+
+`MediaStorage` is the only path-aware boundary — nothing else in the app
+builds a filesystem path. `LocalMediaStorage` implements it against the
+configured disk (`trove.media.disk`, default `local` — outside the web root):
+
 ```php
-interface ThumbnailGenerator
+interface MediaStorage
 {
-    public function generate(string $sourcePath, ThumbnailConfig $config): string;
-    public function supports(string $mimeType): bool;
+    public function storeOriginal(UploadedFile $file, string $hashId): string;
+    public function storeThumbnail(string $hashId, ThumbnailSize $size, string $contents): string;
+    public function stream(string $path, string $mimeType, string $filename, array $headers = []): StreamedResponse;
+    public function delete(string $hashId): void;
+    public function exists(string $path): bool;
+    public function path(string $path): string;
 }
 ```
 
-**Implementations (MVP):**
-
-- `ImageThumbnailGenerator` — Intervention Image (GD or Imagick, configurable). Handles JPEG, PNG, WebP, static GIF.
-- `AnimatedThumbnailGenerator` — Extracts the first frame from animated GIF/WebP for a static thumbnail.
-
-All thumbnails are WebP.
+The stored extension is derived from the detected MIME type, never from the
+client-supplied filename. Files are served only through
+`ServeMediaFileController` / `ServeMediaThumbnailController`, which re-apply
+`visibleTo()` before streaming.
 
 ### Supported MIME Types
 
@@ -518,7 +542,20 @@ Every query returning media passes through a single visibility scope that applie
 4. `private` → visible to uploader or admin only
 5. Safety rating checked against the viewer's filter
 
-Implemented as a dedicated query scope applied consistently across search, browse, single item, and favorites. It is the single chokepoint for access decisions and must not be bypassed.
+**Implemented as three `Media` query scopes**, all called explicitly wherever
+media is queried (never combined into one, since listing and single-item
+access are different questions):
+
+- `visibleTo(?User $viewer)` — the access-control chokepoint above. A user
+  passing `media.moderate` short-circuits to see everything.
+- `listable()` — excludes `unlisted` from browse/search. Applied in addition
+  to `visibleTo()`, never instead of it.
+- `withinSafetyFilter(?User $viewer)` — the display filter; a guest gets
+  `SafetyRating::Safe`.
+
+`MediaPolicy` (`view`/`update`/`delete`) mirrors `visibleTo()` for a single
+record — the two must be kept in agreement by hand, since Eloquent has no way
+to derive a policy from a scope.
 
 ---
 
@@ -569,7 +606,7 @@ A ban is `banned_at` (nullable timestamp) plus `ban_reason`, not a status enum: 
 
 ## 11. API Design
 
-**Today, only session authentication exists**, and the Inertia endpoints (`/login`, `/register`, `/logout`, `/account`, …) are the whole surface. Sanctum and the `/api/v1/*` REST API below are deferred until an external client actually needs them — building a versioned API against a one-user-facing frontend has no test signal. The plan is unchanged; only its timing is.
+**Today, only session authentication exists**, and the Inertia endpoints (`/login`, `/register`, `/logout`, `/account`, `/posts`, `/m/{hash_id}`, `/upload`, …) are the whole surface. Media web routes: `GET /posts` (browse), `GET /m/{hash_id}` (show), `GET /m/{hash_id}/file`, `GET /m/{hash_id}/thumbnail/{size}` (both stream through `visibleTo()`), and, gated behind `media.upload`/ownership, `GET|POST /upload`, `GET /m/{hash_id}/edit`, `PATCH|DELETE /m/{hash_id}`. Sanctum and the `/api/v1/*` REST API below are deferred until an external client actually needs them — building a versioned API against a one-user-facing frontend has no test signal. The plan is unchanged; only its timing is.
 
 Once built: Inertia endpoints serve the first-party frontend, a separate, narrower, versioned REST API serves external clients, and both call the same Action classes. Authentication: session-based for the web frontend, Laravel Sanctum tokens for the API.
 

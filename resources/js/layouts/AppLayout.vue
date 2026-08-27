@@ -20,7 +20,10 @@ const signOut = (): void => {
                 <Link href="/" class="font-semibold">Trove</Link>
 
                 <div class="flex items-center gap-4 text-sm">
+                    <Link href="/posts">{{ t('media::media.browse') }}</Link>
+
                     <template v-if="isAuthenticated">
+                        <Link v-if="page.props.auth.can['media.upload']" href="/upload">{{ t('media::media.upload') }}</Link>
                         <Link href="/account">{{ user?.display_name }}</Link>
                         <button type="button" class="text-gray-500 hover:underline" @click="signOut">
                             {{ t('auth::login.sign_out') }}

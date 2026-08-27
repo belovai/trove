@@ -12,7 +12,7 @@ SQLite with no external services.
 > and no stability guarantee of any kind.
 >
 > - Most of what the architecture document describes **is not built yet** —
->   no media upload, no tags, no search, no users.
+>   media upload/browse is in progress, no tags, no search, no invitations.
 > - The database schema **will change without migrations**. Expect to delete
 >   `database/database.sqlite` and start over.
 > - Anything here may be rewritten or removed without notice.
@@ -53,10 +53,11 @@ system, search, visibility model and API surface.
 |---|---|
 | Docker environment | working |
 | Inertia + Vue 3 + TypeScript scaffold | working |
-| Media upload, storage, thumbnails | not started |
+| Users, auth, ranks, bans | working |
+| Media upload, storage, thumbnails, visibility | in progress |
 | Tags, aliases, implications | not started |
 | Search | not started |
-| Users, auth, invitations | not started |
+| Invitations | not started |
 
 ## Requirements
 

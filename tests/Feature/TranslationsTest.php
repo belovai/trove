@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Support\Translations;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
 final class TranslationsTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_it_flattens_module_translations_into_namespaced_keys(): void
     {
         $messages = app(Translations::class)->forLocale('en');

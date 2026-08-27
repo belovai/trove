@@ -13,6 +13,7 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Modules\Media\Enums\SafetyRating;
 use Modules\User\Database\Factories\UserFactory;
 use Modules\User\Enums\UserRank;
 
@@ -27,7 +28,7 @@ use Modules\User\Enums\UserRank;
  * @property Carbon|null $banned_at
  * @property string|null $ban_reason
  * @property string|null $locale
- * @property string $default_safety_filter
+ * @property SafetyRating $default_safety_filter
  * @property Carbon|null $last_login_at
  * @property string|null $remember_token
  * @property Carbon|null $deleted_at
@@ -119,6 +120,7 @@ final class User extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
             'rank' => UserRank::class,
+            'default_safety_filter' => SafetyRating::class,
         ];
     }
 

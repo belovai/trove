@@ -63,6 +63,13 @@ Anyone who wants PostgreSQL or Redis runs it themselves and points `.env` at it.
 Rebuild rather than restart: `docker compose build php && docker compose up -d php`.
 `vite.config.ts` changes need `docker compose restart node`.
 
+`imagick` and `redis` extensions are enabled in the image (needed for
+Intervention Image's Imagick driver and animated WebP/GIF frame counting).
+The queue worker command is `TROVE_QUEUE_COMMAND`, overridable per environment:
+the image default is `queue:work` (keeps the framework booted, so it does not
+see code changes without a restart); `compose.override.yaml` swaps in
+`queue:listen` for local development, which reboots per job.
+
 ---
 
 ## 2. Code layout

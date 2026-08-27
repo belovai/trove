@@ -39,8 +39,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-a
 
 # imagick: Intervention Image's alternative driver. Required for animated WebP,
 # which GD cannot read. redis: optional cache/session/queue backend.
-# RUN pecl install imagick redis \
-#     && docker-php-ext-enable imagick redis
+RUN pecl install imagick redis \
+    && docker-php-ext-enable imagick redis
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
@@ -58,6 +58,11 @@ RUN groupmod -o -g "$GID" www-data \
     && usermod -o -u "$UID" -g "$GID" -s /bin/bash www-data
 
 ENV COMPOSER_HOME=/tmp/composer
+
+# The queue worker command supervisor runs. `queue:work` keeps the framework
+# booted, so it does not see code changes; compose.override.yaml swaps in
+# `queue:listen` for development, which reboots per job.
+ENV TROVE_QUEUE_COMMAND="queue:work --sleep=1 --tries=3 --max-time=3600"
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 EXPOSE 9000
