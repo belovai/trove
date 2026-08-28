@@ -23,7 +23,7 @@ final class HashIdGenerator
         for ($attempt = 0; $attempt < self::ATTEMPTS; $attempt++) {
             $candidate = $this->candidate();
 
-            if (!Media::withTrashed()->where('hash_id', $candidate)->exists()) {
+            if (!Media::query()->withTrashed()->where('hash_id', $candidate)->exists()) {
                 return $candidate;
             }
         }

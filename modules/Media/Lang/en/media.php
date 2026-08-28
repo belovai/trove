@@ -37,4 +37,6 @@ return [
     'search' => 'Search',
     'search_placeholder' => 'enter some tags',
     'browse_all' => 'browse all posts',
+    'untagged' => 'This post has no tags yet.',
+    'paste_hint' => 'Or paste an image from the clipboard.',
 ];

@@ -284,6 +284,13 @@ Tag names are normalized on creation and lookup: trimmed, lowercased, internal w
 
 Tag names are user-generated content and are **not translated**. A tag may be in any language; multilingual collections are handled with aliases (see below), not with a translation layer.
 
+**Rejected characters and words.** A tag name may not contain `:`, `*`, or `/`, and may not start with `-` — these are reserved for search syntax and negation. A name matching a reserved word (`autocomplete`, `sort`, `tags`, `user`, `id`, `order`, `date`, `safety`, `visibility`) is also rejected, since it would collide with a route segment or a query parameter. Rejection is an **error surfaced to the user**, never a silent transformation or truncation — a tag someone meant to create must never silently become a different tag.
+
+**The `category:name` input syntax.** Typing `character:john_wick` in any tag input names both the tag and, if the tag does not yet exist, the category it is filed under on creation. The prefix only ever affects category assignment at creation time:
+
+- If the tag does not exist, it is created in the named category (or the request is rejected if no category by that name exists).
+- If the tag already exists, the prefix is **ignored** and a non-blocking warning is shown ("`john_wick` is already in `character`; its category was not changed") — recategorizing an established tag from a media surface would be an easy way to silently corrupt the taxonomy, so it can only be done deliberately from the tag's own management page.
+
 ### 5.2 Aliases
 
 An alias is a **synonym**: two names for the same concept. `kitty` → `cat`. Applying an alias applies the canonical tag; searching for an alias searches the canonical tag. The alias never exists as a separate row in `media_tag`.
@@ -351,6 +358,13 @@ Auto-tagging is explicitly out of scope for the MVP. The only accommodation made
 When auto-tagging is eventually built, it writes pivot rows with `source = 'ai'` and the existing removal, display, and usage-count logic applies unchanged. No migration and no schema change will be required. Nothing else about auto-tagging should be designed or built until then.
 
 ---
+
+
+### 5.7 Related Tags and Tag Health
+
+Rather than a hand-maintained "suggestions" list, related tags are derived from co-occurrence: for a given tag, the module ranks other tags found on the same items, scored by how tightly the pair co-occurs (the shared count normalized by the companion tag's own frequency) rather than by raw shared count. This is what keeps a near-ubiquitous tag from appearing as the top companion of everything, and it requires no maintenance as the collection grows. Pairs below a minimum shared-item threshold are dropped as noise.
+
+The same co-occurrence data drives a **tag health report**, available to administrators: unused tags, uncategorized tags, near-duplicate names (by edit distance, as a hint for a human — never an automatic merge), and implication candidates (pairs where one tag accompanies another with high enough confidence and support to suggest a missing hierarchy edge, excluding pairs that already have an edge). The report only surfaces information; every action it suggests — merge, categorize, add an implication — remains a deliberate, separate step taken by a human through the ordinary taxonomy-management endpoints.
 
 ## 6. Search Architecture
 

@@ -19,7 +19,7 @@ final class ServeMediaFileController
 
     public function __invoke(Request $request, string $media): Response
     {
-        $item = Media::visibleTo($request->user())
+        $item = Media::query()->visibleTo($request->user())
             ->where('hash_id', $media)
             ->firstOrFail();
 

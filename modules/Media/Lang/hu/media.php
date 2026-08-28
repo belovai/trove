@@ -37,4 +37,6 @@ return [
     'search' => 'Keresés',
     'search_placeholder' => 'írj be pár címkét',
     'browse_all' => 'összes kép böngészése',
+    'untagged' => 'Ehhez a képhez még nincs tag.',
+    'paste_hint' => 'Vagy illessz be egy képet a vágólapról.',
 ];

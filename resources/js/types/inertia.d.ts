@@ -19,6 +19,27 @@ export interface MediaCardData {
     dominant_color: string | null;
     safety_rating: SafetyRating;
     has_thumbnail: boolean;
+    /** Human-applied tags only; an untagged item is flagged in the grid. */
+    tag_count: number;
+}
+
+export interface TagSummary {
+    name: string;
+    category: string | null;
+    color: string | null;
+    usage_count: number;
+}
+
+export type TagSource = 'human' | 'implied' | 'ai';
+
+export interface TagOnMedia extends TagSummary {
+    source: TagSource;
+}
+
+export interface TagSuggestion extends TagSummary {
+    /** The string that matched — the tag's own name, or one of its aliases. */
+    matched: string;
+    description: string | null;
 }
 
 export interface MediaDetail extends MediaCardData {
@@ -32,6 +53,7 @@ export interface MediaDetail extends MediaCardData {
     is_anonymous: boolean;
     uploader: string | null;
     created_at: string | null;
+    tags: TagOnMedia[];
 }
 
 export interface Paginated<T> {

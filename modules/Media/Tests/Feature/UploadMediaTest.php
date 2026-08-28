@@ -46,7 +46,7 @@ final class UploadMediaTest extends TestCase
             ->assertCreated()
             ->assertJsonStructure(['hash_id', 'title']);
 
-        $this->assertSame(1, Media::count());
+        $this->assertSame(1, Media::query()->count());
     }
 
     public function test_an_oversized_file_is_rejected(): void
@@ -137,7 +137,7 @@ final class UploadMediaTest extends TestCase
             ->assertStatus(409)
             ->assertJsonPath('duplicate.hash_id', $existing->hash_id);
 
-        $this->assertSame(1, Media::count());
+        $this->assertSame(1, Media::query()->count());
     }
 
     public function test_confirming_accepts_the_duplicate(): void
@@ -156,7 +156,7 @@ final class UploadMediaTest extends TestCase
             ->post('/upload', [...$this->payload($file), 'confirm_duplicate' => true], $this->json)
             ->assertCreated();
 
-        $this->assertSame(2, Media::count());
+        $this->assertSame(2, Media::query()->count());
     }
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Media\Models\Media;
+use Modules\Tag\Models\Tag;
 
 final class ShowMediaController
 {
@@ -15,7 +16,7 @@ final class ShowMediaController
     {
         // visibleTo() only: an unlisted item is reachable here by its link,
         // even though listable() keeps it out of browse.
-        $item = Media::visibleTo($request->user())
+        $item = Media::query()->visibleTo($request->user())
             ->where('hash_id', $media)
             ->firstOrFail();
 
@@ -36,8 +37,21 @@ final class ShowMediaController
                 'safety_rating' => $item->safety_rating->value,
                 'is_anonymous' => $item->is_anonymous,
                 'has_thumbnail' => $item->thumbnails !== null,
+                'tag_count' => $item->tag_count,
                 'uploader' => $this->uploader($request, $item),
                 'created_at' => $item->created_at?->toIso8601String(),
+                'tags' => $item->tags()
+                    ->with('category')
+                    ->get()
+                    ->sortBy(fn (Tag $tag): array => $tag->categorySortKey())
+                    ->map(fn ($tag): array => [
+                        'name' => $tag->name,
+                        'category' => $tag->category?->name,
+                        'color' => $tag->category?->color,
+                        'usage_count' => $tag->usage_count,
+                        'source' => $tag->pivot->source,
+                    ])
+                    ->values(),
             ],
             'can' => [
                 'update' => $request->user()?->can('update', $item) ?? false,

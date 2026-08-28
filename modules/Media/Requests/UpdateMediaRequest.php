@@ -9,9 +9,12 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\Tag\Support\ResolvesTagInput;
 
 final class UpdateMediaRequest extends FormRequest
 {
+    use ResolvesTagInput;
+
     /**
      * @return array<string, mixed>
      */
@@ -24,6 +27,8 @@ final class UpdateMediaRequest extends FormRequest
             'visibility' => ['required', Rule::enum(Visibility::class)],
             'safety_rating' => ['required', Rule::enum(SafetyRating::class)],
             'is_anonymous' => ['boolean'],
+            'tags' => ['array'],
+            'tags.*' => ['string', 'max:255'],
         ];
     }
 
@@ -33,6 +38,8 @@ final class UpdateMediaRequest extends FormRequest
             if ($this->boolean('is_anonymous') && $this->input('visibility') === Visibility::Private->value) {
                 $validator->errors()->add('is_anonymous', __('media::validation.anonymous_private'));
             }
+
+            $this->validateTagInput($validator);
         });
     }
 }

@@ -10,16 +10,18 @@ use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\Media\Requests\UpdateMediaRequest;
+use Modules\Tag\Actions\SyncMediaTags;
 
 final class UpdateMediaController
 {
     public function __construct(
         private readonly UpdateMedia $updateMedia,
+        private readonly SyncMediaTags $syncMediaTags,
     ) {}
 
     public function __invoke(UpdateMediaRequest $request, string $media): RedirectResponse
     {
-        $item = Media::visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
+        $item = Media::query()->visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
 
         abort_unless($request->user()?->can('update', $item), 403);
 
@@ -33,6 +35,10 @@ final class UpdateMediaController
             isAnonymous: $request->boolean('is_anonymous'),
         );
 
-        return redirect()->route('media.show', $item)->with('success', __('media::media.updated'));
+        $this->syncMediaTags->handle($item, $request->resolvedTags()->tagIds, $request->user());
+
+        return redirect()->route('media.show', $item)
+            ->with('success', __('media::media.updated'))
+            ->with('tag_warnings', $request->resolvedTags()->warnings);
     }
 }

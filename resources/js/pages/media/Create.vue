@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import Button from '@/components/Button.vue';
+import TagInput from '@/components/TagInput.vue';
 import UploadDropzone from '@/components/UploadDropzone.vue';
 import UploadQueueItem from '@/components/UploadQueueItem.vue';
 import { useTranslations } from '@/composables/useTranslations';
@@ -32,6 +33,37 @@ const { items, uploading, add, remove, uploadAll, confirmDuplicate } = useUpload
 
 const pending = computed(() => items.value.filter((item) => item.status === 'pending').length);
 
+const batchTags = ref<string[]>([]);
+
+// Applies to pending items only: a file already uploaded cannot be changed
+// from here, and re-tagging it belongs on its own edit page.
+const applyBatchTags = (): void => {
+    for (const item of items.value) {
+        if (item.status === 'pending') {
+            item.tags = [...batchTags.value];
+        }
+    }
+};
+
+// Cmd/Ctrl+V anywhere on the page: a screenshot or a copied image lands in the
+// queue like a dropped file. Pasted text carries no files, so it is ignored.
+const paste = (event: ClipboardEvent): void => {
+    const files = Array.from(event.clipboardData?.items ?? [])
+        .filter((entry) => entry.kind === 'file' && entry.type.startsWith('image/'))
+        .map((entry) => entry.getAsFile())
+        .filter((file): file is File => file !== null);
+
+    if (files.length === 0) {
+        return;
+    }
+
+    event.preventDefault();
+    add(files);
+};
+
+onMounted(() => document.addEventListener('paste', paste));
+onUnmounted(() => document.removeEventListener('paste', paste));
+
 const settle = async (upload: () => Promise<void>): Promise<void> => {
     await upload();
 
@@ -50,8 +82,16 @@ const settle = async (upload: () => Promise<void>): Promise<void> => {
         <UploadDropzone @files="add">
             <p class="text-lg font-medium">{{ t('media::media.drop_files') }}</p>
             <p class="text-sm text-gray-500">{{ t('media::media.drop_hint') }}</p>
+            <p class="text-sm text-gray-500">{{ t('media::media.paste_hint') }}</p>
             <p class="text-xs text-gray-500">{{ props.allowed_mimes.join(', ') }}</p>
         </UploadDropzone>
+
+        <div v-if="items.length > 0" class="flex flex-col gap-2">
+            <TagInput v-model="batchTags" />
+            <Button type="button" variant="secondary" @click="applyBatchTags">
+                {{ t('tag::tag.add_tags') }}
+            </Button>
+        </div>
 
         <div v-if="items.length > 0" class="flex items-center gap-4">
             <Button type="button" :disabled="uploading || pending === 0" @click="settle(uploadAll)">

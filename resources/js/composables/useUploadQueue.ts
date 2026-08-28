@@ -10,6 +10,7 @@ export interface QueueItem {
     visibility: Visibility;
     safety_rating: SafetyRating;
     is_anonymous: boolean;
+    tags: string[];
     status: UploadStatus;
     progress: number;
     error: string | null;
@@ -55,6 +56,7 @@ export const useUploadQueue = (options: QueueOptions) => {
                 visibility: 'public',
                 safety_rating: 'safe',
                 is_anonymous: false,
+                tags: [],
                 status: 'pending',
                 progress: 0,
                 error: null,
@@ -94,6 +96,10 @@ export const useUploadQueue = (options: QueueOptions) => {
             body.append('visibility', item.visibility);
             body.append('safety_rating', item.safety_rating);
             body.append('is_anonymous', item.is_anonymous ? '1' : '0');
+
+            for (const tag of item.tags) {
+                body.append('tags[]', tag);
+            }
 
             if (confirmDuplicate) {
                 body.append('confirm_duplicate', '1');

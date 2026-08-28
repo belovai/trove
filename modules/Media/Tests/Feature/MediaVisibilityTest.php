@@ -19,7 +19,7 @@ final class MediaVisibilityTest extends TestCase
         Media::factory()->authenticatedOnly()->create();
         Media::factory()->private()->create();
 
-        $visible = Media::visibleTo(null)->pluck('id');
+        $visible = Media::query()->visibleTo(null)->pluck('id');
 
         $this->assertSame([$public->id], $visible->all());
     }
@@ -29,7 +29,7 @@ final class MediaVisibilityTest extends TestCase
         $public = Media::factory()->create();
         $members = Media::factory()->authenticatedOnly()->create();
 
-        $visible = Media::visibleTo(User::factory()->create())->pluck('id');
+        $visible = Media::query()->visibleTo(User::factory()->create())->pluck('id');
 
         $this->assertEqualsCanonicalizing([$public->id, $members->id], $visible->all());
     }
@@ -39,16 +39,16 @@ final class MediaVisibilityTest extends TestCase
         $owner = User::factory()->create();
         $item = Media::factory()->private()->for($owner, 'uploader')->create();
 
-        $this->assertTrue(Media::visibleTo($owner)->whereKey($item->id)->exists());
-        $this->assertFalse(Media::visibleTo(User::factory()->create())->whereKey($item->id)->exists());
-        $this->assertFalse(Media::visibleTo(null)->whereKey($item->id)->exists());
+        $this->assertTrue(Media::query()->visibleTo($owner)->whereKey($item->id)->exists());
+        $this->assertFalse(Media::query()->visibleTo(User::factory()->create())->whereKey($item->id)->exists());
+        $this->assertFalse(Media::query()->visibleTo(null)->whereKey($item->id)->exists());
     }
 
     public function test_a_moderator_sees_private_items(): void
     {
         $item = Media::factory()->private()->create();
 
-        $this->assertTrue(Media::visibleTo(User::factory()->moderator()->create())->whereKey($item->id)->exists());
+        $this->assertTrue(Media::query()->visibleTo(User::factory()->moderator()->create())->whereKey($item->id)->exists());
     }
 
     public function test_a_banned_moderator_does_not(): void
@@ -56,15 +56,15 @@ final class MediaVisibilityTest extends TestCase
         $item = Media::factory()->private()->create();
         $banned = User::factory()->moderator()->create(['banned_at' => now()]);
 
-        $this->assertFalse(Media::visibleTo($banned)->whereKey($item->id)->exists());
+        $this->assertFalse(Media::query()->visibleTo($banned)->whereKey($item->id)->exists());
     }
 
     public function test_unlisted_items_are_reachable_but_not_listed(): void
     {
         $item = Media::factory()->unlisted()->create();
 
-        $this->assertTrue(Media::visibleTo(null)->whereKey($item->id)->exists());
-        $this->assertFalse(Media::visibleTo(null)->listable()->whereKey($item->id)->exists());
+        $this->assertTrue(Media::query()->visibleTo(null)->whereKey($item->id)->exists());
+        $this->assertFalse(Media::query()->visibleTo(null)->listable()->whereKey($item->id)->exists());
     }
 
     public function test_the_safety_filter_hides_but_does_not_forbid(): void
@@ -72,7 +72,7 @@ final class MediaVisibilityTest extends TestCase
         $unsafe = Media::factory()->unsafe()->create();
         $viewer = User::factory()->create(); // default filter: safe
 
-        $this->assertFalse(Media::visibleTo($viewer)->withinSafetyFilter($viewer)->whereKey($unsafe->id)->exists());
-        $this->assertTrue(Media::visibleTo($viewer)->whereKey($unsafe->id)->exists());
+        $this->assertFalse(Media::query()->visibleTo($viewer)->withinSafetyFilter($viewer)->whereKey($unsafe->id)->exists());
+        $this->assertTrue(Media::query()->visibleTo($viewer)->whereKey($unsafe->id)->exists());
     }
 }

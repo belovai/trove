@@ -24,7 +24,7 @@ final class ServeMediaThumbnailController
 
         abort_if($thumbnailSize === null, 404);
 
-        $item = Media::visibleTo($request->user())
+        $item = Media::query()->visibleTo($request->user())
             ->where('hash_id', $media)
             ->firstOrFail();
 

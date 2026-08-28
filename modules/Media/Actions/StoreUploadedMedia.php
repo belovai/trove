@@ -35,7 +35,7 @@ final class StoreUploadedMedia
             $media = DB::transaction(function () use ($data, $contentHash, $hashId, $storagePath): Media {
                 $extracted = $this->metadata->extract($storagePath, $data->file->getMimeType());
 
-                return Media::create([
+                return Media::query()->create([
                     'hash_id' => $hashId,
                     'user_id' => $data->uploader->id,
                     'is_anonymous' => $data->isAnonymous,
@@ -79,7 +79,7 @@ final class StoreUploadedMedia
      */
     public function findDuplicateFor(string $contentHash, User $uploader): ?Media
     {
-        return Media::visibleTo($uploader)
+        return Media::query()->visibleTo($uploader)
             ->where('content_hash', $contentHash)
             ->first();
     }

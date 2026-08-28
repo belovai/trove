@@ -19,7 +19,7 @@ final class PruneDeletedMedia extends Command
     {
         $cutoff = now()->subDays((int) config('trove.media.prune_after_days'));
 
-        Media::onlyTrashed()
+        Media::query()->onlyTrashed()
             ->where('deleted_at', '<=', $cutoff)
             ->chunkById(100, function (Collection $chunk) use ($storage): void {
                 foreach ($chunk as $media) {

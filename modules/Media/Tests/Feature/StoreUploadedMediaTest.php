@@ -116,7 +116,7 @@ final class StoreUploadedMediaTest extends TestCase
             // expected
         }
 
-        $this->assertSame(0, Media::count());
+        $this->assertSame(0, Media::query()->count());
         $this->assertEmpty(Storage::disk('local')->allFiles('media/originals'));
     }
 

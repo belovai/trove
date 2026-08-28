@@ -121,6 +121,13 @@ These are load-bearing. Breaking one is a bug even if the tests pass.
   translated.
 - **Ship no opinionated taxonomy.** Migrations create exactly one tag category
   (`general`, the default). Everything else is an optional seeder or a JSON import.
+- **No tag name is normalized, parsed or compared outside `TagName`.** Trimming,
+  lowercasing, whitespace-to-underscore, and the reserved-character/word checks
+  live in exactly one value object. Nothing else touches a raw tag string.
+- **No recursive query outside `ImplicationClosureResolver`.** Expanding an
+  implication closure, walking ancestors, or checking reachability for cycle
+  prevention all go through that one service — never a hand-written recursive
+  CTE elsewhere.
 
 ---
 

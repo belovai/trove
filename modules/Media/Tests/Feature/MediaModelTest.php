@@ -47,7 +47,7 @@ final class MediaModelTest extends TestCase
         Media::factory()->create(['content_hash' => str_repeat('a', 64)]);
         Media::factory()->create(['content_hash' => str_repeat('a', 64)]);
 
-        $this->assertSame(2, Media::where('content_hash', str_repeat('a', 64))->count());
+        $this->assertSame(2, Media::query()->where('content_hash', str_repeat('a', 64))->count());
     }
 
     public function test_deleting_is_soft(): void

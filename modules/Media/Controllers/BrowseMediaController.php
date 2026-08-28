@@ -15,7 +15,7 @@ final class BrowseMediaController
     {
         $viewer = $request->user();
 
-        $media = Media::visibleTo($viewer)
+        $media = Media::query()->visibleTo($viewer)
             ->listable()
             ->withinSafetyFilter($viewer)
             ->latest()
@@ -41,6 +41,7 @@ final class BrowseMediaController
             'dominant_color' => $item->dominant_color,
             'safety_rating' => $item->safety_rating->value,
             'has_thumbnail' => $item->thumbnails !== null,
+            'tag_count' => $item->tag_count,
         ];
     }
 }

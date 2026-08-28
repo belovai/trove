@@ -17,7 +17,7 @@ final class DestroyMediaController
 
     public function __invoke(Request $request, string $media): RedirectResponse
     {
-        $item = Media::visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
+        $item = Media::query()->visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
 
         abort_unless($request->user()?->can('delete', $item), 403);
 

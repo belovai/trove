@@ -25,7 +25,7 @@ final class PruneDeletedMediaTest extends TestCase
 
         $this->artisan('media:prune')->assertSuccessful();
 
-        $this->assertSame(0, Media::withTrashed()->count());
+        $this->assertSame(0, Media::query()->withTrashed()->count());
         Storage::disk('local')->assertMissing($old->storage_path);
     }
 
@@ -39,7 +39,7 @@ final class PruneDeletedMediaTest extends TestCase
 
         $this->artisan('media:prune')->assertSuccessful();
 
-        $this->assertSame(1, Media::withTrashed()->count());
+        $this->assertSame(1, Media::query()->withTrashed()->count());
     }
 
     public function test_it_never_touches_live_items(): void
@@ -50,7 +50,7 @@ final class PruneDeletedMediaTest extends TestCase
 
         $this->artisan('media:prune')->assertSuccessful();
 
-        $this->assertSame(1, Media::count());
+        $this->assertSame(1, Media::query()->count());
         $this->assertNotNull($live->fresh());
     }
 }

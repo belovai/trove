@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 import Button from '@/components/Button.vue';
+import TagInput from '@/components/TagInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { QueueItem } from '@/composables/useUploadQueue';
 import type { SafetyRating, Visibility } from '@/types/inertia';
@@ -89,6 +90,8 @@ watch(
                         {{ t('media::media.anonymous') }}
                     </label>
                 </div>
+
+                <TagInput v-model="item.tags" />
             </template>
 
             <div v-if="item.status === 'uploading'" class="h-1 w-full rounded-full bg-gray-200 dark:bg-gray-800">

@@ -11,12 +11,14 @@ use Modules\Media\Enums\DuplicatePolicy;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 use Modules\Media\Requests\StoreMediaRequest;
+use Modules\Tag\Actions\SyncMediaTags;
 use Modules\User\Models\User;
 
 final class StoreMediaController
 {
     public function __construct(
         private readonly StoreUploadedMedia $storeUploadedMedia,
+        private readonly SyncMediaTags $syncMediaTags,
     ) {}
 
     /**
@@ -60,9 +62,12 @@ final class StoreMediaController
             isAnonymous: $request->boolean('is_anonymous'),
         ));
 
+        $this->syncMediaTags->handle($media, $request->resolvedTags()->tagIds, $user);
+
         return response()->json([
             'hash_id' => $media->hash_id,
             'title' => $media->title,
+            'tag_warnings' => $request->resolvedTags()->warnings,
         ], 201);
     }
 }

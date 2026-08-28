@@ -9,15 +9,18 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Modules\Media\Database\Factories\MediaFactory;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\Tag\Models\Tag;
 use Modules\User\Models\User;
 
 /**
@@ -45,6 +48,8 @@ use Modules\User\Models\User;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read Collection<int, Tag> $tags
+ * @property-read int|null $tags_count
  * @property-read User|null $uploader
  *
  * @method static \Modules\Media\Database\Factories\MediaFactory factory($count = null, $state = [])
@@ -132,6 +137,19 @@ final class Media extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id')->withTrashed();
+    }
+
+    /**
+     * Read-only from the Media module's point of view: every write to the
+     * pivot goes through the Tag module's SyncMediaTags.
+     *
+     * @return BelongsToMany<Tag, $this>
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'media_tag')
+            ->withPivot('source', 'tagged_by')
+            ->withTimestamps('created_at', false);
     }
 
     /**

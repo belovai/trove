@@ -11,10 +11,13 @@ use Modules\Media\Actions\StoreUploadedMedia;
 use Modules\Media\Enums\DuplicatePolicy;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\Tag\Support\ResolvesTagInput;
 use Modules\User\Models\User;
 
 final class StoreMediaRequest extends FormRequest
 {
+    use ResolvesTagInput;
+
     public function authorize(): bool
     {
         return $this->user()?->can('media.upload') ?? false;
@@ -41,6 +44,8 @@ final class StoreMediaRequest extends FormRequest
             'safety_rating' => ['required', Rule::enum(SafetyRating::class)],
             'is_anonymous' => ['boolean'],
             'confirm_duplicate' => ['boolean'],
+            'tags' => ['array'],
+            'tags.*' => ['string', 'max:255'],
         ];
     }
 
@@ -49,6 +54,7 @@ final class StoreMediaRequest extends FormRequest
         $validator->after(function (Validator $validator): void {
             $this->rejectAnonymousPrivate($validator);
             $this->rejectDuplicate($validator);
+            $this->validateTagInput($validator);
         });
     }
 
