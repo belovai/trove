@@ -6,6 +6,7 @@ use App\Support\Translations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
+use Modules\Media\Enums\SafetyRating;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -55,6 +56,12 @@ class HandleInertiaRequests extends Middleware
             ],
             'locale' => $locale,
             'locales' => config('trove.locales'),
+            // The rating vocabulary, in order. Both the account form and the
+            // listing filter bar read it, so neither hardcodes the enum.
+            'safety_ratings' => array_map(
+                fn (SafetyRating $rating): string => $rating->value,
+                SafetyRating::cases(),
+            ),
             'translations' => app(Translations::class)->forLocale($locale),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

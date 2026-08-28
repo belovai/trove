@@ -5,11 +5,17 @@ export interface AuthUser {
     display_name: string;
     rank: UserRank;
     locale: string | null;
-    default_safety_filter: string;
+    default_safety_filter: SafetyRating;
 }
 
 export type Visibility = 'public' | 'authenticated' | 'unlisted' | 'private';
 export type SafetyRating = 'safe' | 'sketchy' | 'unsafe';
+
+/** The browse filters that actually applied, echoed back by the server. */
+export interface MediaFilters {
+    safety: SafetyRating[];
+    untagged: boolean;
+}
 
 export interface MediaCardData {
     hash_id: string;
@@ -76,6 +82,8 @@ export interface SharedProps {
     };
     locale: string;
     locales: string[];
+    /** The rating vocabulary, in order — never hardcoded on the client. */
+    safety_ratings: SafetyRating[];
     translations: Record<string, string>;
     flash: {
         success: string | null;

@@ -5,10 +5,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import Button from '@/components/Button.vue';
 import ImplicationTree from '@/components/ImplicationTree.vue';
 import MediaCard from '@/components/MediaCard.vue';
+import MediaFilterBar from '@/components/MediaFilterBar.vue';
 import TagChip from '@/components/TagChip.vue';
 import TagEditDrawer from '@/components/TagEditDrawer.vue';
 import { useTranslations } from '@/composables/useTranslations';
-import type { MediaCardData, TagSummary } from '@/types/inertia';
+import type { MediaCardData, MediaFilters, TagSummary } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
@@ -25,6 +26,7 @@ const props = defineProps<{
     };
     related: (Omit<TagSummary, 'usage_count'> & { shared: number })[];
     media: MediaCardData[];
+    filters: MediaFilters;
     categories: { id: number; name: string }[];
     can: { manage: boolean };
 }>();
@@ -79,11 +81,23 @@ const editing = ref(false);
         </section>
 
         <!-- The tag page is an entry point into browsing, not a data sheet. -->
-        <section v-if="props.media.length > 0" class="flex flex-col gap-2">
+        <section class="flex flex-col gap-2">
             <h2 class="text-xs text-gray-500">{{ t('tag::tag.samples') }}</h2>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+
+            <!-- Rendered even with nothing to show, or a filter that hid
+                 everything would take its own way back out with it. -->
+            <MediaFilterBar
+                :filters="props.filters"
+                :url="`/tags/${props.tag.name}`"
+                :show-untagged="false"
+                class="mb-2"
+            />
+
+            <div v-if="props.media.length > 0" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 <MediaCard v-for="item in props.media" :key="item.hash_id" :media="item" />
             </div>
+
+            <p v-else class="text-sm text-gray-500">{{ t('media::media.empty') }}</p>
         </section>
     </div>
 

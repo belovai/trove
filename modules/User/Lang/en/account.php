@@ -11,6 +11,8 @@ return [
     'display_name_hint' => 'Shown instead of your username. Leave empty to use your username.',
     'locale' => 'Language',
     'locale_default' => 'Follow my browser',
+    'default_safety_filter' => 'Default content filter',
+    'default_safety_filter_hint' => 'How much is shown by default when browsing. You can change it per page.',
     'save' => 'Save',
     'saved' => 'Your account has been updated.',
     'password' => 'Password',

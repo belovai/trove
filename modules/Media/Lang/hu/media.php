@@ -39,4 +39,7 @@ return [
     'browse_all' => 'összes kép böngészése',
     'untagged' => 'Ehhez a képhez még nincs tag.',
     'paste_hint' => 'Vagy illessz be egy képet a vágólapról.',
+    'filter_safety' => 'Besorolás',
+    'filter_untagged' => 'Csak címkézetlen',
+    'filter_reset' => 'Szűrők törlése',
 ];

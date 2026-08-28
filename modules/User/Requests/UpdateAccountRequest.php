@@ -6,6 +6,7 @@ namespace Modules\User\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Media\Enums\SafetyRating;
 
 final class UpdateAccountRequest extends FormRequest
 {
@@ -17,6 +18,7 @@ final class UpdateAccountRequest extends FormRequest
         return [
             'display_name' => ['nullable', 'string', 'max:64'],
             'locale' => ['nullable', 'string', Rule::in(config('trove.locales'))],
+            'default_safety_filter' => ['nullable', Rule::enum(SafetyRating::class)],
         ];
     }
 }

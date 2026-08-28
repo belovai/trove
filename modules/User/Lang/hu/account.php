@@ -11,6 +11,8 @@ return [
     'display_name_hint' => 'A felhasználónév helyett ez látszik. Üresen hagyva a felhasználóneved jelenik meg.',
     'locale' => 'Nyelv',
     'locale_default' => 'A böngészőm szerint',
+    'default_safety_filter' => 'Alapértelmezett tartalomszűrő',
+    'default_safety_filter_hint' => 'Mennyi látszik alapból böngészéskor. A listaoldalon bármikor felülírható.',
     'save' => 'Mentés',
     'saved' => 'A fiókod frissült.',
     'password' => 'Jelszó',

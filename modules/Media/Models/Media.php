@@ -58,6 +58,7 @@ use Modules\User\Models\User;
  * @method static Builder<static>|Media newQuery()
  * @method static Builder<static>|Media onlyTrashed()
  * @method static Builder<static>|Media query()
+ * @method static Builder<static>|Media untagged()
  * @method static Builder<static>|Media visibleTo(?\Modules\User\Models\User $viewer)
  * @method static Builder<static>|Media whereContentHash($value)
  * @method static Builder<static>|Media whereCreatedAt($value)
@@ -84,7 +85,7 @@ use Modules\User\Models\User;
  * @method static Builder<static>|Media whereVisibility($value)
  * @method static Builder<static>|Media whereWidth($value)
  * @method static Builder<static>|Media withTrashed(bool $withTrashed = true)
- * @method static Builder<static>|Media withinSafetyFilter(?\Modules\User\Models\User $viewer)
+ * @method static Builder<static>|Media withinSafetyFilter(?\Modules\User\Models\User $viewer, ?array $ratings = null)
  * @method static Builder<static>|Media withoutTrashed()
  *
  * @mixin \Eloquent
@@ -210,21 +211,32 @@ final class Media extends Model
      * DISPLAY FILTER, not access control. It removes items from listings; it
      * never makes one unreachable.
      *
+     * $ratings is the viewer's ad-hoc selection. Without one the viewer's
+     * stored threshold is expanded to the equivalent set.
+     *
+     * @param  Builder<self>  $query
+     * @param  list<SafetyRating>|null  $ratings
+     */
+    #[Scope]
+    protected function withinSafetyFilter(Builder $query, ?User $viewer, ?array $ratings = null): void
+    {
+        $ratings ??= SafetyRating::upTo($viewer?->default_safety_filter ?? SafetyRating::Safe);
+
+        $query->whereIn('safety_rating', array_map(
+            fn (SafetyRating $rating): string => $rating->value,
+            $ratings,
+        ));
+    }
+
+    /**
+     * LISTING FILTER. Items nobody has tagged yet, so they can be found and
+     * fixed. Reads the denormalized counter, never the pivot.
+     *
      * @param  Builder<self>  $query
      */
     #[Scope]
-    protected function withinSafetyFilter(Builder $query, ?User $viewer): void
+    protected function untagged(Builder $query): void
     {
-        $filter = $viewer?->default_safety_filter ?? SafetyRating::Safe;
-
-        $allowed = array_map(
-            fn (SafetyRating $rating): string => $rating->value,
-            array_filter(
-                SafetyRating::cases(),
-                fn (SafetyRating $rating): bool => $rating->isWithin($filter),
-            ),
-        );
-
-        $query->whereIn('safety_rating', $allowed);
+        $query->where('tag_count', 0);
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import Button from '@/components/Button.vue';
 import FormField from '@/components/FormField.vue';
@@ -15,10 +15,12 @@ defineProps<{
 
 const { t } = useTranslations();
 const { user } = useAuth();
+const page = usePage();
 
 const profile = useForm({
     display_name: user.value?.display_name ?? '',
     locale: user.value?.locale ?? '',
+    default_safety_filter: user.value?.default_safety_filter ?? 'safe',
 });
 
 const password = useForm({
@@ -79,6 +81,23 @@ const deleteAccount = (): void => {
                 >
                     <option value="">{{ t('user::account.locale_default') }}</option>
                     <option v-for="code in locales" :key="code" :value="code">{{ code }}</option>
+                </select>
+            </FormField>
+
+            <FormField
+                id="default_safety_filter"
+                :label="t('user::account.default_safety_filter')"
+                :hint="t('user::account.default_safety_filter_hint')"
+                :error="profile.errors.default_safety_filter"
+            >
+                <select
+                    id="default_safety_filter"
+                    v-model="profile.default_safety_filter"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                >
+                    <option v-for="rating in page.props.safety_ratings" :key="rating" :value="rating">
+                        {{ t(`media::safety.${rating}`) }}
+                    </option>
                 </select>
             </FormField>
 

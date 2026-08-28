@@ -38,5 +38,8 @@ return [
     'search_placeholder' => 'enter some tags',
     'browse_all' => 'browse all posts',
     'untagged' => 'This post has no tags yet.',
+    'filter_safety' => 'Rating',
+    'filter_untagged' => 'Untagged only',
+    'filter_reset' => 'Reset filters',
     'paste_hint' => 'Or paste an image from the clipboard.',
 ];

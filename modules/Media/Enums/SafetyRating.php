@@ -36,6 +36,20 @@ enum SafetyRating: string implements HasLevel
         return $this->level() <= $filter->level();
     }
 
+    /**
+     * Every rating a viewer at $filter sees. The only place a threshold is
+     * turned into a set; both the browse filter and its UI state read it.
+     *
+     * @return list<self>
+     */
+    public static function upTo(self $filter): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            fn (self $rating): bool => $rating->isWithin($filter),
+        ));
+    }
+
     public function label(): string
     {
         return __("media::safety.{$this->value}");

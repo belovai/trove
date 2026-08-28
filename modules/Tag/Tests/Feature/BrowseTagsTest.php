@@ -81,6 +81,21 @@ final class BrowseTagsTest extends TestCase
         );
     }
 
+    public function test_the_tag_page_honours_the_safety_filter_parameter(): void
+    {
+        $cat = Tag::factory()->create(['name' => 'cat']);
+        $sketchy = Media::factory()->sketchy()->create();
+        app(SyncMediaTags::class)->handle($sketchy, [$cat->id], null);
+
+        $this->get('/tags/cat')->assertInertia(
+            fn (AssertableInertia $page) => $page->count('media', 0)->where('filters.safety', ['safe']),
+        );
+
+        $this->get('/tags/cat?safety=sketchy')->assertInertia(
+            fn (AssertableInertia $page) => $page->count('media', 1)->where('filters.safety', ['sketchy']),
+        );
+    }
+
     public function test_the_edit_permission_flag_follows_the_gate(): void
     {
         Tag::factory()->create(['name' => 'cat']);

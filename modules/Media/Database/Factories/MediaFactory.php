@@ -64,8 +64,21 @@ final class MediaFactory extends Factory
         return $this->state(fn (): array => ['visibility' => Visibility::Authenticated]);
     }
 
+    public function sketchy(): self
+    {
+        return $this->state(fn (): array => ['safety_rating' => SafetyRating::Sketchy]);
+    }
+
     public function unsafe(): self
     {
         return $this->state(fn (): array => ['safety_rating' => SafetyRating::Unsafe]);
+    }
+
+    /**
+     * Only the denormalized counter. Browse filters read it, never the pivot.
+     */
+    public function tagged(int $count = 1): self
+    {
+        return $this->state(fn (): array => ['tag_count' => $count]);
     }
 }

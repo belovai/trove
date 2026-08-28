@@ -6,6 +6,7 @@ namespace Modules\User\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Modules\Media\Enums\SafetyRating;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -46,6 +47,26 @@ final class AccountTest extends TestCase
         $this->actingAs($user)->patch('/account', ['display_name' => '', 'locale' => null]);
 
         $this->assertNull($user->fresh()->display_name);
+    }
+
+    public function test_a_user_can_set_their_default_safety_filter(): void
+    {
+        $user = User::factory()->create(['default_safety_filter' => 'safe']);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'default_safety_filter' => 'unsafe'])
+            ->assertRedirect('/account');
+
+        $this->assertSame(SafetyRating::Unsafe, $user->fresh()->default_safety_filter);
+    }
+
+    public function test_an_unknown_default_safety_filter_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'default_safety_filter' => 'spicy'])
+            ->assertSessionHasErrors('default_safety_filter');
     }
 
     public function test_an_unsupported_locale_is_rejected(): void

@@ -2,18 +2,21 @@
 import { Head, Link } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import MediaCard from '@/components/MediaCard.vue';
+import MediaFilterBar from '@/components/MediaFilterBar.vue';
 import { useTranslations } from '@/composables/useTranslations';
-import type { MediaCardData, Paginated } from '@/types/inertia';
+import type { MediaCardData, MediaFilters, Paginated } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
-const props = defineProps<{ media: Paginated<MediaCardData> }>();
+const props = defineProps<{ media: Paginated<MediaCardData>; filters: MediaFilters }>();
 
 const { t } = useTranslations();
 </script>
 
 <template>
     <Head :title="t('media::media.browse')" />
+
+    <MediaFilterBar :filters="props.filters" url="/posts" class="mb-4" />
 
     <p v-if="props.media.data.length === 0" class="text-sm text-gray-500">{{ t('media::media.empty') }}</p>
 
