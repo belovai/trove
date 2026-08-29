@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Auth\Middleware\EnsureEmailIsVerified;
 use Modules\Media\Controllers\BrowseMediaController;
 use Modules\Media\Controllers\CreateMediaController;
 use Modules\Media\Controllers\DestroyMediaController;
@@ -21,7 +22,7 @@ Route::middleware('web')->group(function (): void {
     Route::get('m/{media}/thumbnail/{size}', ServeMediaThumbnailController::class)->name('media.thumbnail');
 });
 
-Route::middleware(['web', 'auth'])->group(function (): void {
+Route::middleware(['web', 'auth', EnsureEmailIsVerified::class])->group(function (): void {
     // Upload lives outside the m/ prefix so no fixed segment can ever collide
     // with a generated hash id.
     Route::get('upload', CreateMediaController::class)->name('media.create');

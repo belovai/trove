@@ -58,6 +58,11 @@ There is no database or cache container. SQLite, file cache and the database
 queue driver are the defaults, and a default install must stay that way.
 Anyone who wants PostgreSQL or Redis runs it themselves and points `.env` at it.
 
+- **mailpit** — development-only SMTP sink, web inbox at
+  `http://localhost:8025`. Configure it at `/settings/mail` (host `mailpit`,
+  port `1025`, no encryption) to exercise the real SMTP path instead of the
+  log transport.
+
 ### After changing Docker files
 
 Rebuild rather than restart: `docker compose build php && docker compose up -d php`.
@@ -75,10 +80,17 @@ see code changes without a restart); `compose.override.yaml` swaps in
 ## 2. Code layout
 
 Modules live under `modules/{ModuleName}/` — `User`, `Auth`, `Media`, `Tag`,
-`Setting`, `Search`. Each module owns its models, migrations, routes,
+`Setting`, `Mail`, `Search`. Each module owns its models, migrations, routes,
 controllers, actions and tests, and registers them from its own
 `{Module}ModuleServiceProvider`. Nothing module-specific belongs in
 `AppServiceProvider`.
+
+`Mail` owns outbound email: a `MailTransport` adapter contract (`log` and
+`smtp` ship), `MailConfigurator` which applies the active adapter's settings
+to `config('mail')` at boot and on `Queue::before`, and `/settings/mail`
+(admin-only, with a synchronous test send). Email verification and password
+reset live in `Auth`; both are gated by whether `MailConfigurator` reports
+mail as deliverable.
 
 A module that needs runtime-configurable behaviour declares it in its own
 `Config/settings.php`, the same way `Config/privileges.php` declares

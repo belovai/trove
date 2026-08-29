@@ -11,6 +11,7 @@ defineOptions({ layout: GuestLayout });
 
 defineProps<{
     canRegister: boolean;
+    canResetPassword: boolean;
 }>();
 
 const { t } = useTranslations();
@@ -54,6 +55,14 @@ const submit = (): void => {
         </FormField>
 
         <AppCheckbox id="remember" v-model="form.remember" :label="t('auth::login.remember')" />
+
+        <Link
+            v-if="canResetPassword"
+            href="/forgot-password"
+            class="text-center text-sm text-accent hover:text-accent-hover"
+        >
+            {{ t('auth::password.forgot_link') }}
+        </Link>
 
         <AppButton type="submit" block :loading="form.processing">{{ t('auth::login.submit') }}</AppButton>
 

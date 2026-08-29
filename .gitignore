@@ -29,4 +29,5 @@ CLAUDE.md
 Homestead.json
 Homestead.yaml
 Thumbs.db
+compose.override.yaml
 _ide_helper.php

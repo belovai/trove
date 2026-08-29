@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\User\Actions;
 
+use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Setting\Facades\Settings;
 use Modules\User\Models\User;
 
 final class UpdateAccount
@@ -28,8 +30,18 @@ final class UpdateAccount
             $user->display_name = $displayName === '' ? null : $displayName;
         }
 
+        $verificationNeeded = false;
+
         if ($touchesEmail) {
-            $user->email = $email === '' ? null : $email;
+            $newEmail = $email === '' ? null : $email;
+
+            // A changed address is a different address: the old confirmation
+            // says nothing about it.
+            if ($newEmail !== $user->email) {
+                $user->email = $newEmail;
+                $user->email_verified_at = null;
+                $verificationNeeded = $newEmail !== null;
+            }
         }
 
         if ($touchesLocale) {
@@ -42,6 +54,10 @@ final class UpdateAccount
         }
 
         $user->save();
+
+        if ($verificationNeeded && Settings::get('registration.verify') !== EmailVerificationMode::Off) {
+            $user->sendEmailVerificationNotification();
+        }
 
         return $user;
     }

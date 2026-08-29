@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppHeader from '@/components/layout/AppHeader.vue';
+import VerificationBanner from '@/components/layout/VerificationBanner.vue';
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
 import ToastStack from '@/components/ui/ToastStack.vue';
 import { useFlashToasts } from '@/composables/useFlashToasts';
@@ -10,6 +11,7 @@ useFlashToasts();
 <template>
     <div class="min-h-screen bg-bg">
         <AppHeader />
+        <VerificationBanner />
 
         <main class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 md:px-6 md:py-8">
             <slot />

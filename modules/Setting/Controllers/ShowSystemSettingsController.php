@@ -9,6 +9,7 @@ use BackedEnum;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Auth\Enums\RegistrationEmailPolicy;
 use Modules\Auth\Enums\RegistrationMode;
 use Modules\Setting\Facades\Settings;
@@ -33,6 +34,7 @@ final class ShowSystemSettingsController
             'settings' => $values,
             'registration_modes' => array_column(RegistrationMode::cases(), 'value'),
             'email_policies' => array_column(RegistrationEmailPolicy::cases(), 'value'),
+            'verification_modes' => array_column(EmailVerificationMode::cases(), 'value'),
         ]);
     }
 }

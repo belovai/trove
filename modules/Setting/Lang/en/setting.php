@@ -27,4 +27,10 @@ return [
     'registration_approval' => 'Approval required',
     'registration_approval_hint' => 'New accounts are created at the Restricted rank for an administrator to promote, instead of Regular.',
     'no_recovery_warning' => 'With email off and approval disabled, a user who forgets their password has no way to recover it: the reset flow is email-based. An administrator can set a new password for them.',
+
+    'registration_verify' => 'Email confirmation',
+    'registration_verify_hint' => 'Whether a new address has to be confirmed, and whether an unconfirmed one limits what the account can do.',
+    'registration_verify_off' => 'Off — no confirmation message is sent',
+    'registration_verify_soft' => 'Soft — confirmation is asked for, nothing is blocked',
+    'registration_verify_required' => 'Required — uploading and tagging need a confirmed address',
 ];

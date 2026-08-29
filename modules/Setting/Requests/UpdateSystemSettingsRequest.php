@@ -20,6 +20,7 @@ final class UpdateSystemSettingsRequest extends FormRequest
         'registration.mode',
         'registration.email',
         'registration.approval',
+        'registration.verify',
     ];
 
     public function authorize(): bool

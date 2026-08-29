@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Auth\Enums\RegistrationEmailPolicy;
 use Modules\Auth\Enums\RegistrationMode;
 use Modules\Setting\Support\SettingDefinition;
@@ -30,5 +31,10 @@ return [
 
     'registration.approval' => SettingDefinition::bool(
         (bool) env('TROVE_REGISTRATION_APPROVAL', false),
+    ),
+
+    'registration.verify' => SettingDefinition::enum(
+        EmailVerificationMode::class,
+        (string) env('TROVE_REGISTRATION_VERIFY', 'soft'),
     ),
 ];

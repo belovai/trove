@@ -47,6 +47,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user() === null ? null : [
                     'username' => $request->user()->username,
                     'display_name' => $request->user()->displayName(),
+                    'email' => $request->user()->email,
+                    'email_verified' => $request->user()->hasVerifiedEmail(),
                     'rank' => $request->user()->rank->value,
                     'locale' => $request->user()->locale,
                     'default_safety_filter' => $request->user()->default_safety_filter,

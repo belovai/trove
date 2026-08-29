@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\User\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,6 +16,8 @@ use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Modules\Auth\Notifications\ResetPassword;
+use Modules\Auth\Notifications\VerifyEmail;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Models\Media;
 use Modules\User\Database\Factories\UserFactory;
@@ -82,7 +85,7 @@ use Modules\User\Enums\UserRank;
     'password',
     'remember_token',
 )]
-final class User extends Authenticatable
+final class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -94,6 +97,25 @@ final class User extends Authenticatable
     public function displayName(): string
     {
         return $this->display_name ?? $this->username;
+    }
+
+    /**
+     * An account without an address is a supported state here, so this is a
+     * no-op rather than an error. The locale is bound at send time: the queued
+     * job renders in the recipient's language, not the sender's.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        if ($this->email === null) {
+            return;
+        }
+
+        $this->notify((new VerifyEmail)->locale($this->locale ?? (string) config('app.locale')));
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify((new ResetPassword($token))->locale($this->locale ?? (string) config('app.locale')));
     }
 
     public function isAdministrator(): bool
