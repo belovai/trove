@@ -18,6 +18,6 @@ final class SendPasswordResetLinkController
         // unknown address must be indistinguishable from the outside.
         Password::broker()->sendResetLink($validated);
 
-        return back()->with('success', __('auth::password.sent'));
+        return redirect()->route('login')->with('success', __('auth::password.sent'));
     }
 }
