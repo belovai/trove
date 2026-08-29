@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch, type ComponentPublicInstance } from 'vue';
 import type { MediaCardData } from '@/types/inertia';
 
 const props = defineProps<{
@@ -85,6 +85,18 @@ watch(
 );
 
 onBeforeUnmount(stop);
+
+/*
+    A cached image can finish loading before Vue attaches the `@load`
+    listener (`src` is patched first), so `loaded` never flips and the tile
+    stays at opacity-0 forever. Checking `complete` right after mount covers
+    that race without depending on event ordering.
+*/
+function checkAlreadyLoaded(el: Element | ComponentPublicInstance | null): void {
+    if (el instanceof HTMLImageElement && el.complete) {
+        loaded.value = true;
+    }
+}
 </script>
 
 <template>
@@ -97,6 +109,7 @@ onBeforeUnmount(stop);
     >
         <img
             v-if="ready"
+            :ref="checkAlreadyLoaded"
             :src="src"
             :alt="props.media.title ?? ''"
             loading="lazy"
