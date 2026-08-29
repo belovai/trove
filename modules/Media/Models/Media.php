@@ -21,6 +21,7 @@ use Modules\Media\Database\Factories\MediaFactory;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 use Modules\Tag\Models\Tag;
+use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 
 /**
@@ -189,8 +190,11 @@ final class Media extends Model
             $query->whereIn('visibility', [Visibility::Public->value, Visibility::Unlisted->value]);
 
             if ($viewer !== null) {
-                $query->orWhere('visibility', Visibility::Authenticated->value)
-                    ->orWhere('user_id', $viewer->id);
+                if ($viewer->rank->notEquals(UserRank::Restricted)) {
+                    $query->orWhere('visibility', Visibility::Authenticated->value);
+                }
+
+                $query->orWhere('user_id', $viewer->id);
             }
         });
     }

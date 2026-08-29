@@ -34,6 +34,24 @@ final class MediaVisibilityTest extends TestCase
         $this->assertEqualsCanonicalizing([$public->id, $members->id], $visible->all());
     }
 
+    public function test_a_restricted_user_does_not_see_authenticated_items(): void
+    {
+        $public = Media::factory()->create();
+        Media::factory()->authenticatedOnly()->create();
+
+        $visible = Media::query()->visibleTo(User::factory()->restricted()->create())->pluck('id');
+
+        $this->assertSame([$public->id], $visible->all());
+    }
+
+    public function test_a_restricted_user_still_sees_their_own_authenticated_item(): void
+    {
+        $owner = User::factory()->restricted()->create();
+        $own = Media::factory()->authenticatedOnly()->for($owner, 'uploader')->create();
+
+        $this->assertTrue(Media::query()->visibleTo($owner)->whereKey($own->id)->exists());
+    }
+
     public function test_a_private_item_is_visible_only_to_its_uploader(): void
     {
         $owner = User::factory()->create();
