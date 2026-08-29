@@ -1,46 +1,22 @@
 <script setup lang="ts">
-import Alert from '@/components/Alert.vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
-import { useAuth } from '@/composables/useAuth';
-import { useTranslations } from '@/composables/useTranslations';
+import AppHeader from '@/components/layout/AppHeader.vue';
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
+import ToastStack from '@/components/ui/ToastStack.vue';
+import { useFlashToasts } from '@/composables/useFlashToasts';
 
-const page = usePage();
-const { user, isAuthenticated } = useAuth();
-const { t } = useTranslations();
-
-const signOut = (): void => {
-    router.post('/logout');
-};
+useFlashToasts();
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
-        <header class="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-            <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-                <Link href="/" class="font-semibold">Trove</Link>
+    <div class="min-h-screen bg-bg">
+        <AppHeader />
 
-                <div class="flex items-center gap-4 text-sm">
-                    <Link href="/posts">{{ t('media::media.browse') }}</Link>
-                    <Link href="/tags">{{ t('tag::tag.tags') }}</Link>
-
-                    <template v-if="isAuthenticated">
-                        <Link v-if="page.props.auth.can['media.upload']" href="/upload">{{ t('media::media.upload') }}</Link>
-                        <Link v-if="page.props.auth.can['tag.admin']" href="/admin/tags">{{ t('tag::tag.admin_title') }}</Link>
-                        <Link href="/account">{{ user?.display_name }}</Link>
-                        <button type="button" class="text-gray-500 hover:underline" @click="signOut">
-                            {{ t('auth::login.sign_out') }}
-                        </button>
-                    </template>
-                    <Link v-else href="/login">{{ t('auth::login.submit') }}</Link>
-                </div>
-            </nav>
-        </header>
-
-        <main class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-8">
-            <Alert v-if="page.props.flash.error" variant="error">{{ page.props.flash.error }}</Alert>
-            <Alert v-if="page.props.flash.success">{{ page.props.flash.success }}</Alert>
-
+        <main class="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 md:px-6 md:py-8">
             <slot />
         </main>
+
+        <!-- Mounted once: useConfirm() anywhere in the tree resolves here. -->
+        <ConfirmDialog />
+        <ToastStack />
     </div>
 </template>

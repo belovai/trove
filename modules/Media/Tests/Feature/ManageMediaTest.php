@@ -6,6 +6,7 @@ namespace Modules\Media\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -13,6 +14,19 @@ use Tests\TestCase;
 final class ManageMediaTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function mediaOwnedBySignedInUser(array $attributes = []): Media
+    {
+        $owner = User::factory()->create();
+        $media = Media::factory()->for($owner, 'uploader')->create($attributes);
+
+        $this->actingAs($owner);
+
+        return $media;
+    }
 
     public function test_the_owner_can_edit_metadata(): void
     {
@@ -102,5 +116,43 @@ final class ManageMediaTest extends TestCase
                 'is_anonymous' => true,
             ])
             ->assertSessionHasErrors('is_anonymous');
+    }
+
+    public function test_only_the_tags_can_be_submitted(): void
+    {
+        $media = $this->mediaOwnedBySignedInUser(['title' => 'Kept', 'visibility' => Visibility::Public]);
+
+        $this->patch("/m/{$media->hash_id}", ['tags' => ['cat', 'blue_eyes']])
+            ->assertRedirect("/m/{$media->hash_id}");
+
+        $media->refresh();
+
+        $this->assertSame('Kept', $media->title);
+        $this->assertSame(Visibility::Public, $media->visibility);
+        $this->assertEqualsCanonicalizing(
+            ['blue_eyes', 'cat'],
+            $media->tags()->pluck('name')->all(),
+        );
+    }
+
+    public function test_only_the_details_can_be_submitted_and_tags_survive(): void
+    {
+        $media = $this->mediaOwnedBySignedInUser();
+
+        $this->patch("/m/{$media->hash_id}", ['tags' => ['cat']]);
+        $this->patch("/m/{$media->hash_id}", ['title' => 'New title'])
+            ->assertRedirect("/m/{$media->hash_id}");
+
+        $media->refresh();
+
+        $this->assertSame('New title', $media->title);
+        $this->assertSame(['cat'], $media->tags()->pluck('name')->all());
+    }
+
+    public function test_the_edit_page_is_gone(): void
+    {
+        $media = $this->mediaOwnedBySignedInUser();
+
+        $this->get("/m/{$media->hash_id}/edit")->assertNotFound();
     }
 }

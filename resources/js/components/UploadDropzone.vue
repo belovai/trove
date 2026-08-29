@@ -25,11 +25,7 @@ const drop = (event: DragEvent): void => {
 <template>
     <div
         class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-6 py-12 text-center transition"
-        :class="
-            over
-                ? 'border-gray-900 bg-gray-50 dark:border-gray-100 dark:bg-gray-900'
-                : 'border-gray-300 dark:border-gray-700'
-        "
+        :class="over ? 'border-primary bg-surface' : 'border-divider'"
         role="button"
         tabindex="0"
         @click="input?.click()"

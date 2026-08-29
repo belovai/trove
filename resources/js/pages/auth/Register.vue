@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import Button from '@/components/Button.vue';
-import FormField from '@/components/FormField.vue';
+import AppButton from '@/components/ui/AppButton.vue';
+import FormField from '@/components/ui/FormField.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import TextInput from '@/components/TextInput.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 defineOptions({ layout: GuestLayout });
@@ -35,7 +35,7 @@ const submit = (): void => {
     <Head :title="t('auth::register.title')" />
 
     <form class="flex flex-col gap-4" @submit.prevent="submit">
-        <h2 class="text-lg font-semibold">{{ t('auth::register.title') }}</h2>
+        <h2 class="text-lg font-semibold text-text">{{ t('auth::register.title') }}</h2>
 
         <FormField id="username" :label="t('auth::register.username')" :error="form.errors.username">
             <TextInput
@@ -81,11 +81,11 @@ const submit = (): void => {
             />
         </FormField>
 
-        <Button type="submit" :disabled="form.processing">{{ t('auth::register.submit') }}</Button>
+        <AppButton type="submit" block :loading="form.processing">{{ t('auth::register.submit') }}</AppButton>
 
-        <p class="text-center text-sm text-gray-500">
+        <p class="text-center text-sm text-muted">
             {{ t('auth::register.have_account') }}
-            <Link href="/login" class="underline">{{ t('auth::login.submit') }}</Link>
+            <Link href="/login" class="text-accent hover:text-accent-hover">{{ t('auth::login.submit') }}</Link>
         </p>
     </form>
 </template>

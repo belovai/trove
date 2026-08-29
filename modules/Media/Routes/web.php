@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 use Modules\Media\Controllers\BrowseMediaController;
 use Modules\Media\Controllers\CreateMediaController;
 use Modules\Media\Controllers\DestroyMediaController;
-use Modules\Media\Controllers\EditMediaController;
 use Modules\Media\Controllers\ServeMediaFileController;
 use Modules\Media\Controllers\ServeMediaThumbnailController;
 use Modules\Media\Controllers\ShowMediaController;
@@ -27,7 +26,6 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     // with a generated hash id.
     Route::get('upload', CreateMediaController::class)->name('media.create');
     Route::post('upload', StoreMediaController::class)->name('media.store');
-    Route::get('m/{media}/edit', EditMediaController::class)->name('media.edit');
     Route::patch('m/{media}', UpdateMediaController::class)->name('media.update');
     Route::delete('m/{media}', DestroyMediaController::class)->name('media.destroy');
 });

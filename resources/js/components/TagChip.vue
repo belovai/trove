@@ -26,7 +26,7 @@ const style = computed(() => (props.tag.color === null ? undefined : { color: pr
 
 <template>
     <span
-        class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-0.5 text-sm dark:bg-gray-800"
+        class="inline-flex items-center gap-1 rounded-md bg-surface px-2 py-0.5 text-sm"
         :class="implied ? 'opacity-60' : ''"
         :title="implied ? t('tag::tag.implied_tag') : undefined"
     >
@@ -35,16 +35,17 @@ const style = computed(() => (props.tag.color === null ? undefined : { color: pr
             v-bind="props.linked ? { href: `/tags/${encodeURIComponent(props.tag.name)}` } : {}"
             :style="style"
             class="font-medium"
+            :class="style === undefined ? 'text-text' : ''"
         >
             {{ props.tag.name }}
         </component>
 
-        <span class="text-xs text-gray-500">{{ props.tag.usage_count }}</span>
+        <span class="text-xs text-muted">{{ props.tag.usage_count }}</span>
 
         <button
             v-if="props.removable"
             type="button"
-            class="text-gray-400 hover:text-red-600"
+            class="text-muted hover:text-danger"
             :aria-label="t('tag::tag.remove')"
             @click="$emit('remove')"
         >

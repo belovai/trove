@@ -18,8 +18,15 @@ final class TagCategoryTest extends TestCase
     public function test_a_moderator_may_not_reach_the_admin_page(): void
     {
         $this->actingAs(User::factory()->moderator()->create())
-            ->get('/admin/tags')
+            ->get('/settings/tags')
             ->assertForbidden();
+    }
+
+    public function test_the_old_admin_url_redirects(): void
+    {
+        $this->actingAs(User::factory()->administrator()->create())
+            ->get('/admin/tags')
+            ->assertRedirect('/settings/tags');
     }
 
     public function test_the_admin_page_carries_categories_and_the_health_report(): void
@@ -27,11 +34,11 @@ final class TagCategoryTest extends TestCase
         Tag::factory()->create(['name' => 'orphan']);
 
         $this->actingAs(User::factory()->administrator()->create())
-            ->get('/admin/tags')
+            ->get('/settings/tags')
             ->assertOk()
             ->assertInertia(
                 fn (AssertableInertia $page) => $page
-                    ->component('admin/tags/Index')
+                    ->component('settings/Tags')
                     ->count('categories', 1)
                     ->where('health.unused.0.name', 'orphan'),
             );

@@ -4,7 +4,116 @@
 @source '../../storage/framework/views/*.php';
 @source '../js/**/*.vue';
 
+/*
+    Two levels on purpose. `@theme` values are static, so the theme swap lives
+    one indirection below them: a utility compiles to var(--color-x), which
+    resolves to var(--trove-x), which the :root / .dark blocks define. That is
+    what lets every component name a role instead of a colour, and why no
+    component in this codebase carries a `dark:` prefix.
+*/
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-bg: var(--trove-bg);
+    --color-panel: var(--trove-panel);
+    --color-surface: var(--trove-surface);
+    --color-text: var(--trove-text);
+    --color-muted: var(--trove-muted);
+    --color-divider: var(--trove-divider);
+
+    --color-primary: var(--trove-primary);
+    --color-primary-hover: var(--trove-primary-hover);
+    --color-primary-fg: var(--trove-primary-fg);
+
+    --color-accent: var(--trove-accent);
+    --color-accent-hover: var(--trove-accent-hover);
+
+    --color-danger: var(--trove-danger);
+    --color-danger-soft: var(--trove-danger-soft);
+    --color-danger-strong: var(--trove-danger-strong);
+
+    --color-warning: var(--trove-warning);
+    --color-warning-soft: var(--trove-warning-soft);
+    --color-success: var(--trove-success);
+    --color-success-soft: var(--trove-success-soft);
+    --color-info: var(--trove-info);
+    --color-info-soft: var(--trove-info-soft);
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 12px;
+
+    --shadow-card: 0 1px 2px rgb(17 24 39 / 0.06);
+    --shadow-pop: 0 4px 12px rgb(17 24 39 / 0.1);
+    --shadow-modal: 0 20px 50px -12px rgb(17 24 39 / 0.28);
+}
+
+@layer base {
+    :root {
+        --trove-bg: #f9fafb;
+        --trove-panel: #ffffff;
+        --trove-surface: #f3f4f6;
+        --trove-text: #111827;
+        --trove-muted: #6b7280;
+        --trove-divider: #e5e7eb;
+
+        --trove-primary: #111827;
+        --trove-primary-hover: #374151;
+        --trove-primary-fg: #ffffff;
+
+        --trove-accent: #2563eb;
+        --trove-accent-hover: #1d4ed8;
+
+        --trove-danger: #dc2626;
+        --trove-danger-soft: #fef2f2;
+        --trove-danger-strong: #b91c1c;
+
+        --trove-warning: #b45309;
+        --trove-warning-soft: #fffbeb;
+        --trove-success: #15803d;
+        --trove-success-soft: #f0fdf4;
+        --trove-info: #1d4ed8;
+        --trove-info-soft: #eff6ff;
+
+        --ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+    }
+
+    .dark {
+        --trove-bg: #030712;
+        --trove-panel: #111827;
+        --trove-surface: #1f2937;
+        --trove-text: #f3f4f6;
+        --trove-muted: #9ca3af;
+        --trove-divider: #1f2937;
+
+        --trove-primary: #f3f4f6;
+        --trove-primary-hover: #d1d5db;
+        --trove-primary-fg: #111827;
+
+        --trove-accent: #60a5fa;
+        --trove-accent-hover: #93c5fd;
+
+        --trove-danger: #f87171;
+        --trove-danger-soft: #2a1010;
+        --trove-danger-strong: #fca5a5;
+
+        --trove-warning: #fbbf24;
+        --trove-warning-soft: #2a2010;
+        --trove-success: #4ade80;
+        --trove-success-soft: #0e2417;
+        --trove-info: #60a5fa;
+        --trove-info-soft: #10203a;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+    }
+
+    :focus-visible {
+        outline: none;
+        box-shadow: var(--ring);
+    }
 }

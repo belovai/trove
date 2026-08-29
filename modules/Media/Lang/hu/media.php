@@ -42,4 +42,9 @@ return [
     'filter_safety' => 'Besorolás',
     'filter_untagged' => 'Csak címkézetlen',
     'filter_reset' => 'Szűrők törlése',
+    'edit_details' => 'Részletek szerkesztése',
+    'section_tags' => 'Címkék',
+    'section_meta' => 'Részletek',
+    'edit_tags' => 'Címkék szerkesztése',
+    'uploaded_at' => 'Feltöltve',
 ];

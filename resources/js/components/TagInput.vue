@@ -110,20 +110,22 @@ watch(draft, (value) => {
 
 <template>
     <div class="flex flex-col gap-2">
-        <div class="flex flex-wrap items-center gap-1 rounded-md border border-gray-300 p-2 dark:border-gray-700">
+        <div
+            class="flex flex-wrap items-center gap-1 rounded-md border border-divider bg-panel p-2 focus-within:[box-shadow:var(--ring)]"
+        >
             <span
                 v-for="name in props.modelValue"
                 :key="name"
-                class="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-sm dark:bg-gray-800"
+                class="inline-flex items-center gap-1 rounded-sm bg-surface px-2 py-0.5 text-sm text-text"
             >
                 {{ name }}
-                <button type="button" class="text-gray-400 hover:text-red-600" @click="remove(name)">&times;</button>
+                <button type="button" class="text-muted hover:text-danger" @click="remove(name)">&times;</button>
             </span>
 
             <input
                 v-model="draft"
                 type="text"
-                class="min-w-[8rem] flex-1 bg-transparent text-sm focus:outline-none"
+                class="min-w-[8rem] flex-1 bg-transparent text-sm text-text focus:outline-none focus-visible:shadow-none"
                 autocomplete="off"
                 @keydown="onKeydown"
                 @blur="commit(draft)"
@@ -132,32 +134,35 @@ watch(draft, (value) => {
 
         <ul
             v-if="suggestions.length > 0"
-            class="max-h-64 overflow-y-auto rounded-md border border-gray-300 text-sm dark:border-gray-700"
+            class="max-h-64 overflow-y-auto rounded-md border border-divider bg-panel text-sm"
         >
             <li
                 v-for="(suggestion, index) in suggestions"
                 :key="suggestion.name"
                 class="flex cursor-pointer items-center gap-2 px-2 py-1"
-                :class="index === highlighted ? 'bg-gray-100 dark:bg-gray-800' : ''"
+                :class="index === highlighted ? 'bg-surface' : ''"
                 @mousedown.prevent="commit(suggestion.name)"
             >
-                <span :style="suggestion.color === null ? undefined : { color: suggestion.color }">
+                <span
+                    :style="suggestion.color === null ? undefined : { color: suggestion.color }"
+                    :class="suggestion.color === null ? 'text-text' : ''"
+                >
                     {{ suggestion.name }}
                 </span>
                 <!-- An alias hit shows what was typed, so nothing is silently substituted. -->
-                <span v-if="suggestion.matched !== suggestion.name" class="text-xs text-gray-500">
+                <span v-if="suggestion.matched !== suggestion.name" class="text-xs text-muted">
                     &larr; {{ suggestion.matched }}
                 </span>
-                <span class="ml-auto text-xs text-gray-500">{{ suggestion.usage_count }}</span>
+                <span class="ml-auto text-xs text-muted">{{ suggestion.usage_count }}</span>
             </li>
         </ul>
 
-        <p class="text-xs text-gray-500">{{ t('tag::tag.tag_input_hint') }}</p>
+        <p class="text-xs text-muted">{{ t('tag::tag.tag_input_hint') }}</p>
 
-        <p v-for="warning in props.warnings" :key="warning" class="text-xs text-yellow-600 dark:text-yellow-400">
+        <p v-for="warning in props.warnings" :key="warning" class="text-xs text-warning">
             {{ warning }}
         </p>
 
-        <p v-if="props.error" class="text-xs text-red-600 dark:text-red-400">{{ props.error }}</p>
+        <p v-if="props.error" class="text-xs text-danger-strong">{{ props.error }}</p>
     </div>
 </template>

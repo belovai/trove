@@ -16,9 +16,18 @@ final class UpdateAccountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'display_name' => ['nullable', 'string', 'max:64'],
-            'locale' => ['nullable', 'string', Rule::in(config('trove.locales'))],
-            'default_safety_filter' => ['nullable', Rule::enum(SafetyRating::class)],
+            // Every field is `sometimes`: the account and profile sections
+            // submit different subsets of the same endpoint.
+            'display_name' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'email' => [
+                'sometimes',
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($this->user()?->id),
+            ],
+            'locale' => ['sometimes', 'nullable', 'string', Rule::in(config('trove.locales'))],
+            'default_safety_filter' => ['sometimes', 'nullable', Rule::enum(SafetyRating::class)],
         ];
     }
 }

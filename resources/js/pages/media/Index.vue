@@ -18,15 +18,15 @@ const { t } = useTranslations();
 
     <MediaFilterBar :filters="props.filters" url="/posts" class="mb-4" />
 
-    <p v-if="props.media.data.length === 0" class="text-sm text-gray-500">{{ t('media::media.empty') }}</p>
+    <p v-if="props.media.data.length === 0" class="text-sm text-muted">{{ t('media::media.empty') }}</p>
 
     <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         <MediaCard v-for="item in props.media.data" :key="item.hash_id" :media="item" />
     </div>
 
-    <nav v-if="props.media.last_page > 1" class="flex items-center justify-center gap-4 text-sm">
-        <Link v-if="props.media.prev_page_url" :href="props.media.prev_page_url">&larr;</Link>
+    <nav v-if="props.media.last_page > 1" class="flex items-center justify-center gap-4 text-sm text-muted">
+        <Link v-if="props.media.prev_page_url" :href="props.media.prev_page_url" class="text-accent hover:text-accent-hover">&larr;</Link>
         <span>{{ props.media.current_page }} / {{ props.media.last_page }}</span>
-        <Link v-if="props.media.next_page_url" :href="props.media.next_page_url">&rarr;</Link>
+        <Link v-if="props.media.next_page_url" :href="props.media.next_page_url" class="text-accent hover:text-accent-hover">&rarr;</Link>
     </nav>
 </template>

@@ -75,6 +75,35 @@ export interface DuplicateMatch {
     title: string | null;
 }
 
+export interface SettingsSection {
+    key: string;
+    label: string;
+    href: string;
+}
+
+export interface AdminUser {
+    username: string;
+    display_name: string;
+    email: string | null;
+    rank: UserRank;
+    is_banned: boolean;
+    ban_reason: string | null;
+    registered_at: string | null;
+    uploads: number;
+}
+
+export interface AccountStats {
+    registered_at: string | null;
+    last_seen_at: string | null;
+    rank: UserRank;
+    uploads: number;
+    /** Placeholders — no feature behind them yet. */
+    favorites: number;
+    comments: number;
+    liked: number;
+    disliked: number;
+}
+
 export interface SharedProps {
     auth: {
         user: AuthUser | null;

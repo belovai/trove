@@ -2,8 +2,8 @@
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import Button from '@/components/Button.vue';
-import TextInput from '@/components/TextInput.vue';
+import AppButton from '@/components/ui/AppButton.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 defineOptions({ layout: AppLayout });
@@ -25,7 +25,7 @@ const search = (): void => {
     <Head title="Trove" />
 
     <div class="flex flex-col items-center gap-6 py-16">
-        <h1 class="text-6xl font-semibold tracking-tight">Trove</h1>
+        <h1 class="text-6xl font-semibold tracking-tight text-text">Trove</h1>
 
         <form class="flex w-full max-w-xl flex-wrap items-center justify-center gap-2" @submit.prevent="search">
             <TextInput
@@ -36,9 +36,9 @@ const search = (): void => {
                 :aria-label="t('media::media.search')"
             />
 
-            <Button type="submit">{{ t('media::media.search') }}</Button>
+            <AppButton type="submit">{{ t('media::media.search') }}</AppButton>
         </form>
 
-        <Link href="/posts" class="text-sm underline">{{ t('media::media.browse_all') }}</Link>
+        <Link href="/posts" class="text-sm text-accent hover:text-accent-hover">{{ t('media::media.browse_all') }}</Link>
     </div>
 </template>

@@ -6,8 +6,9 @@ withDefaults(
         autocomplete?: string;
         invalid?: boolean;
         disabled?: boolean;
+        placeholder?: string;
     }>(),
-    { type: 'text', autocomplete: undefined, invalid: false, disabled: false },
+    { type: 'text', autocomplete: undefined, invalid: false, disabled: false, placeholder: undefined },
 );
 
 const model = defineModel<string>({ required: true });
@@ -19,13 +20,10 @@ const model = defineModel<string>({ required: true });
         v-model="model"
         :type="type"
         :autocomplete="autocomplete"
+        :placeholder="placeholder"
         :aria-invalid="invalid"
         :disabled="disabled"
-        class="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 disabled:opacity-60 dark:bg-gray-900"
-        :class="
-            invalid
-                ? 'border-red-500 focus-visible:ring-red-500'
-                : 'border-gray-300 focus-visible:ring-gray-500 dark:border-gray-700'
-        "
+        class="w-full rounded-md border bg-panel px-3 py-2 text-sm text-text placeholder:text-muted disabled:opacity-60"
+        :class="invalid ? 'border-danger' : 'border-divider'"
     />
 </template>

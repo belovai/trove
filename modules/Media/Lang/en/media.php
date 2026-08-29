@@ -42,4 +42,9 @@ return [
     'filter_untagged' => 'Untagged only',
     'filter_reset' => 'Reset filters',
     'paste_hint' => 'Or paste an image from the clipboard.',
+    'edit_details' => 'Edit details',
+    'section_tags' => 'Tags',
+    'section_meta' => 'Details',
+    'edit_tags' => 'Edit tags',
+    'uploaded_at' => 'Uploaded',
 ];

@@ -20,14 +20,16 @@ final class UpdateMediaRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Every field is `sometimes`: the details slide-over and the inline
+        // tag editor submit disjoint subsets of the same endpoint.
         return [
-            'title' => ['nullable', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:10000'],
-            'source' => ['nullable', 'string', 'max:255'],
-            'visibility' => ['required', Rule::enum(Visibility::class)],
-            'safety_rating' => ['required', Rule::enum(SafetyRating::class)],
-            'is_anonymous' => ['boolean'],
-            'tags' => ['array'],
+            'title' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
+            'source' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'visibility' => ['sometimes', Rule::enum(Visibility::class)],
+            'safety_rating' => ['sometimes', Rule::enum(SafetyRating::class)],
+            'is_anonymous' => ['sometimes', 'boolean'],
+            'tags' => ['sometimes', 'array'],
             'tags.*' => ['string', 'max:255'],
         ];
     }
@@ -35,11 +37,16 @@ final class UpdateMediaRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
+            // Only judge the pair when both halves were submitted; a
+            // details-only or tags-only payload may send neither. The
+            // controller falls back to the stored values for the rest.
             if ($this->boolean('is_anonymous') && $this->input('visibility') === Visibility::Private->value) {
                 $validator->errors()->add('is_anonymous', __('media::validation.anonymous_private'));
             }
 
-            $this->validateTagInput($validator);
+            if ($this->has('tags')) {
+                $this->validateTagInput($validator);
+            }
         });
     }
 }

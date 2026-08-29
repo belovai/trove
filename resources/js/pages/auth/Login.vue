@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import Button from '@/components/Button.vue';
-import FormField from '@/components/FormField.vue';
+import AppButton from '@/components/ui/AppButton.vue';
+import AppCheckbox from '@/components/ui/AppCheckbox.vue';
+import FormField from '@/components/ui/FormField.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import TextInput from '@/components/TextInput.vue';
+import TextInput from '@/components/ui/TextInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 defineOptions({ layout: GuestLayout });
@@ -31,7 +32,7 @@ const submit = (): void => {
     <Head :title="t('auth::login.title')" />
 
     <form class="flex flex-col gap-4" @submit.prevent="submit">
-        <h2 class="text-lg font-semibold">{{ t('auth::login.title') }}</h2>
+        <h2 class="text-lg font-semibold text-text">{{ t('auth::login.title') }}</h2>
 
         <FormField id="username" :label="t('auth::login.username')" :error="form.errors.username">
             <TextInput
@@ -52,16 +53,13 @@ const submit = (): void => {
             />
         </FormField>
 
-        <label class="flex items-center gap-2 text-sm">
-            <input v-model="form.remember" type="checkbox" class="rounded border-gray-300" />
-            {{ t('auth::login.remember') }}
-        </label>
+        <AppCheckbox id="remember" v-model="form.remember" :label="t('auth::login.remember')" />
 
-        <Button type="submit" :disabled="form.processing">{{ t('auth::login.submit') }}</Button>
+        <AppButton type="submit" block :loading="form.processing">{{ t('auth::login.submit') }}</AppButton>
 
-        <p v-if="canRegister" class="text-center text-sm text-gray-500">
+        <p v-if="canRegister" class="text-center text-sm text-muted">
             {{ t('auth::login.no_account') }}
-            <Link href="/register" class="underline">{{ t('auth::register.submit') }}</Link>
+            <Link href="/register" class="text-accent hover:text-accent-hover">{{ t('auth::register.submit') }}</Link>
         </p>
     </form>
 </template>

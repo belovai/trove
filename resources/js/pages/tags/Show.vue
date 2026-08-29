@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import Button from '@/components/Button.vue';
+import AppButton from '@/components/ui/AppButton.vue';
 import ImplicationTree from '@/components/ImplicationTree.vue';
 import MediaCard from '@/components/MediaCard.vue';
 import MediaFilterBar from '@/components/MediaFilterBar.vue';
@@ -41,25 +41,29 @@ const editing = ref(false);
 
     <div class="flex flex-col gap-6">
         <header class="flex flex-wrap items-baseline gap-3">
-            <h1 class="text-2xl font-medium" :style="props.tag.color === null ? undefined : { color: props.tag.color }">
+            <h1
+                class="text-2xl font-medium"
+                :class="props.tag.color === null ? 'text-text' : ''"
+                :style="props.tag.color === null ? undefined : { color: props.tag.color }"
+            >
                 {{ props.tag.name }}
             </h1>
-            <span class="text-sm text-gray-500">
+            <span class="text-sm text-muted">
                 {{ props.tag.category ?? t('tag::tag.uncategorized') }} ·
                 {{ t('tag::tag.usages', { count: props.tag.usage_count }) }}
             </span>
 
-            <Button v-if="props.can.manage" type="button" variant="secondary" class="ml-auto" @click="editing = true">
+            <AppButton v-if="props.can.manage" type="button" variant="secondary" size="sm" class="ml-auto" @click="editing = true">
                 {{ t('tag::tag.edit') }}
-            </Button>
+            </AppButton>
         </header>
 
-        <p class="text-sm" :class="props.tag.description === null ? 'text-gray-500' : ''">
+        <p class="text-sm" :class="props.tag.description === null ? 'text-muted' : 'text-text'">
             {{ props.tag.description ?? t('tag::tag.no_description') }}
         </p>
 
         <div v-if="props.tag.aliases.length > 0" class="flex flex-wrap items-baseline gap-2 text-sm">
-            <span class="text-xs text-gray-500">{{ t('tag::tag.aliases') }}</span>
+            <span class="text-xs text-muted">{{ t('tag::tag.aliases') }}</span>
             <span v-for="alias in props.tag.aliases" :key="alias">{{ alias }}</span>
         </div>
 
@@ -70,7 +74,7 @@ const editing = ref(false);
         />
 
         <section v-if="props.related.length > 0" class="flex flex-col gap-2">
-            <h2 class="text-xs text-gray-500">{{ t('tag::tag.related') }}</h2>
+            <h2 class="text-xs text-muted">{{ t('tag::tag.related') }}</h2>
             <div class="flex flex-wrap gap-2">
                 <TagChip
                     v-for="related in props.related"
@@ -82,7 +86,7 @@ const editing = ref(false);
 
         <!-- The tag page is an entry point into browsing, not a data sheet. -->
         <section class="flex flex-col gap-2">
-            <h2 class="text-xs text-gray-500">{{ t('tag::tag.samples') }}</h2>
+            <h2 class="text-xs text-muted">{{ t('tag::tag.samples') }}</h2>
 
             <!-- Rendered even with nothing to show, or a filter that hid
                  everything would take its own way back out with it. -->
@@ -97,7 +101,7 @@ const editing = ref(false);
                 <MediaCard v-for="item in props.media" :key="item.hash_id" :media="item" />
             </div>
 
-            <p v-else class="text-sm text-gray-500">{{ t('media::media.empty') }}</p>
+            <p v-else class="text-sm text-muted">{{ t('media::media.empty') }}</p>
         </section>
     </div>
 

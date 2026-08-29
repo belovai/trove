@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Button from '@/components/Button.vue';
+import AppButton from '@/components/ui/AppButton.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { MediaDetail } from '@/types/inertia';
 
@@ -27,7 +27,7 @@ const reveal = (): void => {
         :style="{ backgroundColor: props.media.dominant_color ?? undefined }"
     >
         <p>{{ t('media::media.hidden_by_rating') }}</p>
-        <Button type="button" @click="reveal">{{ t('media::media.show_anyway') }}</Button>
+        <AppButton type="button" @click="reveal">{{ t('media::media.show_anyway') }}</AppButton>
     </div>
 
     <img

@@ -28,16 +28,16 @@ const ratings = computed<SafetyRating[]>(() => page.props.safety_ratings);
 
 const swatch: Record<SafetyRating, { on: string; off: string }> = {
     safe: {
-        on: 'border-green-500 bg-green-100 text-green-900 dark:bg-green-900/40 dark:text-green-100',
-        off: 'border-green-500/40 text-green-700 dark:text-green-400',
+        on: 'border-success bg-success-soft text-success',
+        off: 'border-success/40 text-success',
     },
     sketchy: {
-        on: 'border-yellow-500 bg-yellow-100 text-yellow-900 dark:bg-yellow-900/40 dark:text-yellow-100',
-        off: 'border-yellow-500/40 text-yellow-700 dark:text-yellow-400',
+        on: 'border-warning bg-warning-soft text-warning',
+        off: 'border-warning/40 text-warning',
     },
     unsafe: {
-        on: 'border-red-500 bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-100',
-        off: 'border-red-500/40 text-red-700 dark:text-red-400',
+        on: 'border-danger bg-danger-soft text-danger-strong',
+        off: 'border-danger/40 text-danger-strong',
     },
 };
 
@@ -86,7 +86,7 @@ const toggleRating = (rating: SafetyRating): void => {
 
 <template>
     <div class="flex flex-wrap items-center gap-2">
-        <span id="media-filter-safety" class="text-sm text-gray-500">
+        <span id="media-filter-safety" class="text-sm text-muted">
             {{ t('media::media.filter_safety') }}
         </span>
 
@@ -111,15 +111,15 @@ const toggleRating = (rating: SafetyRating): void => {
             class="rounded-md border px-2 py-1 text-xs font-medium"
             :class="
                 props.filters.untagged
-                    ? 'border-gray-800 bg-gray-800 text-white dark:border-gray-200 dark:bg-gray-200 dark:text-gray-900'
-                    : 'border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-400'
+                    ? 'border-transparent bg-primary text-primary-fg'
+                    : 'border-divider text-muted'
             "
             @click="apply(props.filters.safety, !props.filters.untagged)"
         >
             {{ t('media::media.filter_untagged') }}
         </button>
 
-        <button v-if="!isDefault" type="button" class="text-xs text-gray-500 underline" @click="visit()">
+        <button v-if="!isDefault" type="button" class="text-xs text-accent hover:text-accent-hover" @click="visit()">
             {{ t('media::media.filter_reset') }}
         </button>
     </div>

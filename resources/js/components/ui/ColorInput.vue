@@ -52,7 +52,7 @@ const onHexBlur = (): void => {
             placeholder="#888888"
             :disabled="disabled"
             :aria-label="`${id}-hex`"
-            class="w-24 rounded-md border border-gray-300 px-2 py-1 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 disabled:opacity-60 dark:border-gray-700 dark:bg-gray-900"
+            class="w-24 rounded-md border border-divider bg-panel px-2 py-1 font-mono text-xs text-text disabled:opacity-60"
             @input="onHexInput"
             @blur="onHexBlur"
         />

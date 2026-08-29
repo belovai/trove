@@ -18,6 +18,7 @@ return [
 
     // Tag page
     'tags' => 'Tags',
+    'section_tags' => 'Tags',
     'search_tags' => 'Search tags',
     'no_results' => 'No tags match that.',
     'uncategorized' => 'uncategorized',
@@ -59,6 +60,8 @@ return [
     'sort_order' => 'Order',
     'is_default' => 'Default',
     'add_category' => 'Add a category',
+    'edit_category' => 'Edit category',
+    'delete_category_confirm' => 'Delete the ":name" category? Its tags move to the default category.',
     'tags_in_category' => 'Tags',
     'health' => 'Tag health',
     'health_unused' => 'Unused tags',

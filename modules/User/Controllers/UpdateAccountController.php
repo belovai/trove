@@ -24,10 +24,14 @@ final class UpdateAccountController
         $this->updateAccount->handle(
             user: $user,
             displayName: $request->input('display_name'),
+            email: $request->input('email'),
             locale: $request->input('locale'),
             defaultSafetyFilter: $request->enum('default_safety_filter', SafetyRating::class),
+            touchesDisplayName: $request->has('display_name'),
+            touchesEmail: $request->has('email'),
+            touchesLocale: $request->has('locale'),
         );
 
-        return redirect()->route('account.show')->with('success', __('user::account.saved'));
+        return redirect()->back(fallback: route('settings.account'))->with('success', __('user::account.saved'));
     }
 }

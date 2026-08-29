@@ -22,7 +22,7 @@ final class AccountTest extends TestCase
     public function test_the_account_page_renders(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get('/account')
+            ->get('/settings/account')
             ->assertOk();
     }
 
@@ -32,7 +32,7 @@ final class AccountTest extends TestCase
 
         $this->actingAs($user)
             ->patch('/account', ['display_name' => 'Arpad', 'locale' => 'hu'])
-            ->assertRedirect('/account');
+            ->assertRedirect('/settings/account');
 
         $user->refresh();
 
@@ -55,7 +55,7 @@ final class AccountTest extends TestCase
 
         $this->actingAs($user)
             ->patch('/account', ['display_name' => null, 'locale' => null, 'default_safety_filter' => 'unsafe'])
-            ->assertRedirect('/account');
+            ->assertRedirect('/settings/account');
 
         $this->assertSame(SafetyRating::Unsafe, $user->fresh()->default_safety_filter);
     }
@@ -86,7 +86,7 @@ final class AccountTest extends TestCase
             'current_password' => 'password1',
             'password' => 'password2',
             'password_confirmation' => 'password2',
-        ])->assertRedirect('/account');
+        ])->assertRedirect('/settings/account');
 
         $this->assertTrue(Hash::check('password2', $user->fresh()->password));
     }
@@ -125,5 +125,70 @@ final class AccountTest extends TestCase
             ->assertSessionHasErrors('current_password');
 
         $this->assertNotSoftDeleted('users', ['id' => $user->id]);
+    }
+
+    public function test_a_user_can_set_their_email(): void
+    {
+        $user = User::factory()->create(['email' => null]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['email' => 'arpad@example.test'])
+            ->assertRedirect('/settings/account');
+
+        $this->assertSame('arpad@example.test', $user->fresh()->email);
+    }
+
+    public function test_an_email_already_in_use_is_rejected(): void
+    {
+        User::factory()->create(['email' => 'taken@example.test']);
+        $user = User::factory()->create(['email' => null]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['email' => 'taken@example.test'])
+            ->assertSessionHasErrors('email');
+
+        $this->assertNull($user->fresh()->email);
+    }
+
+    public function test_keeping_your_own_email_is_not_a_conflict(): void
+    {
+        $user = User::factory()->create(['email' => 'mine@example.test']);
+
+        $this->actingAs($user)
+            ->patch('/account', ['email' => 'mine@example.test'])
+            ->assertSessionHasNoErrors();
+    }
+
+    public function test_an_absent_field_is_left_alone(): void
+    {
+        $user = User::factory()->create(['display_name' => 'Arpad', 'email' => 'mine@example.test']);
+
+        $this->actingAs($user)->patch('/account', ['email' => 'other@example.test']);
+
+        $this->assertSame('Arpad', $user->fresh()->display_name);
+    }
+
+    public function test_the_profile_section_can_save_only_the_display_name(): void
+    {
+        $user = User::factory()->create(['display_name' => 'Old', 'email' => 'mine@example.test']);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => 'New'])
+            ->assertRedirect('/settings/account');
+
+        $user->refresh();
+
+        $this->assertSame('New', $user->display_name);
+        $this->assertSame('mine@example.test', $user->email);
+    }
+
+    public function test_saving_from_the_profile_page_redirects_back_to_it(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->from('/settings/profile')
+            ->patch('/account', ['display_name' => 'New'])
+            ->assertRedirect('/settings/profile');
     }
 }

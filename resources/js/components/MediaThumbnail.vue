@@ -14,7 +14,7 @@ const loaded = ref(false);
     <!-- The dominant color stands in until the image arrives, and stays if the
          thumbnail job has not run or failed. -->
     <div
-        class="media-thumbnail aspect-square w-full overflow-hidden rounded-md bg-gray-200 dark:bg-gray-800"
+        class="media-thumbnail aspect-square w-full overflow-hidden rounded-md bg-surface"
         :style="{ backgroundColor: props.media.dominant_color ?? undefined }"
     >
         <img

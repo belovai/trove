@@ -13,7 +13,7 @@ const { t } = useTranslations();
     <Link
         :href="`/m/${props.media.hash_id}`"
         class="block rounded-md"
-        :class="props.media.tag_count === 0 ? 'ring-2 ring-red-500' : ''"
+        :class="props.media.tag_count === 0 ? 'ring-2 ring-danger' : ''"
         :title="props.media.tag_count === 0 ? t('media::media.untagged') : undefined"
     >
         <MediaThumbnail :media="props.media" size="thumb" />

@@ -96,6 +96,9 @@ Frontend: Vue 3 `<script setup lang="ts">` single-file components under
 `resources/js/pages/`, resolved by name through Inertia. `@/` is aliased to
 `resources/js/`. `npm run types` must pass.
 
+Front-end design rules — tokens, composition, buttons, overlays — live in
+[`docs/design.md`](docs/design.md). Follow it for every UI change.
+
 ---
 
 ## 3. Hard constraints

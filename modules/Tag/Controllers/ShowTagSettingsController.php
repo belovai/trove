@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Tag\Controllers;
 
+use App\Support\SettingsSections;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -13,7 +14,7 @@ use Modules\Tag\Models\Tag;
 use Modules\Tag\Models\TagCategory;
 use Modules\Tag\Services\TagHealthReport;
 
-final class AdminTagsController
+final class ShowTagSettingsController
 {
     public function __construct(
         private readonly TagHealthReport $health,
@@ -23,7 +24,9 @@ final class AdminTagsController
     {
         abort_unless($request->user()?->can('tag.admin'), 403);
 
-        return Inertia::render('admin/tags/Index', [
+        return Inertia::render('settings/Tags', [
+            'sections' => SettingsSections::for($request->user()),
+            'current' => 'tags',
             'categories' => TagCategory::query()->withCount('tags')
                 ->orderBy('sort_order')
                 ->orderBy('name')

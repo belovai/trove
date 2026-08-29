@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
-import Button from '@/components/Button.vue';
+import AppButton from '@/components/ui/AppButton.vue';
 import TagInput from '@/components/TagInput.vue';
 import UploadDropzone from '@/components/UploadDropzone.vue';
 import UploadQueueItem from '@/components/UploadQueueItem.vue';
@@ -80,23 +80,23 @@ const settle = async (upload: () => Promise<void>): Promise<void> => {
 
     <div class="flex flex-col gap-4">
         <UploadDropzone @files="add">
-            <p class="text-lg font-medium">{{ t('media::media.drop_files') }}</p>
-            <p class="text-sm text-gray-500">{{ t('media::media.drop_hint') }}</p>
-            <p class="text-sm text-gray-500">{{ t('media::media.paste_hint') }}</p>
-            <p class="text-xs text-gray-500">{{ props.allowed_mimes.join(', ') }}</p>
+            <p class="text-lg font-medium text-text">{{ t('media::media.drop_files') }}</p>
+            <p class="text-sm text-muted">{{ t('media::media.drop_hint') }}</p>
+            <p class="text-sm text-muted">{{ t('media::media.paste_hint') }}</p>
+            <p class="text-xs text-muted">{{ props.allowed_mimes.join(', ') }}</p>
         </UploadDropzone>
 
         <div v-if="items.length > 0" class="flex flex-col gap-2">
             <TagInput v-model="batchTags" />
-            <Button type="button" variant="secondary" @click="applyBatchTags">
+            <AppButton type="button" variant="secondary" class="self-start" @click="applyBatchTags">
                 {{ t('tag::tag.add_tags') }}
-            </Button>
+            </AppButton>
         </div>
 
         <div v-if="items.length > 0" class="flex items-center gap-4">
-            <Button type="button" :disabled="uploading || pending === 0" @click="settle(uploadAll)">
+            <AppButton type="button" :disabled="uploading || pending === 0" @click="settle(uploadAll)">
                 {{ t('media::media.upload_all') }}
-            </Button>
+            </AppButton>
         </div>
 
         <UploadQueueItem

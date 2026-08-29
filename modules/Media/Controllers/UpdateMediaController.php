@@ -25,20 +25,30 @@ final class UpdateMediaController
 
         abort_unless($request->user()?->can('update', $item), 403);
 
+        // An absent field keeps its stored value: the two editing surfaces on
+        // the media page submit disjoint subsets.
         $this->updateMedia->handle(
             media: $item,
-            title: $request->input('title'),
-            description: $request->input('description'),
-            source: $request->input('source'),
-            visibility: Visibility::from($request->string('visibility')->value()),
-            safetyRating: SafetyRating::from($request->string('safety_rating')->value()),
-            isAnonymous: $request->boolean('is_anonymous'),
+            title: $request->has('title') ? $request->input('title') : $item->title,
+            description: $request->has('description') ? $request->input('description') : $item->description,
+            source: $request->has('source') ? $request->input('source') : $item->source,
+            visibility: $request->has('visibility')
+                ? Visibility::from($request->string('visibility')->value())
+                : $item->visibility,
+            safetyRating: $request->has('safety_rating')
+                ? SafetyRating::from($request->string('safety_rating')->value())
+                : $item->safety_rating,
+            isAnonymous: $request->has('is_anonymous') ? $request->boolean('is_anonymous') : $item->is_anonymous,
         );
 
-        $this->syncMediaTags->handle($item, $request->resolvedTags()->tagIds, $request->user());
+        // SyncMediaTags always recomputes the full implied closure, so it must
+        // only run when the human tag set was actually submitted.
+        if ($request->has('tags')) {
+            $this->syncMediaTags->handle($item, $request->resolvedTags()->tagIds, $request->user());
+        }
 
         return redirect()->route('media.show', $item)
             ->with('success', __('media::media.updated'))
-            ->with('tag_warnings', $request->resolvedTags()->warnings);
+            ->with('tag_warnings', $request->has('tags') ? $request->resolvedTags()->warnings : []);
     }
 }

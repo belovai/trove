@@ -16,6 +16,7 @@ return [
     'taxonomy_imported' => 'A taxonómia importálva.',
 
     'tags' => 'Címkék',
+    'section_tags' => 'Címkék',
     'search_tags' => 'Címkék keresése',
     'no_results' => 'Nincs találat.',
     'uncategorized' => 'kategória nélküli',
@@ -54,6 +55,8 @@ return [
     'sort_order' => 'Sorrend',
     'is_default' => 'Alapértelmezett',
     'add_category' => 'Kategória hozzáadása',
+    'edit_category' => 'Kategória szerkesztése',
+    'delete_category_confirm' => 'Törlöd a(z) ":name" kategóriát? A címkéi az alapértelmezettbe kerülnek.',
     'tags_in_category' => 'Címkék',
     'health' => 'Címke állapot',
     'health_unused' => 'Nem használt címkék',

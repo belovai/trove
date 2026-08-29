@@ -25,7 +25,7 @@ final class ChangeAccountPasswordController
             password: $request->string('password')->toString(),
         );
 
-        return redirect()->route('account.show')
+        return redirect()->route('settings.account')
             ->with('success', __('user::account.password_changed'));
     }
 }

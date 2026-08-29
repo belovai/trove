@@ -7,6 +7,7 @@ namespace Modules\Media\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\Tag\Models\Tag;
 
@@ -57,6 +58,7 @@ final class ShowMediaController
                 'update' => $request->user()?->can('update', $item) ?? false,
                 'delete' => $request->user()?->can('delete', $item) ?? false,
             ],
+            'visibilities' => array_map(static fn (Visibility $case): string => $case->value, Visibility::cases()),
         ]);
     }
 

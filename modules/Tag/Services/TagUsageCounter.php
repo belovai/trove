@@ -12,6 +12,10 @@ use Modules\Tag\Enums\TagSource;
  * Keeps the two denormalized counters honest. Both count `human` rows only:
  * implied tags must not inflate what autocomplete orders by, and `tag_count`
  * answers "how many tags did someone actually put on this".
+ *
+ * Soft-deleted media are excluded everywhere: the pivot rows stay so a restore
+ * is lossless, but a deleted item is not listable, so counting it would
+ * promise more results than the tag page can show.
  */
 final class TagUsageCounter
 {
@@ -22,12 +26,30 @@ final class TagUsageCounter
     {
         foreach (array_unique($tagIds) as $tagId) {
             $count = DB::table('media_tag')
-                ->where('tag_id', $tagId)
-                ->where('source', TagSource::Human->value)
+                ->join('media', 'media.id', '=', 'media_tag.media_id')
+                ->where('media_tag.tag_id', $tagId)
+                ->where('media_tag.source', TagSource::Human->value)
+                ->whereNull('media.deleted_at')
                 ->count();
 
             DB::table('tags')->where('id', $tagId)->update(['usage_count' => $count]);
         }
+    }
+
+    /**
+     * Every tag on this item, whatever the source: deleting or restoring the
+     * item changes what each of them counts.
+     */
+    public function recalculateForMedia(Media $media): void
+    {
+        /** @var list<int> $tagIds */
+        $tagIds = DB::table('media_tag')
+            ->where('media_id', $media->id)
+            ->pluck('tag_id')
+            ->map(static fn ($id): int => (int) $id)
+            ->all();
+
+        $this->recalculate($tagIds);
     }
 
     /**
@@ -39,9 +61,11 @@ final class TagUsageCounter
         DB::table('tags')->update(['usage_count' => 0]);
 
         $counts = DB::table('media_tag')
-            ->select('tag_id', DB::raw('COUNT(*) as aggregate'))
-            ->where('source', TagSource::Human->value)
-            ->groupBy('tag_id')
+            ->join('media', 'media.id', '=', 'media_tag.media_id')
+            ->select('media_tag.tag_id', DB::raw('COUNT(*) as aggregate'))
+            ->where('media_tag.source', TagSource::Human->value)
+            ->whereNull('media.deleted_at')
+            ->groupBy('media_tag.tag_id')
             ->get();
 
         foreach ($counts as $row) {

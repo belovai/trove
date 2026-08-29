@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use Modules\Tag\Controllers\AdminTagsController;
 use Modules\Tag\Controllers\AutocompleteTagsController;
 use Modules\Tag\Controllers\DestroyAliasController;
 use Modules\Tag\Controllers\DestroyImplicationController;
@@ -14,6 +13,7 @@ use Modules\Tag\Controllers\ImportTaxonomyController;
 use Modules\Tag\Controllers\IndexTagsController;
 use Modules\Tag\Controllers\MergeTagController;
 use Modules\Tag\Controllers\ShowTagController;
+use Modules\Tag\Controllers\ShowTagSettingsController;
 use Modules\Tag\Controllers\StoreAliasController;
 use Modules\Tag\Controllers\StoreImplicationController;
 use Modules\Tag\Controllers\StoreTagCategoryController;
@@ -37,10 +37,12 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::delete('tags/{tag}/implications/{implied}', DestroyImplicationController::class)
         ->name('tags.implications.destroy');
     Route::post('tags/{tag}/merge', MergeTagController::class)->name('tags.merge');
+
+    Route::get('settings/tags', ShowTagSettingsController::class)->name('settings.tags');
+    Route::redirect('admin/tags', '/settings/tags');
 });
 
 Route::middleware(['web', 'auth'])->prefix('admin/tags')->group(function (): void {
-    Route::get('/', AdminTagsController::class)->name('admin.tags.index');
     Route::post('categories', StoreTagCategoryController::class)->name('admin.tags.categories.store');
     Route::patch('categories/{category}', UpdateTagCategoryController::class)
         ->name('admin.tags.categories.update');
