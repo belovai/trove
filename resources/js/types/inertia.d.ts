@@ -109,6 +109,8 @@ export interface SharedProps {
         user: AuthUser | null;
         can: Record<string, boolean>;
     };
+    /** The site name, editable in Settings → System. */
+    app_name: string;
     locale: string;
     locales: string[];
     /** The rating vocabulary, in order — never hardcoded on the client. */

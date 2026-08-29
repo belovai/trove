@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Auth\Actions;
 
+use Modules\Setting\Facades\Settings;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 
@@ -15,7 +16,7 @@ final class RegisterUser
             'username' => $username,
             'email' => $email,
             'password' => $password,
-            'rank' => config('trove.registration.approval')
+            'rank' => Settings::get('registration.approval')
                 ? UserRank::Restricted
                 : UserRank::Regular,
         ]);

@@ -6,6 +6,8 @@ namespace Modules\Auth\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Modules\Auth\Enums\RegistrationEmailPolicy;
+use Modules\Setting\Facades\Settings;
 
 final class RegisterRequest extends FormRequest
 {
@@ -33,10 +35,10 @@ final class RegisterRequest extends FormRequest
      */
     private function emailRules(): array
     {
-        return match (config('trove.registration.email')) {
-            'required' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'off' => ['prohibited'],
-            default => ['nullable', 'email', 'max:255', 'unique:users,email'],
+        return match (Settings::get('registration.email')) {
+            RegistrationEmailPolicy::Required => ['required', 'email', 'max:255', 'unique:users,email'],
+            RegistrationEmailPolicy::Off => ['prohibited'],
+            RegistrationEmailPolicy::Optional => ['nullable', 'email', 'max:255', 'unique:users,email'],
         };
     }
 }

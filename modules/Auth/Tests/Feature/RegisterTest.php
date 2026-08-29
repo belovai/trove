@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Modules\Auth\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Modules\Auth\Enums\RegistrationEmailPolicy;
+use Modules\Setting\Facades\Settings;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -50,7 +52,7 @@ final class RegisterTest extends TestCase
 
     public function test_the_email_is_required_when_the_policy_demands_it(): void
     {
-        config()->set('trove.registration.email', 'required');
+        Settings::set('registration.email', RegistrationEmailPolicy::Required);
 
         $this->post('/register', [
             'username' => 'rp',
@@ -61,7 +63,7 @@ final class RegisterTest extends TestCase
 
     public function test_the_email_is_rejected_when_the_policy_turns_it_off(): void
     {
-        config()->set('trove.registration.email', 'off');
+        Settings::set('registration.email', RegistrationEmailPolicy::Off);
 
         $this->post('/register', [
             'username' => 'rp',
@@ -73,7 +75,7 @@ final class RegisterTest extends TestCase
 
     public function test_approval_mode_creates_a_restricted_account(): void
     {
-        config()->set('trove.registration.approval', true);
+        Settings::set('registration.approval', true);
 
         $this->post('/register', [
             'username' => 'rp',

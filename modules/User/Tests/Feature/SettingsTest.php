@@ -65,6 +65,6 @@ final class SettingsTest extends TestCase
     {
         $this->actingAs(User::factory()->create(['rank' => UserRank::Administrator]))
             ->get('/settings/account')
-            ->assertInertia(fn (AssertableInertia $page) => $page->count('sections', 4));
+            ->assertInertia(fn (AssertableInertia $page) => $page->count('sections', 5));
     }
 }

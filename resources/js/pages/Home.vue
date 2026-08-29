@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import TextInput from '@/components/ui/TextInput.vue';
@@ -8,6 +8,7 @@ import { useTranslations } from '@/composables/useTranslations';
 
 defineOptions({ layout: AppLayout });
 
+const page = usePage();
 const { t } = useTranslations();
 
 const tags = ref('');
@@ -22,10 +23,10 @@ const search = (): void => {
 </script>
 
 <template>
-    <Head title="Trove" />
+    <Head />
 
     <div class="flex flex-col items-center gap-6 py-16">
-        <h1 class="text-6xl font-semibold tracking-tight text-text">Trove</h1>
+        <h1 class="text-6xl font-semibold tracking-tight text-text">{{ page.props.app_name }}</h1>
 
         <form class="flex w-full max-w-xl flex-wrap items-center justify-center gap-2" @submit.prevent="search">
             <TextInput

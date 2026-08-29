@@ -34,7 +34,7 @@ const isActive = (href: string): boolean => page.url === href || page.url.starts
 <template>
     <header class="sticky top-0 z-30 border-b border-divider bg-panel">
         <div class="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 py-3 md:px-6">
-            <Link href="/" class="text-base font-semibold text-text">Trove</Link>
+            <Link href="/" class="text-base font-semibold text-text">{{ page.props.app_name }}</Link>
 
             <!-- From md up the navigation joins this row, immediately left of
                  the profile menu; below md it drops to its own row. -->

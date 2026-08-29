@@ -30,6 +30,10 @@ final class SettingsSections
             $sections[] = ['key' => 'users', 'label' => __('user::account.section_users'), 'href' => '/settings/users'];
         }
 
+        if ($user?->can('setting.manage')) {
+            $sections[] = ['key' => 'system', 'label' => __('setting::setting.section_system'), 'href' => '/settings/system'];
+        }
+
         return $sections;
     }
 }

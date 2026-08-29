@@ -75,9 +75,19 @@ see code changes without a restart); `compose.override.yaml` swaps in
 ## 2. Code layout
 
 Modules live under `modules/{ModuleName}/` — `User`, `Auth`, `Media`, `Tag`,
-`Search`. Each module owns its models, migrations, routes, controllers, actions
-and tests, and registers them from its own `{Module}ModuleServiceProvider`.
-Nothing module-specific belongs in `AppServiceProvider`.
+`Setting`, `Search`. Each module owns its models, migrations, routes,
+controllers, actions and tests, and registers them from its own
+`{Module}ModuleServiceProvider`. Nothing module-specific belongs in
+`AppServiceProvider`.
+
+A module that needs runtime-configurable behaviour declares it in its own
+`Config/settings.php`, the same way `Config/privileges.php` declares
+abilities: `modules/{Module}/Config/settings.php` returns a map of dot-path
+keys to `SettingDefinition`s (type, default, encrypted flag, validation
+rules). `{Module}ModuleServiceProvider` loads both files at boot. Read a
+setting with `Settings::get('key')` — never `config()`, which only ever sees
+the `.env` default. A key declared by two modules is a boot-time error, not a
+last-one-wins silent override.
 
 The `Modules\` PSR-4 namespace maps to `modules/` alongside `App\`. Module
 tests live under `modules/{Module}/Tests/{Unit,Feature}/` and run as their own

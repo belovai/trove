@@ -83,6 +83,7 @@ modules/
 ├── Auth/          # Authentication, authorization, roles, middleware
 ├── Media/         # Upload, storage, thumbnails, metadata, visibility, favorites
 ├── Tag/           # Tags, categories, aliases, implications, import/export
+├── Setting/       # Runtime, database-backed settings — declaration, storage, admin UI
 └── Search/        # Search interface, engines, query parsing
 ```
 
@@ -96,7 +97,9 @@ Controllers are slim. All domain operations live in single-purpose Action classe
 
 ### Module Responsibilities
 
-**User** — Owns the `users` table, the five-rank `UserRank` enum, the ban model, and account self-management (display name, locale, password, deletion). Registration modes (`open` / `closed`) are config-driven for now; an invitation system is deferred (§4).
+**User** — Owns the `users` table, the five-rank `UserRank` enum, the ban model, and account self-management (display name, locale, password, deletion). Registration modes (`open` / `closed`) are runtime settings, edited at `/settings/system`, for now; an invitation system is deferred (§4).
+
+**Setting** — Owns the `settings` table and the single write path for every runtime, database-backed setting: a `Config/settings.php` per owning module declares each key's type, default, encrypted flag and validation rules; `SettingManager` reads and writes through that declaration, and `/settings/system` is the first (and so far only) admin UI built on it.
 
 **Auth** — Login, logout, and registration flows, owning no table of its own. Authorization is five ordered ranks (`Restricted` → `Administrator`) plus a per-module `Config/privileges.php` map that generates Laravel Gates — an administrator's full access is just the highest rank clearing every gate's minimum, not a special case. No RBAC package.
 
@@ -136,19 +139,23 @@ No `hash_id`: usernames are already the public, URL-safe identifier — `getRout
 
 ### `invitations`
 
-**Not yet implemented.** Registration currently has two modes only, `open` and `closed`, configured through `config/trove.php` (`TROVE_REGISTRATION_MODE` in `.env`); `closed` covers what `invite` with `admin_only` was meant for. An invite system with per-user tokens is deferred until there is demand for finer-grained control than mode + approval gives.
+**Not yet implemented.** Registration currently has two modes only, `open` and `closed`, held as runtime settings (`registration.mode`, see `settings` below and §9 "Registration Modes") and edited at `/settings/system`, not `config/trove.php`; `closed` covers what `invite` with `admin_only` was meant for. An invite system with per-user tokens is deferred until there is demand for finer-grained control than mode + approval gives.
 
-### `site_settings`
+### `settings`
 
-**Not yet implemented.** Everything this table was meant to hold is, for now, static configuration in `config/trove.php`, read from `.env`:
+The table is `settings`, not `site_settings`: it holds mail transport credentials and whatever follows, not only site-level branding.
 
-- `TROVE_REGISTRATION_MODE` — `open` / `closed`
-- `TROVE_REGISTRATION_EMAIL` — `optional` / `required` / `off`
-- `TROVE_REGISTRATION_APPROVAL` — boolean; `true` creates new accounts at the `Restricted` rank instead of `Regular`, for an administrator to promote
+| Column | Type | Notes |
+|---|---|---|
+| id | bigint PK | |
+| key | varchar(191) (unique) | Dot-path, e.g. `registration.mode` |
+| value | text | Nullable |
+| is_encrypted | boolean | Default false |
+| timestamps | | |
+
+Keys are plain dot-paths whose first segment is the namespace; each setting is declared by its owning module in `Config/settings.php` with its type, default, encrypted flag and validation rules. `env()` supplies the default only, so a stored value always wins; a missing row means the default, so the table is empty on a fresh install.
 
 The supported locale list (`config('trove.locales')`) is not `.env`-driven; it is a fixed array in `config/trove.php`.
-
-A runtime, database-backed settings table remains the plan for anything an administrator should be able to change without a deploy — see §13.
 
 ### `media`
 
@@ -595,10 +602,10 @@ Any user at or above the rank configured for `tag.edit` may add or remove tags o
 
 ### Registration Modes
 
-Controlled via `config/trove.php` / `.env` (see §4, `site_settings`), not yet a runtime setting:
+These are runtime settings, edited at `/settings/system` (see §4, `settings`):
 
-**`mode=open`:** anyone may register; email is `optional` / `required` / `off` per `TROVE_REGISTRATION_EMAIL`. `TROVE_REGISTRATION_APPROVAL=true` creates the account at `Restricted` instead of `Regular`, standing in for the old `pending` status until an administrator promotes it.
-**`mode=closed`:** the registration routes are not registered at all — this is what `invite` + `admin_only` was for.
+**`mode=open`:** anyone may register; email is `optional` / `required` / `off` per `registration.email`. `registration.approval=true` creates the account at `Restricted` instead of `Regular`, standing in for the old `pending` status until an administrator promotes it.
+**`mode=closed`:** the registration routes are always registered — `route:cache` can't freeze a runtime setting — but `EnsureRegistrationIsOpen` returns 404 for every request to them, so `route('register')` always resolves while the page itself is unreachable. This is what `invite` + `admin_only` was for.
 
 ### Ban Model
 
@@ -710,8 +717,6 @@ Deliberately excluded from the MVP, recorded here so the design does not foreclo
 **Post relationships.** Parent/child links between media items (original vs. edit, different resolutions of the same image).
 
 **Federation / external sync.** Pulling from or mirroring other instances.
-
-**`site_settings` table.** Runtime, database-backed configuration an administrator could change without a deploy. Everything it was meant to hold — registration mode, email policy, approval — lives in `config/trove.php` / `.env` for now (§4); this table is worth adding once a setting needs to change without redeploying.
 
 ---
 

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Contracts\HasLevel;
+use App\Contracts\SettingRegistry;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Modules\Setting\Support\SettingDefinition;
 use ReflectionClass;
 
 abstract class ModuleServiceProvider extends ServiceProvider
@@ -32,6 +34,7 @@ abstract class ModuleServiceProvider extends ServiceProvider
         $this->registerTranslations();
         $this->registerRoutes();
         $this->registerPrivileges();
+        $this->registerSettings();
     }
 
     /**
@@ -93,5 +96,23 @@ abstract class ModuleServiceProvider extends ServiceProvider
                 fn ($user) => $user->rank->level() >= $minimumRank->level(),
             );
         }
+    }
+
+    /**
+     * Turn modules/{Module}/Config/settings.php into registry entries. The
+     * shape mirrors privileges.php: the module declares, the app wires.
+     */
+    private function registerSettings(): void
+    {
+        $path = $this->moduleBasePath().'/Config/settings.php';
+
+        if (!is_file($path)) {
+            return;
+        }
+
+        /** @var array<string, SettingDefinition> $definitions */
+        $definitions = require $path;
+
+        $this->app->make(SettingRegistry::class)->register($this->key(), $definitions);
     }
 }

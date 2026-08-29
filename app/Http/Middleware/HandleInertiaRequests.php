@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Setting\Facades\Settings;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -54,6 +55,7 @@ class HandleInertiaRequests extends Middleware
                 // client never re-implements the rank comparison.
                 'can' => $this->abilities($request),
             ],
+            'app_name' => Settings::get('app.name'),
             'locale' => $locale,
             'locales' => config('trove.locales'),
             // The rating vocabulary, in order. Both the account form and the
