@@ -41,6 +41,7 @@ return [
     'paste_hint' => 'Vagy illessz be egy képet a vágólapról.',
     'filter_safety' => 'Besorolás',
     'filter_untagged' => 'Csak címkézetlen',
+    'filter_unlisted' => 'Saját nem listázott',
     'filter_reset' => 'Szűrők törlése',
     'edit_details' => 'Részletek szerkesztése',
     'section_tags' => 'Címkék',

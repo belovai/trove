@@ -26,6 +26,7 @@ final class BrowseMediaRequest extends FormRequest
             'safety' => ['nullable', 'array'],
             'safety.*' => [Rule::enum(SafetyRating::class)],
             'untagged' => ['nullable', 'boolean'],
+            'unlisted' => ['nullable', 'boolean'],
         ];
     }
 
@@ -53,6 +54,7 @@ final class BrowseMediaRequest extends FormRequest
             ratings: $this->safetyRatings()
                 ?? SafetyRating::upTo($viewer?->default_safety_filter ?? SafetyRating::Safe),
             untagged: $this->boolean('untagged'),
+            unlisted: $this->boolean('unlisted'),
         );
     }
 

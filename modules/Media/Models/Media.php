@@ -58,6 +58,7 @@ use Modules\User\Models\User;
  * @method static Builder<static>|Media newModelQuery()
  * @method static Builder<static>|Media newQuery()
  * @method static Builder<static>|Media onlyTrashed()
+ * @method static Builder<static>|Media ownUnlisted(?\Modules\User\Models\User $viewer)
  * @method static Builder<static>|Media query()
  * @method static Builder<static>|Media untagged()
  * @method static Builder<static>|Media visibleTo(?\Modules\User\Models\User $viewer)
@@ -209,6 +210,20 @@ final class Media extends Model
     protected function listable(Builder $query): void
     {
         $query->where('visibility', '!=', Visibility::Unlisted->value);
+    }
+
+    /**
+     * LISTING FILTER. The one way to browse a viewer's own unlisted items —
+     * listable() excludes Unlisted from every ordinary listing. Apply
+     * instead of listable(), never alongside it.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function ownUnlisted(Builder $query, ?User $viewer): void
+    {
+        $query->where('visibility', Visibility::Unlisted->value)
+            ->where('user_id', $viewer?->id);
     }
 
     /**

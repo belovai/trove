@@ -21,7 +21,11 @@ final class BrowseMediaController
         $filters = $request->filters();
 
         $media = Media::query()->visibleTo($viewer)
-            ->listable()
+            ->when(
+                $filters->unlisted,
+                fn (Builder $query) => $query->ownUnlisted($viewer),
+                fn (Builder $query) => $query->listable(),
+            )
             ->withinSafetyFilter($viewer, $filters->ratings)
             ->when($filters->untagged, fn (Builder $query) => $query->untagged())
             ->latest()

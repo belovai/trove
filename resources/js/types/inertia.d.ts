@@ -18,6 +18,7 @@ export type SafetyRating = 'safe' | 'sketchy' | 'unsafe';
 export interface MediaFilters {
     safety: SafetyRating[];
     untagged: boolean;
+    unlisted: boolean;
 }
 
 export interface MediaCardData {

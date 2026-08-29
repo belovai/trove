@@ -52,6 +52,7 @@ const defaultSafety = computed<SafetyRating[]>(() => {
 const isDefault = computed(
     () =>
         props.filters.untagged === false &&
+        props.filters.unlisted === false &&
         props.filters.safety.length === defaultSafety.value.length &&
         defaultSafety.value.every((rating) => props.filters.safety.includes(rating)),
 );
@@ -71,8 +72,8 @@ const visit = (params: Record<string, string> = {}): void => {
     });
 };
 
-const apply = (safety: SafetyRating[], untagged: boolean): void => {
-    visit({ safety: safety.join(','), untagged: untagged ? '1' : '0' });
+const apply = (safety: SafetyRating[], untagged: boolean, unlisted: boolean): void => {
+    visit({ safety: safety.join(','), untagged: untagged ? '1' : '0', unlisted: unlisted ? '1' : '0' });
 };
 
 const toggleRating = (rating: SafetyRating): void => {
@@ -80,7 +81,7 @@ const toggleRating = (rating: SafetyRating): void => {
         ? props.filters.safety.filter((value) => value !== rating)
         : ratings.value.filter((value) => value === rating || props.filters.safety.includes(value));
 
-    apply(next, props.filters.untagged);
+    apply(next, props.filters.untagged, props.filters.unlisted);
 };
 </script>
 
@@ -114,9 +115,24 @@ const toggleRating = (rating: SafetyRating): void => {
                     ? 'border-transparent bg-primary text-primary-fg'
                     : 'border-divider text-muted'
             "
-            @click="apply(props.filters.safety, !props.filters.untagged)"
+            @click="apply(props.filters.safety, !props.filters.untagged, props.filters.unlisted)"
         >
             {{ t('media::media.filter_untagged') }}
+        </button>
+
+        <button
+            v-if="user"
+            type="button"
+            :aria-pressed="props.filters.unlisted"
+            class="rounded-md border px-2 py-1 text-xs font-medium"
+            :class="
+                props.filters.unlisted
+                    ? 'border-transparent bg-primary text-primary-fg'
+                    : 'border-divider text-muted'
+            "
+            @click="apply(props.filters.safety, props.filters.untagged, !props.filters.unlisted)"
+        >
+            {{ t('media::media.filter_unlisted') }}
         </button>
 
         <button v-if="!isDefault" type="button" class="text-xs text-accent hover:text-accent-hover" @click="visit()">

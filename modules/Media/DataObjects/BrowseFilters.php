@@ -20,6 +20,7 @@ final readonly class BrowseFilters
     public function __construct(
         public array $ratings,
         public bool $untagged,
+        public bool $unlisted,
     ) {}
 
     /**
@@ -30,6 +31,7 @@ final readonly class BrowseFilters
         return [
             'safety' => array_map(fn (SafetyRating $rating): string => $rating->value, $this->ratings),
             'untagged' => $this->untagged,
+            'unlisted' => $this->unlisted,
         ];
     }
 }
