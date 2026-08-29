@@ -22,10 +22,10 @@ final class DeclaredSettingsTest extends TestCase
         $this->assertSame('Trove', Settings::get('app.name'));
     }
 
-    public function test_the_registration_namespace_holds_exactly_its_three_keys(): void
+    public function test_the_registration_namespace_holds_exactly_its_four_keys(): void
     {
         $this->assertSame(
-            ['registration.mode', 'registration.email', 'registration.approval'],
+            ['registration.mode', 'registration.email', 'registration.approval', 'registration.verify'],
             array_keys(Settings::namespace('registration')),
         );
     }

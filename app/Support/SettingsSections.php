@@ -31,6 +31,7 @@ final class SettingsSections
         }
 
         if ($user?->can('setting.manage')) {
+            $sections[] = ['key' => 'mail', 'label' => __('mail::mail.section_mail'), 'href' => '/settings/mail'];
             $sections[] = ['key' => 'system', 'label' => __('setting::setting.section_system'), 'href' => '/settings/system'];
         }
 

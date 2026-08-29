@@ -3,6 +3,8 @@ export type UserRank = 'restricted' | 'regular' | 'power' | 'moderator' | 'admin
 export interface AuthUser {
     username: string;
     display_name: string;
+    email: string | null;
+    email_verified: boolean;
     rank: UserRank;
     locale: string | null;
     default_safety_filter: SafetyRating;

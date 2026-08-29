@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use Modules\Auth\Middleware\EnsureEmailIsVerified;
 use Modules\Tag\Controllers\AutocompleteTagsController;
 use Modules\Tag\Controllers\DestroyAliasController;
 use Modules\Tag\Controllers\DestroyImplicationController;
@@ -28,7 +29,7 @@ Route::middleware('web')->group(function (): void {
     Route::get('tags/{tag}', ShowTagController::class)->name('tags.show');
 });
 
-Route::middleware(['web', 'auth'])->group(function (): void {
+Route::middleware(['web', 'auth', EnsureEmailIsVerified::class])->group(function (): void {
     Route::patch('tags/{tag}', UpdateTagController::class)->name('tags.update');
     Route::delete('tags/{tag}', DestroyTagController::class)->name('tags.destroy');
     Route::post('tags/{tag}/aliases', StoreAliasController::class)->name('tags.aliases.store');
@@ -37,12 +38,14 @@ Route::middleware(['web', 'auth'])->group(function (): void {
     Route::delete('tags/{tag}/implications/{implied}', DestroyImplicationController::class)
         ->name('tags.implications.destroy');
     Route::post('tags/{tag}/merge', MergeTagController::class)->name('tags.merge');
+});
 
+Route::middleware(['web', 'auth'])->group(function (): void {
     Route::get('settings/tags', ShowTagSettingsController::class)->name('settings.tags');
     Route::redirect('admin/tags', '/settings/tags');
 });
 
-Route::middleware(['web', 'auth'])->prefix('admin/tags')->group(function (): void {
+Route::middleware(['web', 'auth', EnsureEmailIsVerified::class])->prefix('admin/tags')->group(function (): void {
     Route::post('categories', StoreTagCategoryController::class)->name('admin.tags.categories.store');
     Route::patch('categories/{category}', UpdateTagCategoryController::class)
         ->name('admin.tags.categories.update');

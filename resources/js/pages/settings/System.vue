@@ -22,6 +22,7 @@ const props = defineProps<{
     settings: Record<string, string | boolean>;
     registration_modes: string[];
     email_policies: string[];
+    verification_modes: string[];
 }>();
 
 const { t } = useTranslations();
@@ -60,6 +61,7 @@ const registrationForm = useForm({
     registrationMode: String(props.settings['registration.mode'] ?? 'open'),
     registrationEmail: String(props.settings['registration.email'] ?? 'optional'),
     registrationApproval: Boolean(props.settings['registration.approval']),
+    registrationVerify: String(props.settings['registration.verify'] ?? 'soft'),
 });
 
 /**
@@ -83,6 +85,7 @@ const submitRegistration = (): void => {
             'registration.mode': data.registrationMode,
             'registration.email': data.registrationEmail,
             'registration.approval': data.registrationApproval,
+            'registration.verify': data.registrationVerify,
         }))
         .patch('/settings/system', {
             preserveScroll: true,
@@ -224,6 +227,22 @@ onUnmounted(() => {
                                 id="system-registration-approval"
                                 v-model="registrationForm.registrationApproval"
                             />
+                        </AppCardRow>
+
+                        <AppCardRow
+                            :label="t('setting::setting.registration_verify')"
+                            :description="t('setting::setting.registration_verify_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppSelect
+                                    id="system-registration-verify"
+                                    v-model="registrationForm.registrationVerify"
+                                >
+                                    <option v-for="mode in props.verification_modes" :key="mode" :value="mode">
+                                        {{ t(`setting::setting.registration_verify_${mode}`) }}
+                                    </option>
+                                </AppSelect>
+                            </div>
                         </AppCardRow>
 
                         <div

@@ -27,4 +27,10 @@ return [
     'registration_approval' => 'Jóváhagyás szükséges',
     'registration_approval_hint' => 'Az új fiókok Korlátozott ranggal jönnek létre, amit egy adminisztrátor léptet elő, a Normál helyett.',
     'no_recovery_warning' => 'Kikapcsolt e-mail és jóváhagyás nélkül az elfelejtett jelszó nem állítható vissza: a folyamat e-mail alapú. Adminisztrátor tud új jelszót beállítani.',
+
+    'registration_verify' => 'E-mail megerősítés',
+    'registration_verify_hint' => 'Kell-e megerősíteni az új címet, és korlátozza-e a fiókot, ha nincs megerősítve.',
+    'registration_verify_off' => 'Ki — nem megy megerősítő levél',
+    'registration_verify_soft' => 'Puha — kérjük a megerősítést, de semmi nincs tiltva',
+    'registration_verify_required' => 'Kötelező — a feltöltéshez és a címkézéshez megerősített cím kell',
 ];

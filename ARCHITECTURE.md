@@ -604,12 +604,22 @@ Any user at or above the rank configured for `tag.edit` may add or remove tags o
 
 These are runtime settings, edited at `/settings/system` (see §4, `settings`):
 
-**`mode=open`:** anyone may register; email is `optional` / `required` / `off` per `registration.email`. `registration.approval=true` creates the account at `Restricted` instead of `Regular`, standing in for the old `pending` status until an administrator promotes it.
+**`mode=open`:** anyone may register; email is `optional` / `required` / `off` per `registration.email`. `registration.approval=true` creates the account at `Restricted` instead of `Regular`, standing in for the old `pending` status until an administrator promotes it. If an administrator address (`mail.admin_address`) is set, a `PendingRegistration` notice is sent to it on every approval-pending registration.
 **`mode=closed`:** the registration routes are always registered — `route:cache` can't freeze a runtime setting — but `EnsureRegistrationIsOpen` returns 404 for every request to them, so `route('register')` always resolves while the page itself is unreachable. This is what `invite` + `admin_only` was for.
+
+### Email Verification
+
+`registration.verify` (`off` / `soft` / `required`, default `soft`) controls `email_verified_at`. `off` sends nothing; `soft` sends a signed verification link (`VerifyEmail` notification, Laravel's standard signed-route flow) and surfaces the unconfirmed state in the interface without blocking anything; `required` additionally runs `EnsureEmailIsVerified` on the media/tag write routes, redirecting an unverified user to `/verify-email`. Changing the address (`UpdateAccount`) clears `email_verified_at` and re-sends the notice; a completed password reset also marks the address verified, since opening the emailed link already proves control of it. When a rank change raises a `Restricted` account, `ChangeUserRank` sends `AccountApproved`; `BanUser` sends `AccountBanned` with the ban reason.
 
 ### Ban Model
 
 A ban is `banned_at` (nullable timestamp) plus `ban_reason`, not a status enum: presence of `banned_at` means banned, independent of rank, so a `Moderator` can be banned without losing their rank on unban. Enforcement is a `Gate::before` in `UserModuleServiceProvider` that returns `false` for a banned user regardless of ability, plus `EnsureUserIsNotBanned` middleware that signs out a user banned mid-session on their next request.
+
+---
+
+## 9a. Mail
+
+Outbound mail is a `MailTransport` adapter contract (`modules/Mail/`): each adapter declares its own `mail.*` setting keys through the `Setting` module mechanism and returns a Laravel mailer configuration array. `MailConfigurator` turns the active adapter's config into `config('mail')` at request boot and again on `Queue::before` (a long-lived `queue:work` process would otherwise keep stale credentials), then calls `Mail::forgetMailers()`. Two adapters ship: `log` (default, always configured, writes to the log channel) and `smtp` (host/port/encryption/username/password, password stored encrypted). `mail.enabled` gates everything — disabled selects Laravel's `array` transport, so nothing leaves the process regardless of the chosen adapter. `/settings/mail` (admin-only) edits the settings and offers a synchronous test send (`SendTestMailController`, deliberately not queued, reports the transport's own error back). Every notification except the test send is `ShouldQueue`, so a mail failure never breaks the triggering request. Password reset (`ForgotPassword`/`ResetPassword`, Laravel's standard token broker over `password_reset_tokens`) hides its link on the login page when `MailConfigurator::isDeliverable()` is false.
 
 ---
 
