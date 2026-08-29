@@ -8,8 +8,15 @@ export function useFlashToasts(): void {
     const page = usePage();
     const { push } = useToast();
 
+    let lastFlash: unknown;
+
     const flashCurrent = (): void => {
         const flash = page.props.flash;
+        if (flash === lastFlash) {
+            return;
+        }
+        lastFlash = flash;
+
         if (flash.error) {
             push('error', flash.error);
         }
