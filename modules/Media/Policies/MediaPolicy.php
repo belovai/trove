@@ -6,6 +6,7 @@ namespace Modules\Media\Policies;
 
 use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
+use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 
 final class MediaPolicy
@@ -17,7 +18,11 @@ final class MediaPolicy
     public function view(?User $user, Media $media): bool
     {
         if ($media->visibility->notEquals(Visibility::Private)) {
-            return $media->visibility->notEquals(Visibility::Authenticated) || $user !== null;
+            if ($media->visibility->notEquals(Visibility::Authenticated)) {
+                return true;
+            }
+
+            return $user !== null && $user->rank->notEquals(UserRank::Restricted);
         }
 
         return $this->ownsOrModerates($user, $media);
