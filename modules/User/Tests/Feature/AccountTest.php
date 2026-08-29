@@ -7,6 +7,7 @@ namespace Modules\User\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Media\Enums\Visibility;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -67,6 +68,37 @@ final class AccountTest extends TestCase
         $this->actingAs($user)
             ->patch('/account', ['display_name' => null, 'locale' => null, 'default_safety_filter' => 'spicy'])
             ->assertSessionHasErrors('default_safety_filter');
+    }
+
+    public function test_a_user_can_set_their_default_visibility(): void
+    {
+        $user = User::factory()->create(['default_visibility' => null]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'default_visibility' => 'unlisted'])
+            ->assertRedirect('/settings/account');
+
+        $this->assertSame(Visibility::Unlisted, $user->fresh()->default_visibility);
+    }
+
+    public function test_clearing_default_visibility_falls_back_to_the_system_default(): void
+    {
+        $user = User::factory()->create(['default_visibility' => Visibility::Unlisted]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'default_visibility' => ''])
+            ->assertRedirect('/settings/account');
+
+        $this->assertNull($user->fresh()->default_visibility);
+    }
+
+    public function test_an_unknown_default_visibility_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'default_visibility' => 'hidden'])
+            ->assertSessionHasErrors('default_visibility');
     }
 
     public function test_an_unsupported_locale_is_rejected(): void

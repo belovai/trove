@@ -20,6 +20,7 @@ export interface QueueItem {
 interface QueueOptions {
     allowedMimes: string[];
     maxFilesize: number; // KB
+    defaultVisibility: Visibility;
     messages: {
         type: string;
         size: string;
@@ -53,7 +54,7 @@ export const useUploadQueue = (options: QueueOptions) => {
                 id: nextId++,
                 file,
                 preview: URL.createObjectURL(file),
-                visibility: 'public',
+                visibility: options.defaultVisibility,
                 safety_rating: 'safe',
                 is_anonymous: false,
                 tags: [],

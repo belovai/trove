@@ -12,6 +12,7 @@ use Inertia\Response;
 use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Auth\Enums\RegistrationEmailPolicy;
 use Modules\Auth\Enums\RegistrationMode;
+use Modules\Media\Enums\Visibility;
 use Modules\Setting\Facades\Settings;
 use Modules\Setting\Requests\UpdateSystemSettingsRequest;
 
@@ -35,6 +36,7 @@ final class ShowSystemSettingsController
             'registration_modes' => array_column(RegistrationMode::cases(), 'value'),
             'email_policies' => array_column(RegistrationEmailPolicy::cases(), 'value'),
             'verification_modes' => array_column(EmailVerificationMode::cases(), 'value'),
+            'visibilities' => array_column(Visibility::cases(), 'value'),
         ]);
     }
 }

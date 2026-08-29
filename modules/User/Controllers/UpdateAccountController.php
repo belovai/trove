@@ -6,6 +6,7 @@ namespace Modules\User\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Media\Enums\Visibility;
 use Modules\User\Actions\UpdateAccount;
 use Modules\User\Models\User;
 use Modules\User\Requests\UpdateAccountRequest;
@@ -27,9 +28,11 @@ final class UpdateAccountController
             email: $request->input('email'),
             locale: $request->input('locale'),
             defaultSafetyFilter: $request->enum('default_safety_filter', SafetyRating::class),
+            defaultVisibility: $request->enum('default_visibility', Visibility::class),
             touchesDisplayName: $request->has('display_name'),
             touchesEmail: $request->has('email'),
             touchesLocale: $request->has('locale'),
+            touchesDefaultVisibility: $request->has('default_visibility'),
         );
 
         return redirect()->back(fallback: route('settings.account'))->with('success', __('user::account.saved'));

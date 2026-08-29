@@ -8,6 +8,7 @@ export interface AuthUser {
     rank: UserRank;
     locale: string | null;
     default_safety_filter: SafetyRating;
+    default_visibility: Visibility | null;
 }
 
 export type Visibility = 'public' | 'authenticated' | 'unlisted' | 'private';

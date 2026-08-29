@@ -21,6 +21,7 @@ final class UpdateSystemSettingsRequest extends FormRequest
         'registration.email',
         'registration.approval',
         'registration.verify',
+        'media.default_visibility',
     ];
 
     public function authorize(): bool

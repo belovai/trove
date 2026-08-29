@@ -23,6 +23,7 @@ const props = defineProps<{
     registration_modes: string[];
     email_policies: string[];
     verification_modes: string[];
+    visibilities: string[];
 }>();
 
 const { t } = useTranslations();
@@ -55,6 +56,31 @@ const submitGeneral = (): void => {
 };
 
 const showGeneralActions = computed(() => generalForm.isDirty || generalJustSaved.value);
+
+// Media block: default visibility for newly uploaded media.
+const mediaForm = useForm({
+    defaultVisibility: String(props.settings['media.default_visibility'] ?? 'public'),
+});
+
+const mediaJustSaved = ref(false);
+let mediaSavedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+const submitMedia = (): void => {
+    mediaForm
+        .transform((data) => ({ 'media.default_visibility': data.defaultVisibility }))
+        .patch('/settings/system', {
+            preserveScroll: true,
+            onSuccess: () => {
+                mediaJustSaved.value = true;
+                clearTimeout(mediaSavedTimeout);
+                mediaSavedTimeout = setTimeout(() => {
+                    mediaJustSaved.value = false;
+                }, 3000);
+            },
+        });
+};
+
+const showMediaActions = computed(() => mediaForm.isDirty || mediaJustSaved.value);
 
 // Registration block: mode, email policy, approval.
 const registrationForm = useForm({
@@ -108,6 +134,7 @@ const showRecoveryWarning = computed(
 
 onUnmounted(() => {
     clearTimeout(generalSavedTimeout);
+    clearTimeout(mediaSavedTimeout);
     clearTimeout(registrationSavedTimeout);
 });
 </script>
@@ -163,6 +190,59 @@ onUnmounted(() => {
                                         size="sm"
                                         :disabled="!generalForm.isDirty"
                                         :loading="generalForm.processing"
+                                    >
+                                        {{ t('user::ui.save') }}
+                                    </AppButton>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </AppCard>
+            </AppSection>
+
+            <AppSection
+                :title="t('setting::setting.block_media')"
+                :description="t('setting::setting.block_media_hint')"
+            >
+                <AppCard :padded="false">
+                    <form @submit.prevent="submitMedia">
+                        <AppCardRow
+                            :label="t('setting::setting.media_default_visibility')"
+                            :description="t('setting::setting.media_default_visibility_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppSelect id="system-media-default-visibility" v-model="mediaForm.defaultVisibility">
+                                    <option v-for="value in props.visibilities" :key="value" :value="value">
+                                        {{ t(`media::visibility.${value}`) }}
+                                    </option>
+                                </AppSelect>
+                            </div>
+                        </AppCardRow>
+
+                        <div
+                            class="grid transition-all duration-150 ease-out"
+                            :class="showMediaActions ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                            :inert="!showMediaActions"
+                        >
+                            <div class="overflow-hidden">
+                                <div class="flex items-center justify-end gap-2 border-t border-divider bg-surface px-5 py-3">
+                                    <p v-if="mediaJustSaved" class="mr-auto text-xs text-muted">
+                                        {{ t('user::ui.saved') }}
+                                    </p>
+                                    <AppButton
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        :disabled="!mediaForm.isDirty"
+                                        @click="mediaForm.reset()"
+                                    >
+                                        {{ t('user::ui.reset') }}
+                                    </AppButton>
+                                    <AppButton
+                                        type="submit"
+                                        size="sm"
+                                        :disabled="!mediaForm.isDirty"
+                                        :loading="mediaForm.processing"
                                     >
                                         {{ t('user::ui.save') }}
                                     </AppButton>

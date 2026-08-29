@@ -7,6 +7,7 @@ namespace Modules\User\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Media\Enums\Visibility;
 
 final class UpdateAccountRequest extends FormRequest
 {
@@ -28,6 +29,8 @@ final class UpdateAccountRequest extends FormRequest
             ],
             'locale' => ['sometimes', 'nullable', 'string', Rule::in(config('trove.locales'))],
             'default_safety_filter' => ['sometimes', 'nullable', Rule::enum(SafetyRating::class)],
+            // Null means "use the system default".
+            'default_visibility' => ['sometimes', 'nullable', Rule::enum(Visibility::class)],
         ];
     }
 }
