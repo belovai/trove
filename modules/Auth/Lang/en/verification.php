@@ -14,5 +14,6 @@ return [
     'body' => 'We sent a confirmation link to :email. Open it to confirm the address.',
     'no_email' => 'This account has no email address. Add one in your account settings to continue.',
     'resend' => 'Send it again',
+    'resend_cooldown' => 'Sent (:seconds s)',
     'banner' => 'Your email address is not confirmed yet.',
 ];

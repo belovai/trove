@@ -14,5 +14,6 @@ return [
     'body' => 'Küldtünk egy megerősítő linket ide: :email. Nyisd meg a cím megerősítéséhez.',
     'no_email' => 'Ehhez a fiókhoz nincs e-mail cím. Adj meg egyet a fiókbeállításokban a folytatáshoz.',
     'resend' => 'Küldd újra',
+    'resend_cooldown' => 'Elküldve (:seconds mp)',
     'banner' => 'Az e-mail címed még nincs megerősítve.',
 ];
