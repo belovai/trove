@@ -17,6 +17,7 @@ return [
     'safety_rating' => 'Rating',
     'anonymous' => 'Post without attribution',
     'anonymous_uploader' => 'Anonymous',
+    'anonymous_badge' => 'Anonymous upload',
     'edit' => 'Edit',
     'delete' => 'Delete',
     'delete_confirm' => 'Delete this item?',

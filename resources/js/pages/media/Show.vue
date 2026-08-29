@@ -137,7 +137,12 @@ const destroy = async (): Promise<void> => {
 
             <dl class="grid grid-cols-2 gap-x-4 gap-y-1 px-4 py-3 text-sm">
                 <dt class="text-muted">{{ t('media::media.uploaded_by') }}</dt>
-                <dd class="text-text">{{ props.media.uploader ?? t('media::media.anonymous_uploader') }}</dd>
+                <dd class="text-text">
+                    <div>{{ props.media.uploader ?? t('media::media.anonymous_uploader') }}</div>
+                    <div v-if="props.media.is_anonymous && props.media.uploader" class="text-xs text-muted">
+                        {{ t('media::media.anonymous_badge') }}
+                    </div>
+                </dd>
                 <dt class="text-muted">{{ t('media::media.dimensions') }}</dt>
                 <dd class="text-text">{{ props.media.width }} &times; {{ props.media.height }}</dd>
                 <dt class="text-muted">{{ t('media::media.filesize') }}</dt>
