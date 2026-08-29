@@ -8,6 +8,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
+use Modules\Tag\Actions\SyncMediaTags;
+use Modules\Tag\Models\Tag;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -91,6 +93,22 @@ final class ManageMediaTest extends TestCase
 
         $this->assertSoftDeleted($media);
         Storage::disk('local')->assertExists($media->storage_path);
+    }
+
+    public function test_deleting_drops_the_tag_usage_count(): void
+    {
+        Storage::fake('local');
+
+        $owner = User::factory()->create();
+        $media = Media::factory()->for($owner, 'uploader')->create();
+        $tag = Tag::factory()->create();
+
+        app(SyncMediaTags::class)->handle($media, [$tag->id], $owner);
+        $this->assertSame(1, $tag->fresh()->usage_count);
+
+        $this->actingAs($owner)->delete("/m/{$media->hash_id}");
+
+        $this->assertSame(0, $tag->fresh()->usage_count);
     }
 
     public function test_a_deleted_item_leaves_browse_and_404s(): void
