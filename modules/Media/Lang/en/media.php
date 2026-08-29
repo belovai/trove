@@ -40,6 +40,7 @@ return [
     'untagged' => 'This post has no tags yet.',
     'filter_safety' => 'Rating',
     'filter_untagged' => 'Untagged only',
+    'filter_unlisted' => 'My unlisted',
     'filter_reset' => 'Reset filters',
     'paste_hint' => 'Or paste an image from the clipboard.',
     'edit_details' => 'Edit details',

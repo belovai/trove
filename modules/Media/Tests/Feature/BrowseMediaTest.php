@@ -82,12 +82,36 @@ final class BrowseMediaTest extends TestCase
         $this->get('/posts')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('filters.safety', ['safe'])
-                ->where('filters.untagged', false));
+                ->where('filters.untagged', false)
+                ->where('filters.unlisted', false));
 
-        $this->get('/posts?safety=safe,unsafe&untagged=1')
+        $this->get('/posts?safety=safe,unsafe&untagged=1&unlisted=1')
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('filters.safety', ['safe', 'unsafe'])
-                ->where('filters.untagged', true));
+                ->where('filters.untagged', true)
+                ->where('filters.unlisted', true));
+    }
+
+    public function test_the_unlisted_filter_lists_only_the_viewers_own_unlisted_items(): void
+    {
+        $viewer = User::factory()->create();
+        $ownUnlisted = Media::factory()->for($viewer, 'uploader')->unlisted()->create();
+        Media::factory()->unlisted()->create();
+        Media::factory()->for($viewer, 'uploader')->create();
+
+        $this->actingAs($viewer)
+            ->get('/posts?unlisted=1')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('media.data', 1)
+                ->where('media.data.0.hash_id', $ownUnlisted->hash_id));
+    }
+
+    public function test_a_guest_sees_nothing_with_the_unlisted_filter(): void
+    {
+        Media::factory()->unlisted()->create();
+
+        $this->get('/posts?unlisted=1')
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('media.data', 0));
     }
 
     public function test_the_viewer_default_widens_the_listing_without_a_parameter(): void
