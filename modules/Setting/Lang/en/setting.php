@@ -13,6 +13,11 @@ return [
     'app_name' => 'Site name',
     'app_name_hint' => 'Shown in the browser tab, the header and on the landing page.',
 
+    'block_media' => 'Media',
+    'block_media_hint' => 'Defaults applied to newly uploaded media.',
+    'media_default_visibility' => 'Default visibility',
+    'media_default_visibility_hint' => 'Preselected on upload for a user who has not set their own default.',
+
     'block_registration' => 'Registration',
     'block_registration_hint' => 'Who may create an account, and what is asked of them.',
     'registration_mode' => 'Registration',

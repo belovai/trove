@@ -8,6 +8,7 @@ use App\Support\SettingsSections;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\User\Models\User;
 
@@ -23,6 +24,7 @@ final class ShowAccountSettingsController
             'current' => 'account',
             'locales' => config('trove.locales'),
             'email' => $user->email,
+            'visibilities' => array_column(Visibility::cases(), 'value'),
             'stats' => [
                 'registered_at' => $user->created_at?->toIso8601String(),
                 'last_seen_at' => $user->last_login_at?->toIso8601String(),

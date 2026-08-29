@@ -17,6 +17,7 @@ const props = defineProps<{
     safety_ratings: SafetyRating[];
     max_filesize: number; // KB
     allowed_mimes: string[];
+    default_visibility: Visibility;
 }>();
 
 const { t } = useTranslations();
@@ -24,6 +25,7 @@ const { t } = useTranslations();
 const { items, uploading, add, remove, uploadAll, confirmDuplicate } = useUploadQueue({
     allowedMimes: props.allowed_mimes,
     maxFilesize: props.max_filesize,
+    defaultVisibility: props.default_visibility,
     messages: {
         type: t('media::media.error_type'),
         size: t('media::media.error_size'),

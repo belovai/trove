@@ -27,6 +27,7 @@ const props = defineProps<{
     locales: string[];
     email: string | null;
     stats: AccountStats;
+    visibilities: string[];
 }>();
 
 const { t, locale } = useTranslations();
@@ -47,6 +48,7 @@ const generalForm = useForm({
     email: props.email ?? '',
     locale: user.value?.locale ?? '',
     default_safety_filter: user.value?.default_safety_filter ?? '',
+    default_visibility: user.value?.default_visibility ?? '',
 });
 
 const generalJustSaved = ref(false);
@@ -179,6 +181,24 @@ const isDeleteOpen = ref(false);
                                 <option value="safe">safe</option>
                                 <option value="sketchy">sketchy</option>
                                 <option value="unsafe">unsafe</option>
+                            </AppSelect>
+                        </FormField>
+
+                        <FormField
+                            id="account-default-visibility"
+                            :label="t('user::account.default_visibility')"
+                            :hint="t('user::account.default_visibility_hint')"
+                            :error="generalForm.errors.default_visibility"
+                        >
+                            <AppSelect
+                                id="account-default-visibility"
+                                v-model="generalForm.default_visibility"
+                                :invalid="Boolean(generalForm.errors.default_visibility)"
+                            >
+                                <option value="">{{ t('user::account.default_visibility_system') }}</option>
+                                <option v-for="value in props.visibilities" :key="value" :value="value">
+                                    {{ t(`media::visibility.${value}`) }}
+                                </option>
                             </AppSelect>
                         </FormField>
                     </div>

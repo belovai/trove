@@ -6,6 +6,7 @@ namespace Modules\Setting\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Auth\Enums\RegistrationMode;
+use Modules\Media\Enums\Visibility;
 use Modules\Setting\Facades\Settings;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
@@ -111,6 +112,20 @@ final class SystemSettingsPageTest extends TestCase
 
         $this->assertSame(RegistrationMode::Open, Settings::get('registration.mode'));
         $this->assertSame('Trove', Settings::get('app.name'));
+    }
+
+    public function test_the_default_media_visibility_is_public_after_install(): void
+    {
+        $this->assertSame(Visibility::Public, Settings::get('media.default_visibility'));
+    }
+
+    public function test_an_administrator_can_change_the_default_media_visibility(): void
+    {
+        $this->actingAs($this->administrator())
+            ->patch('/settings/system', ['media.default_visibility' => 'unlisted'])
+            ->assertRedirect();
+
+        $this->assertSame(Visibility::Unlisted, Settings::get('media.default_visibility'));
     }
 
     public function test_a_regular_user_may_not_save(): void

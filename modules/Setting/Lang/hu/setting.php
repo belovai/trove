@@ -13,6 +13,11 @@ return [
     'app_name' => 'Oldal neve',
     'app_name_hint' => 'A böngésző fülén, a fejlécben és a nyitóoldalon jelenik meg.',
 
+    'block_media' => 'Média',
+    'block_media_hint' => 'Az újonnan feltöltött médiákra vonatkozó alapértelmezések.',
+    'media_default_visibility' => 'Alapértelmezett láthatóság',
+    'media_default_visibility_hint' => 'Ez van kiválasztva feltöltéskor annak, aki nem állított be saját alapértelmezést.',
+
     'block_registration' => 'Regisztráció',
     'block_registration_hint' => 'Ki hozhat létre fiókot, és mit kérünk tőle.',
     'registration_mode' => 'Regisztráció',

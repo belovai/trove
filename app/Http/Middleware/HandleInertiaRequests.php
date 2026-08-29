@@ -52,6 +52,7 @@ class HandleInertiaRequests extends Middleware
                     'rank' => $request->user()->rank->value,
                     'locale' => $request->user()->locale,
                     'default_safety_filter' => $request->user()->default_safety_filter,
+                    'default_visibility' => $request->user()->default_visibility,
                 ],
                 // The privilege map's abilities, each evaluated for this user, so the
                 // client never re-implements the rank comparison.

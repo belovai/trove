@@ -6,6 +6,7 @@ namespace Modules\User\Actions;
 
 use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Media\Enums\SafetyRating;
+use Modules\Media\Enums\Visibility;
 use Modules\Setting\Facades\Settings;
 use Modules\User\Models\User;
 
@@ -21,9 +22,11 @@ final class UpdateAccount
         ?string $email = null,
         ?string $locale = null,
         ?SafetyRating $defaultSafetyFilter = null,
+        ?Visibility $defaultVisibility = null,
         bool $touchesDisplayName = false,
         bool $touchesEmail = false,
         bool $touchesLocale = false,
+        bool $touchesDefaultVisibility = false,
     ): User {
         if ($touchesDisplayName) {
             // An empty string means "use my username", same as null.
@@ -51,6 +54,12 @@ final class UpdateAccount
         // Absent means "leave it alone" — there is no "no filter" state.
         if ($defaultSafetyFilter !== null) {
             $user->default_safety_filter = $defaultSafetyFilter;
+        }
+
+        // Unlike the safety filter, null here is a legitimate value ("use the
+        // system default"), so a touches flag distinguishes it from absent.
+        if ($touchesDefaultVisibility) {
+            $user->default_visibility = $defaultVisibility;
         }
 
         $user->save();
