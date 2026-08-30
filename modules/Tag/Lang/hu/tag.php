@@ -18,6 +18,7 @@ return [
     'tags' => 'Címkék',
     'section_tags' => 'Címkék',
     'search_tags' => 'Címkék keresése',
+    'all_categories' => 'Összes',
     'no_results' => 'Nincs találat.',
     'uncategorized' => 'kategória nélküli',
     'usage' => 'Használat',

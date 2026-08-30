@@ -20,6 +20,7 @@ return [
     'tags' => 'Tags',
     'section_tags' => 'Tags',
     'search_tags' => 'Search tags',
+    'all_categories' => 'All',
     'no_results' => 'No tags match that.',
     'uncategorized' => 'uncategorized',
     'usage' => 'Usage',

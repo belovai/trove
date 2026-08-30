@@ -40,6 +40,12 @@ export interface TagSummary {
     usage_count: number;
 }
 
+export interface TagCategorySummary {
+    name: string;
+    color: string;
+    tags_count: number;
+}
+
 export type TagSource = 'human' | 'implied' | 'ai';
 
 export interface TagOnMedia extends TagSummary {

@@ -11,6 +11,7 @@ use Modules\Tag\Actions\CreateAlias;
 use Modules\Tag\Actions\CreateImplication;
 use Modules\Tag\Actions\SyncMediaTags;
 use Modules\Tag\Models\Tag;
+use Modules\Tag\Models\TagCategory;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -37,6 +38,35 @@ final class BrowseTagsTest extends TestCase
 
         $this->get('/tags?q=ca')->assertOk()->assertInertia(
             fn (AssertableInertia $page) => $page->count('tags.data', 1),
+        );
+    }
+
+    public function test_the_index_filters_by_category(): void
+    {
+        $animals = TagCategory::factory()->create(['name' => 'animals']);
+        $objects = TagCategory::factory()->create(['name' => 'objects']);
+        Tag::factory()->create(['name' => 'cat', 'category_id' => $animals->id]);
+        Tag::factory()->create(['name' => 'chair', 'category_id' => $objects->id]);
+
+        $this->get('/tags?category=animals')->assertOk()->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->count('tags.data', 1)
+                ->where('tags.data.0.name', 'cat')
+                ->where('filters.category', 'animals'),
+        );
+    }
+
+    public function test_the_index_carries_categories_with_tag_counts(): void
+    {
+        $animals = TagCategory::factory()->create(['name' => 'animals']);
+        Tag::factory()->count(2)->create(['category_id' => $animals->id]);
+        Tag::factory()->create(['category_id' => null]);
+
+        $this->get('/tags')->assertOk()->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('categories', 1)
+                ->where('categories.0.name', 'animals')
+                ->where('categories.0.tags_count', 2),
         );
     }
 
