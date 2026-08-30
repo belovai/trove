@@ -48,4 +48,23 @@ return [
         'prune_after_days' => (int) env('TROVE_MEDIA_PRUNE_AFTER_DAYS', 30),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Avatars
+    |--------------------------------------------------------------------------
+    |
+    | disk:          same rationale as media.disk — served by a controller,
+    |                 never linked directly.
+    | size:           the square side length, in pixels, of the generated
+    |                 avatar. Only one size is kept; the browser scales it down.
+    | max_filesize:   kilobytes, for the uploaded source image.
+    |
+    */
+
+    'avatar' => [
+        'disk' => env('TROVE_AVATAR_DISK', 'local'),
+        'size' => (int) env('TROVE_AVATAR_SIZE', 256),
+        'max_filesize' => (int) env('TROVE_AVATAR_MAX_FILESIZE', 5 * 1024),
+    ],
+
 ];

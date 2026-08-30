@@ -1,4 +1,5 @@
 export type UserRank = 'restricted' | 'regular' | 'power' | 'moderator' | 'administrator';
+export type AvatarSource = 'letter' | 'upload' | 'gravatar';
 
 export interface AuthUser {
     username: string;
@@ -10,6 +11,8 @@ export interface AuthUser {
     default_safety_filter: SafetyRating;
     default_visibility: Visibility | null;
     show_unsafe_content: boolean;
+    avatar_source: AvatarSource;
+    avatar_url: string | null;
 }
 
 export type Visibility = 'public' | 'authenticated' | 'unlisted' | 'private';

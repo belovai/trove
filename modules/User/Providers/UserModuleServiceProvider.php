@@ -6,11 +6,21 @@ namespace Modules\User\Providers;
 
 use App\Providers\ModuleServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Modules\User\Contracts\AvatarStorage;
 use Modules\User\Models\User;
 use Modules\User\Policies\UserPolicy;
+use Modules\User\Services\LocalAvatarStorage;
 
 final class UserModuleServiceProvider extends ModuleServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->singleton(
+            AvatarStorage::class,
+            fn (): LocalAvatarStorage => new LocalAvatarStorage(config('trove.avatar.disk')),
+        );
+    }
+
     public function boot(): void
     {
         parent::boot();

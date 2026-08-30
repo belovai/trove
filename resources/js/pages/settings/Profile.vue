@@ -23,6 +23,40 @@ const initial = computed(() => (user.value?.display_name ?? '?').charAt(0).toUpp
 
 const form = useForm({ display_name: user.value?.display_name ?? '' });
 
+const avatarInput = ref<HTMLInputElement | null>(null);
+const avatarForm = useForm<{ source: 'upload' | 'letter' | 'gravatar'; avatar: File | null }>({
+    source: 'upload',
+    avatar: null,
+});
+
+const hasEmail = computed(() => Boolean(user.value?.email));
+
+const pickAvatar = (event: Event): void => {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0] ?? null;
+    target.value = '';
+
+    if (file === null) {
+        return;
+    }
+
+    avatarForm.source = 'upload';
+    avatarForm.avatar = file;
+    avatarForm.patch('/account/avatar', { preserveScroll: true, forceFormData: true });
+};
+
+const useGravatar = (): void => {
+    avatarForm.source = 'gravatar';
+    avatarForm.avatar = null;
+    avatarForm.patch('/account/avatar', { preserveScroll: true });
+};
+
+const useLetterAvatar = (): void => {
+    avatarForm.source = 'letter';
+    avatarForm.avatar = null;
+    avatarForm.patch('/account/avatar', { preserveScroll: true });
+};
+
 const justSaved = ref(false);
 let savedTimeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -93,20 +127,60 @@ onUnmounted(() => {
             </AppCard>
         </AppSection>
 
-        <AppSection :title="t('user::account.block_avatar')">
+        <AppSection :title="t('user::account.block_avatar')" :description="t('user::account.block_avatar_hint')">
             <AppCard>
-                <AppCardRow :label="t('user::account.block_avatar')" :description="t('user::ui.not_available_yet')">
+                <AppCardRow :label="t('user::account.block_avatar')">
                     <div class="flex items-center gap-3">
+                        <img
+                            v-if="user?.avatar_url"
+                            :src="user.avatar_url"
+                            alt=""
+                            class="h-9 w-9 rounded-xl object-cover"
+                            aria-hidden="true"
+                        />
                         <span
+                            v-else
                             class="flex h-9 w-9 items-center justify-center rounded-xl bg-surface text-sm font-semibold text-muted"
                             aria-hidden="true"
                         >
                             {{ initial }}
                         </span>
-                        <AppButton variant="secondary" size="sm" disabled>
+
+                        <AppButton
+                            variant="secondary"
+                            size="sm"
+                            :loading="avatarForm.processing && avatarForm.source === 'upload'"
+                            @click="avatarInput?.click()"
+                        >
                             {{ t('user::account.avatar_upload') }}
                         </AppButton>
+                        <AppButton
+                            v-if="hasEmail && user?.avatar_source !== 'gravatar'"
+                            variant="secondary"
+                            size="sm"
+                            :loading="avatarForm.processing && avatarForm.source === 'gravatar'"
+                            @click="useGravatar"
+                        >
+                            {{ t('user::account.avatar_use_gravatar') }}
+                        </AppButton>
+                        <AppButton
+                            v-if="user?.avatar_source !== 'letter'"
+                            variant="secondary"
+                            size="sm"
+                            :loading="avatarForm.processing && avatarForm.source === 'letter'"
+                            @click="useLetterAvatar"
+                        >
+                            {{ t('user::account.avatar_use_letter') }}
+                        </AppButton>
+
+                        <input ref="avatarInput" type="file" accept="image/*" class="hidden" @change="pickAvatar" />
                     </div>
+                    <p v-if="avatarForm.errors.source" class="mt-1 text-xs text-danger-strong">
+                        {{ avatarForm.errors.source }}
+                    </p>
+                    <p v-if="avatarForm.errors.avatar" class="mt-1 text-xs text-danger-strong">
+                        {{ avatarForm.errors.avatar }}
+                    </p>
                 </AppCardRow>
             </AppCard>
         </AppSection>
