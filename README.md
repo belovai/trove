@@ -6,20 +6,15 @@ SQLite with no external services.
 
 ---
 
-> ## ⚠️ Very early development — not usable yet
+> ## ⚠️ Early development — v0.1.0
 >
-> This is a **pre-alpha work in progress**. There is no release, no upgrade path,
-> and no stability guarantee of any kind.
+> Trove is **pre-1.0**. Core features work (accounts, upload, tagging,
+> settings, mail), but there is no upgrade path yet and the schema can still
+> change between releases without a migration. Search and invitations are not
+> built.
 >
-> - Most of what the architecture document describes **is not built yet** —
->   media upload/browse is in progress, no tags, no search, no invitations.
-> - The database schema **will change without migrations**. Expect to delete
->   `database/database.sqlite` and start over.
-> - Anything here may be rewritten or removed without notice.
->
-> **Do not run this on a public server, and do not put media you care about
-> into it.** It is published this early only so the design can be read and
-> discussed in the open.
+> Back up `database/database.sqlite` (or your configured database) before
+> upgrading, and read the [release notes](CHANGELOG.md) first.
 
 ---
 
@@ -54,10 +49,14 @@ system, search, visibility model and API surface.
 | Docker environment | working |
 | Inertia + Vue 3 + TypeScript scaffold | working |
 | Users, auth, ranks, bans | working |
-| Media upload, storage, thumbnails, visibility | in progress |
-| Tags, aliases, implications | not started |
+| Media upload, storage, thumbnails, visibility | working |
+| Tags, aliases, implications | working |
+| Settings (registration, mail, system) | working |
+| Mail delivery, verification, password reset | working |
+| Admin UI (users, tags, settings) | working |
 | Search | not started |
 | Invitations | not started |
+| Sanctum / external API clients | not started |
 
 ## Requirements
 
@@ -87,6 +86,16 @@ docker compose exec node npm run types
 
 See [`AGENTS.md`](AGENTS.md) for the full command reference and the conventions
 this codebase follows.
+
+## Releases
+
+Each GitHub release publishes a multi-arch (`amd64`/`arm64`) PHP runtime image
+to `ghcr.io/belovai/trove`, tagged with the release version, its `major.minor`
+and `latest`. See [`CHANGELOG.md`](CHANGELOG.md) for what changed per version.
+The image ships the PHP runtime and extensions only — the application code
+(`public/`, `resources/`, migrations) is still supplied by your checkout,
+bind-mounted the same way `compose.yaml` mounts it for `php`; there is no
+standalone deployment compose file yet.
 
 ## Stack
 
