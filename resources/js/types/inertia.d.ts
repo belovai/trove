@@ -9,6 +9,7 @@ export interface AuthUser {
     locale: string | null;
     default_safety_filter: SafetyRating;
     default_visibility: Visibility | null;
+    show_unsafe_content: boolean;
 }
 
 export type Visibility = 'public' | 'authenticated' | 'unlisted' | 'private';

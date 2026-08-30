@@ -42,6 +42,7 @@ use Modules\User\Enums\UserRank;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Visibility|null $default_visibility
+ * @property bool $show_unsafe_content
  * @property-read Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
@@ -67,6 +68,7 @@ use Modules\User\Enums\UserRank;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRank($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereShowUnsafeContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUsername($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
@@ -83,6 +85,7 @@ use Modules\User\Enums\UserRank;
     'locale',
     'default_safety_filter',
     'default_visibility',
+    'show_unsafe_content',
     'last_login_at',
 )]
 #[Hidden(
@@ -161,6 +164,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'rank' => UserRank::class,
             'default_safety_filter' => SafetyRating::class,
             'default_visibility' => Visibility::class,
+            'show_unsafe_content' => 'boolean',
         ];
     }
 

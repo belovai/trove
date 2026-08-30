@@ -23,10 +23,12 @@ final class UpdateAccount
         ?string $locale = null,
         ?SafetyRating $defaultSafetyFilter = null,
         ?Visibility $defaultVisibility = null,
+        ?bool $showUnsafeContent = null,
         bool $touchesDisplayName = false,
         bool $touchesEmail = false,
         bool $touchesLocale = false,
         bool $touchesDefaultVisibility = false,
+        bool $touchesShowUnsafeContent = false,
     ): User {
         if ($touchesDisplayName) {
             // An empty string means "use my username", same as null.
@@ -60,6 +62,12 @@ final class UpdateAccount
         // system default"), so a touches flag distinguishes it from absent.
         if ($touchesDefaultVisibility) {
             $user->default_visibility = $defaultVisibility;
+        }
+
+        // false is a legitimate value here too, so absence is tracked the
+        // same way as the visibility default.
+        if ($touchesShowUnsafeContent) {
+            $user->show_unsafe_content = $showUnsafeContent;
         }
 
         $user->save();

@@ -29,10 +29,12 @@ final class UpdateAccountController
             locale: $request->input('locale'),
             defaultSafetyFilter: $request->enum('default_safety_filter', SafetyRating::class),
             defaultVisibility: $request->enum('default_visibility', Visibility::class),
+            showUnsafeContent: $request->boolean('show_unsafe_content'),
             touchesDisplayName: $request->has('display_name'),
             touchesEmail: $request->has('email'),
             touchesLocale: $request->has('locale'),
             touchesDefaultVisibility: $request->has('default_visibility'),
+            touchesShowUnsafeContent: $request->has('show_unsafe_content'),
         );
 
         return redirect()->back(fallback: route('settings.account'))->with('success', __('user::account.saved'));

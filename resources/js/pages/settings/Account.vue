@@ -49,6 +49,7 @@ const generalForm = useForm({
     locale: user.value?.locale ?? '',
     default_safety_filter: user.value?.default_safety_filter ?? '',
     default_visibility: user.value?.default_visibility ?? '',
+    show_unsafe_content: user.value?.show_unsafe_content ?? false,
 });
 
 const generalJustSaved = ref(false);
@@ -183,6 +184,16 @@ const isDeleteOpen = ref(false);
                                 <option value="unsafe">unsafe</option>
                             </AppSelect>
                         </FormField>
+
+                        <div class="flex items-center justify-between gap-6">
+                            <div class="min-w-0">
+                                <label for="account-show-unsafe" class="text-sm font-medium text-text">
+                                    {{ t('user::account.show_unsafe_content') }}
+                                </label>
+                                <p class="mt-0.5 text-xs text-muted">{{ t('user::account.show_unsafe_content_hint') }}</p>
+                            </div>
+                            <AppToggle id="account-show-unsafe" v-model="generalForm.show_unsafe_content" />
+                        </div>
 
                         <FormField
                             id="account-default-visibility"

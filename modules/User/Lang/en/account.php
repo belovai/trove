@@ -16,6 +16,8 @@ return [
     'locale_default' => 'Follow my browser',
     'default_safety_filter' => 'Default content filter',
     'default_safety_filter_hint' => 'How much is shown by default when browsing. You can change it per page.',
+    'show_unsafe_content' => 'Show unsafe content',
+    'show_unsafe_content_hint' => 'Off: unsafe items are covered until you reveal them one by one. On: unsafe items are always shown.',
     'default_visibility' => 'Default upload visibility',
     'default_visibility_hint' => 'Preselected when you upload. You can change it per file.',
     'default_visibility_system' => 'System default',

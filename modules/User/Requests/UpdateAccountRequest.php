@@ -32,6 +32,7 @@ final class UpdateAccountRequest extends FormRequest
             'default_safety_filter' => ['sometimes', 'nullable', Rule::enum(SafetyRating::class)],
             // Null means "use the system default".
             'default_visibility' => ['sometimes', 'nullable', Rule::enum(Visibility::class)],
+            'show_unsafe_content' => ['sometimes', 'boolean'],
         ];
     }
 }
