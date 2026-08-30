@@ -7,6 +7,7 @@ namespace Modules\User\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Auth\Rules\NotBlockedName;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 
@@ -23,7 +24,7 @@ final class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'display_name' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'display_name' => ['sometimes', 'nullable', 'string', 'max:64', new NotBlockedName],
             'email' => [
                 'sometimes',
                 'nullable',

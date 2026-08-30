@@ -7,6 +7,7 @@ namespace Modules\User\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia;
+use Modules\Setting\Facades\Settings;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -84,6 +85,19 @@ final class UserAdministrationTest extends TestCase
 
         $this->assertSame(UserRank::Regular, $created->rank);
         $this->assertTrue(Hash::check('correct-horse', $created->password));
+    }
+
+    public function test_creating_a_user_with_a_blocked_username_is_rejected(): void
+    {
+        Settings::set('registration.blocked_names', ['Moderator']);
+
+        $this->actingAs($this->administrator())
+            ->post('/settings/users', [
+                'username' => 'moderator',
+                'password' => 'correct-horse',
+                'rank' => 'regular',
+            ])
+            ->assertSessionHasErrors('username');
     }
 
     public function test_an_administrator_can_change_a_rank(): void

@@ -6,6 +6,7 @@ namespace Modules\User\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Auth\Rules\NotBlockedName;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 
@@ -19,7 +20,7 @@ final class UpdateAccountRequest extends FormRequest
         return [
             // Every field is `sometimes`: the account and profile sections
             // submit different subsets of the same endpoint.
-            'display_name' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'display_name' => ['sometimes', 'nullable', 'string', 'max:64', new NotBlockedName],
             'email' => [
                 'sometimes',
                 'nullable',

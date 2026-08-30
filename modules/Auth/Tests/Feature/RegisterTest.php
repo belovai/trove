@@ -99,6 +99,17 @@ final class RegisterTest extends TestCase
         ])->assertSessionHasErrors('username');
     }
 
+    public function test_a_blocked_username_is_rejected_case_insensitively(): void
+    {
+        Settings::set('registration.blocked_names', ['Anonymous']);
+
+        $this->post('/register', [
+            'username' => 'ANONYMOUS',
+            'password' => 'password1',
+            'password_confirmation' => 'password1',
+        ])->assertSessionHasErrors('username');
+    }
+
     public function test_a_short_password_is_rejected(): void
     {
         $this->post('/register', [

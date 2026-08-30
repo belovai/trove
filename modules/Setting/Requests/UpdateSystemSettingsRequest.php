@@ -21,6 +21,7 @@ final class UpdateSystemSettingsRequest extends FormRequest
         'registration.email',
         'registration.approval',
         'registration.verify',
+        'registration.blocked_names',
         'media.default_visibility',
     ];
 
