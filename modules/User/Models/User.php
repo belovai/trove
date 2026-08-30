@@ -157,7 +157,11 @@ final class User extends Authenticatable implements MustVerifyEmail
             AvatarSource::Gravatar => $this->email !== null
                 ? 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email)))
                 : null,
-            AvatarSource::Letter => null,
+            // Covers AvatarSource::Letter and null: an in-memory model that
+            // was never reloaded from the database after a plain create()
+            // has no cast value yet, even though the column itself defaults
+            // to "letter".
+            default => null,
         };
     }
 

@@ -45,6 +45,16 @@ final class ServeAvatarTest extends TestCase
         $this->assertNull($user->avatarUrl());
     }
 
+    public function test_avatar_url_is_null_for_a_freshly_created_model_without_the_attribute_set(): void
+    {
+        // Mirrors every factory()->create() call across the suite that
+        // doesn't pass avatar_source explicitly: the in-memory model has no
+        // cast value yet, even though the column defaults to "letter".
+        $user = User::factory()->create();
+
+        $this->assertNull($user->avatarUrl());
+    }
+
     public function test_avatar_url_builds_a_gravatar_link_from_the_email(): void
     {
         $user = User::factory()->create(['avatar_source' => AvatarSource::Gravatar, 'email' => 'Ada@Example.test']);
