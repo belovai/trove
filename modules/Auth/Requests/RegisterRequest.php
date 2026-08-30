@@ -7,6 +7,7 @@ namespace Modules\Auth\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 use Modules\Auth\Enums\RegistrationEmailPolicy;
+use Modules\Auth\Rules\NotBlockedName;
 use Modules\Setting\Facades\Settings;
 
 final class RegisterRequest extends FormRequest
@@ -24,6 +25,7 @@ final class RegisterRequest extends FormRequest
                 'max:32',
                 'regex:/^[a-zA-Z0-9_-]+$/',
                 'unique:users,username',
+                new NotBlockedName,
             ],
             'email' => $this->emailRules(),
             'password' => ['required', 'confirmed', Password::defaults()],

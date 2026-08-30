@@ -38,4 +38,7 @@ return [
     'registration_verify_off' => 'Ki — nem megy megerősítő levél',
     'registration_verify_soft' => 'Puha — kérjük a megerősítést, de semmi nincs tiltva',
     'registration_verify_required' => 'Kötelező — a feltöltéshez és a címkézéshez megerősített cím kell',
+
+    'registration_blocked_names' => 'Tiltott nevek',
+    'registration_blocked_names_hint' => 'Soronként egy. A pontosan (kis-nagybetűtől függetlenül) egyező felhasználónév vagy megjelenítendő név elutasításra kerül, regisztrációkor és mindenhol, ahol módosítható.',
 ];

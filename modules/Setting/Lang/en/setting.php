@@ -38,4 +38,7 @@ return [
     'registration_verify_off' => 'Off — no confirmation message is sent',
     'registration_verify_soft' => 'Soft — confirmation is asked for, nothing is blocked',
     'registration_verify_required' => 'Required — uploading and tagging need a confirmed address',
+
+    'registration_blocked_names' => 'Blocked names',
+    'registration_blocked_names_hint' => 'One per line. A username or display name that exactly matches one of these (case-insensitive) is rejected, at registration and everywhere it can be changed.',
 ];

@@ -128,6 +128,15 @@ final class SystemSettingsPageTest extends TestCase
         $this->assertSame(Visibility::Unlisted, Settings::get('media.default_visibility'));
     }
 
+    public function test_an_administrator_can_save_the_blocked_names_list(): void
+    {
+        $this->actingAs($this->administrator())
+            ->patch('/settings/system', ['registration.blocked_names' => ['Anonymous', 'Support']])
+            ->assertRedirect();
+
+        $this->assertSame(['Anonymous', 'Support'], Settings::get('registration.blocked_names'));
+    }
+
     public function test_a_regular_user_may_not_save(): void
     {
         $this->actingAs(User::factory()->create(['rank' => UserRank::Regular]))

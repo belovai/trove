@@ -9,6 +9,7 @@ import AppCardRow from '@/components/ui/AppCardRow.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppToggle from '@/components/ui/AppToggle.vue';
+import AppTextarea from '@/components/ui/AppTextarea.vue';
 import Alert from '@/components/ui/Alert.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
@@ -19,7 +20,7 @@ defineOptions({ layout: AppLayout });
 const props = defineProps<{
     sections: SettingsSection[];
     current: string;
-    settings: Record<string, string | boolean>;
+    settings: Record<string, string | boolean | string[]>;
     registration_modes: string[];
     email_policies: string[];
     verification_modes: string[];
@@ -88,6 +89,9 @@ const registrationForm = useForm({
     registrationEmail: String(props.settings['registration.email'] ?? 'optional'),
     registrationApproval: Boolean(props.settings['registration.approval']),
     registrationVerify: String(props.settings['registration.verify'] ?? 'soft'),
+    registrationBlockedNames: (
+        (props.settings['registration.blocked_names'] as string[] | undefined) ?? []
+    ).join('\n'),
 });
 
 /**
@@ -112,6 +116,10 @@ const submitRegistration = (): void => {
             'registration.email': data.registrationEmail,
             'registration.approval': data.registrationApproval,
             'registration.verify': data.registrationVerify,
+            'registration.blocked_names': data.registrationBlockedNames
+                .split('\n')
+                .map((name) => name.trim())
+                .filter((name) => name.length > 0),
         }))
         .patch('/settings/system', {
             preserveScroll: true,
@@ -322,6 +330,19 @@ onUnmounted(() => {
                                         {{ t(`setting::setting.registration_verify_${mode}`) }}
                                     </option>
                                 </AppSelect>
+                            </div>
+                        </AppCardRow>
+
+                        <AppCardRow
+                            :label="t('setting::setting.registration_blocked_names')"
+                            :description="t('setting::setting.registration_blocked_names_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppTextarea
+                                    id="system-registration-blocked-names"
+                                    v-model="registrationForm.registrationBlockedNames"
+                                    :rows="4"
+                                />
                             </div>
                         </AppCardRow>
 

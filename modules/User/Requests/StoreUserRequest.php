@@ -8,6 +8,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Modules\Auth\Rules\NotBlockedName;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 
@@ -24,8 +25,8 @@ final class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', 'max:32', 'regex:/^[a-z0-9_]+$/i', Rule::unique('users', 'username')],
-            'display_name' => ['nullable', 'string', 'max:64'],
+            'username' => ['required', 'string', 'max:32', 'regex:/^[a-z0-9_]+$/i', Rule::unique('users', 'username'), new NotBlockedName],
+            'display_name' => ['nullable', 'string', 'max:64', new NotBlockedName],
             'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'string', Password::min(8)],
             'rank' => ['required', Rule::enum(UserRank::class)],

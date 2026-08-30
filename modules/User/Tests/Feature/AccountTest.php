@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\Setting\Facades\Settings;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -46,6 +47,19 @@ final class AccountTest extends TestCase
         $user = User::factory()->create(['display_name' => 'Arpad']);
 
         $this->actingAs($user)->patch('/account', ['display_name' => '', 'locale' => null]);
+
+        $this->assertNull($user->fresh()->display_name);
+    }
+
+    public function test_a_blocked_display_name_is_rejected_case_insensitively(): void
+    {
+        Settings::set('registration.blocked_names', ['Support']);
+
+        $user = User::factory()->create(['display_name' => null]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => 'support', 'locale' => null])
+            ->assertSessionHasErrors('display_name');
 
         $this->assertNull($user->fresh()->display_name);
     }

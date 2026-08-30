@@ -37,4 +37,9 @@ return [
         EmailVerificationMode::class,
         (string) env('TROVE_REGISTRATION_VERIFY', 'soft'),
     ),
+
+    // Names a username or display name may not exactly match, case-insensitively
+    // (e.g. "Anonymous", "Support"). Checked at registration and at every place
+    // a username or display name is set, including admin user management.
+    'registration.blocked_names' => SettingDefinition::array()->rules(['array']),
 ];
