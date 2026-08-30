@@ -16,6 +16,8 @@ return [
     'locale_default' => 'A böngészőm szerint',
     'default_safety_filter' => 'Alapértelmezett tartalomszűrő',
     'default_safety_filter_hint' => 'Mennyi látszik alapból böngészéskor. A listaoldalon bármikor felülírható.',
+    'show_unsafe_content' => 'Unsafe tartalom megmutatása',
+    'show_unsafe_content_hint' => 'Kikapcsolva: az unsafe tételek letakarva jelennek meg, egyesével felfedhetők. Bekapcsolva: az unsafe tételek mindig látszanak.',
     'default_visibility' => 'Feltöltés alapértelmezett láthatósága',
     'default_visibility_hint' => 'Ez van kiválasztva feltöltéskor. Fájlonként felülírható.',
     'default_visibility_system' => 'Rendszer alapértelmezés',

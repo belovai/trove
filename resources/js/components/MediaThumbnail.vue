@@ -5,6 +5,9 @@ import type { MediaCardData } from '@/types/inertia';
 const props = defineProps<{
     media: MediaCardData;
     size: 'thumb' | 'preview';
+    /** Whether to blur the image — the cover overlay itself (icon, buttons)
+     * is drawn by the parent, as a sibling of the link, not in here. */
+    covered: boolean;
 }>();
 
 /*
@@ -114,7 +117,7 @@ function checkAlreadyLoaded(el: Element | ComponentPublicInstance | null): void 
             :alt="props.media.title ?? ''"
             loading="lazy"
             class="h-full w-full object-cover opacity-0 transition-opacity duration-200"
-            :class="{ 'opacity-100': loaded }"
+            :class="{ 'opacity-100': loaded, 'blur-xl scale-110': props.covered }"
             @load="loaded = true"
         />
     </div>

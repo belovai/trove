@@ -115,6 +115,28 @@ final class AccountTest extends TestCase
             ->assertSessionHasErrors('default_visibility');
     }
 
+    public function test_a_user_can_turn_on_show_unsafe_content(): void
+    {
+        $user = User::factory()->create(['show_unsafe_content' => false]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'show_unsafe_content' => true])
+            ->assertRedirect('/settings/account');
+
+        $this->assertTrue($user->fresh()->show_unsafe_content);
+    }
+
+    public function test_a_user_can_turn_off_show_unsafe_content(): void
+    {
+        $user = User::factory()->create(['show_unsafe_content' => true]);
+
+        $this->actingAs($user)
+            ->patch('/account', ['display_name' => null, 'locale' => null, 'show_unsafe_content' => false])
+            ->assertRedirect('/settings/account');
+
+        $this->assertFalse($user->fresh()->show_unsafe_content);
+    }
+
     public function test_an_unsupported_locale_is_rejected(): void
     {
         $user = User::factory()->create();
