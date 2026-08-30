@@ -58,8 +58,11 @@ return [
     'block_profile' => 'Profil',
     'block_profile_hint' => 'Így jelenik meg a neved másoknak.',
     'block_avatar' => 'Avatar',
-    'block_avatar_hint' => 'Még nem elérhető.',
-    'avatar_upload' => 'Avatar feltöltése',
+    'block_avatar_hint' => 'A neved mellett jelenik meg mindenhol az oldalon.',
+    'avatar_upload' => 'Kép feltöltése',
+    'avatar_use_gravatar' => 'Gravatar használata',
+    'avatar_use_letter' => 'Kép eltávolítása',
+    'avatar_gravatar_requires_email' => 'A Gravatar használatához előbb adj meg egy email címet.',
 
     'user_created' => 'A felhasználó létrehozva.',
     'user_saved' => 'A felhasználó frissítve.',

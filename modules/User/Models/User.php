@@ -22,6 +22,7 @@ use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\User\Database\Factories\UserFactory;
+use Modules\User\Enums\AvatarSource;
 use Modules\User\Enums\UserRank;
 
 /**
@@ -43,6 +44,8 @@ use Modules\User\Enums\UserRank;
  * @property Carbon|null $updated_at
  * @property Visibility|null $default_visibility
  * @property bool $show_unsafe_content
+ * @property AvatarSource $avatar_source
+ * @property string|null $avatar_path
  * @property-read Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
@@ -53,6 +56,8 @@ use Modules\User\Enums\UserRank;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatarPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatarSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBanReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBannedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
@@ -86,6 +91,8 @@ use Modules\User\Enums\UserRank;
     'default_safety_filter',
     'default_visibility',
     'show_unsafe_content',
+    'avatar_source',
+    'avatar_path',
     'last_login_at',
 )]
 #[Hidden(
@@ -136,6 +143,25 @@ final class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Null means "show the letter avatar" — the frontend's fallback, not
+     * something computed here.
+     */
+    public function avatarUrl(): ?string
+    {
+        return match ($this->avatar_source) {
+            AvatarSource::Upload => $this->avatar_path !== null
+                ? route('avatar.show', $this).'?v='.$this->updated_at?->timestamp
+                : null,
+            // The email itself is never exposed to other viewers — only this
+            // derived hash is.
+            AvatarSource::Gravatar => $this->email !== null
+                ? 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email)))
+                : null,
+            AvatarSource::Letter => null,
+        };
+    }
+
+    /**
      * @return HasMany<Media, $this>
      */
     public function media(): HasMany
@@ -165,6 +191,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'default_safety_filter' => SafetyRating::class,
             'default_visibility' => Visibility::class,
             'show_unsafe_content' => 'boolean',
+            'avatar_source' => AvatarSource::class,
         ];
     }
 

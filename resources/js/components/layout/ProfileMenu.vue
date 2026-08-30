@@ -10,8 +10,8 @@ const { t } = useTranslations();
 
 const isOpen = ref(false);
 
-// Avatars are not implemented yet; the placeholder is the display name's first
-// letter, which is also what the settings avatar block shows.
+// Falls back to the display name's first letter when no avatar is set — the
+// same fallback the settings avatar block uses.
 const initial = computed(() => (user.value?.display_name ?? '?').charAt(0).toUpperCase());
 
 const close = (): void => {
@@ -33,7 +33,15 @@ const signOut = (): void => {
             :aria-label="t('user::ui.nav_profile_menu')"
             @click="isOpen = !isOpen"
         >
+            <img
+                v-if="user?.avatar_url"
+                :src="user.avatar_url"
+                alt=""
+                class="h-7 w-7 shrink-0 rounded-xl object-cover"
+                aria-hidden="true"
+            />
             <span
+                v-else
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-surface text-xs font-semibold text-muted"
                 aria-hidden="true"
             >

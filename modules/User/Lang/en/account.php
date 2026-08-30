@@ -58,8 +58,11 @@ return [
     'block_profile' => 'Profile',
     'block_profile_hint' => 'How your name appears to others.',
     'block_avatar' => 'Avatar',
-    'block_avatar_hint' => 'Not available yet.',
-    'avatar_upload' => 'Upload avatar',
+    'block_avatar_hint' => 'Shown next to your name across the site.',
+    'avatar_upload' => 'Upload photo',
+    'avatar_use_gravatar' => 'Use Gravatar',
+    'avatar_use_letter' => 'Remove photo',
+    'avatar_gravatar_requires_email' => 'Add an email address first to use Gravatar.',
 
     'user_created' => 'The user has been created.',
     'user_saved' => 'The user has been updated.',
