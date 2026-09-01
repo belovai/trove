@@ -1,0 +1,27 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/nesbot/carbon/extension.neon
+
+parameters:
+
+    paths:
+        - app/
+        - modules/
+        - database/
+        - routes/
+
+    # Level 10 is the highest level
+    level: 8
+
+    configDirectories:
+        - config
+        - modules/*/Config
+
+    databaseMigrationsPath:
+        - database/migrations
+        - modules/*/Database/Migrations
+
+    parseModelCastsMethod: true
+
+    excludePaths:
+        - modules/*/Tests/*
