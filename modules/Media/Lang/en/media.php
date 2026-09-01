@@ -51,4 +51,5 @@ return [
     'section_meta' => 'Details',
     'edit_tags' => 'Edit tags',
     'uploaded_at' => 'Uploaded',
+    'download_original' => 'Download original',
 ];

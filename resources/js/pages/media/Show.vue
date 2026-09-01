@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import { ArrowDownTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import MediaViewer from '@/components/MediaViewer.vue';
@@ -149,6 +149,20 @@ const destroy = async (): Promise<void> => {
                 <dt class="text-muted">{{ t('media::media.uploaded_at') }}</dt>
                 <dd class="text-text">{{ props.media.created_at ?? '—' }}</dd>
             </dl>
+
+            <div class="px-4 py-3">
+                <!-- A plain link, not an Inertia visit: the response is a file
+                     stream. `download` points the browser at the original,
+                     never the preview or a thumbnail. -->
+                <a
+                    :href="`/m/${props.media.hash_id}/file`"
+                    download
+                    class="inline-flex items-center gap-1.5 text-sm text-muted underline-offset-2 hover:text-text hover:underline"
+                >
+                    <ArrowDownTrayIcon class="h-4 w-4" aria-hidden="true" />
+                    {{ t('media::media.download_original') }}
+                </a>
+            </div>
         </aside>
     </div>
 
