@@ -18,6 +18,12 @@ jobs:
         with:
           php-version: "8.4"
 
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
       - name: Install composer dependencies
         run: composer install --no-interaction --prefer-dist
 
@@ -46,6 +52,12 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.4"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
 
       - name: Install composer dependencies
         run: composer install --no-interaction --prefer-dist
@@ -76,6 +88,12 @@ jobs:
         with:
           php-version: "8.4"
           extensions: gd, imagick, pdo_sqlite, intl, zip, bcmath, exif, pcntl, opcache, redis
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
 
       - name: Install composer dependencies
         run: composer install --no-interaction --prefer-dist
