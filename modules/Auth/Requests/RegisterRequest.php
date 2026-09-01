@@ -6,6 +6,7 @@ namespace Modules\Auth\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use LogicException;
 use Modules\Auth\Enums\RegistrationEmailPolicy;
 use Modules\Auth\Rules\NotBlockedName;
 use Modules\Setting\Facades\Settings;
@@ -41,6 +42,7 @@ final class RegisterRequest extends FormRequest
             RegistrationEmailPolicy::Required => ['required', 'email', 'max:255', 'unique:users,email'],
             RegistrationEmailPolicy::Off => ['prohibited'],
             RegistrationEmailPolicy::Optional => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            default => throw new LogicException('Unknown registration email policy.'),
         };
     }
 }

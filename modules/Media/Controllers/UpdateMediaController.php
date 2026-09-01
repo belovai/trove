@@ -23,7 +23,7 @@ final class UpdateMediaController
     {
         $item = Media::query()->visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
 
-        abort_unless($request->user()?->can('update', $item), 403);
+        abort_unless($request->user()?->can('update', $item) ?? false, 403);
 
         // An absent field keeps its stored value: the two editing surfaces on
         // the media page submit disjoint subsets.

@@ -19,7 +19,7 @@ final class DestroyMediaController
     {
         $item = Media::query()->visibleTo($request->user())->where('hash_id', $media)->firstOrFail();
 
-        abort_unless($request->user()?->can('delete', $item), 403);
+        abort_unless($request->user()?->can('delete', $item) ?? false, 403);
 
         $this->deleteMedia->handle($item);
 

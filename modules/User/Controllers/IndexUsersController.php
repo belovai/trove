@@ -16,7 +16,7 @@ final class IndexUsersController
 {
     public function __invoke(Request $request): Response
     {
-        abort_unless($request->user()?->can('viewAny', User::class), 403);
+        abort_unless($request->user()?->can('viewAny', User::class) ?? false, 403);
 
         $search = $request->string('search')->trim()->toString();
         $rank = UserRank::tryFrom($request->string('rank')->toString());

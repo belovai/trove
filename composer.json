@@ -16,6 +16,7 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.10",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
@@ -48,6 +49,9 @@
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "@php artisan dev"
+        ],
+        "analyse": [
+            "@php -d memory_limit=-1 vendor/bin/phpstan analyse --ansi"
         ],
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",

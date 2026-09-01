@@ -21,7 +21,7 @@ final class StoreAliasController
     {
         $model = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('update', $model), 403);
+        abort_unless($request->user()?->can('update', $model) ?? false, 403);
 
         try {
             $this->createAlias->handle($model, $request->string('alias')->value());

@@ -19,7 +19,7 @@ final class DestroyImplicationController
     {
         $model = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('update', $model), 403);
+        abort_unless($request->user()?->can('update', $model) ?? false, 403);
 
         $this->deleteImplication->handle($model, Tag::query()->where('name', $implied)->firstOrFail());
 

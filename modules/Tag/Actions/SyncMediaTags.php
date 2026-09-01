@@ -35,7 +35,13 @@ final class SyncMediaTags
         $tagIds = array_values(array_unique($tagIds));
 
         DB::transaction(function () use ($media, $tagIds, $taggedBy): void {
-            $before = DB::table('media_tag')->where('media_id', $media->id)->pluck('tag_id')->all();
+            $before = array_values(
+                DB::table('media_tag')
+                    ->where('media_id', $media->id)
+                    ->pluck('tag_id')
+                    ->map(static fn ($id): int => (int) $id)
+                    ->all()
+            );
 
             // whereNotIn with an empty array is `1 = 1`, so clearing every tag
             // is the same code path as changing them.

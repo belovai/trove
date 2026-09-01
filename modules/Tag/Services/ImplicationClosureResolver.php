@@ -95,6 +95,7 @@ final class ImplicationClosureResolver
             SELECT DISTINCT tag_id FROM closure
         SQL;
 
+        /** @var list<object{tag_id: int|string}> $rows */
         $rows = DB::select($sql, [...$tagIds, self::MAX_DEPTH]);
 
         $ids = array_map(static fn (object $row): int => (int) $row->tag_id, $rows);
@@ -115,7 +116,7 @@ final class ImplicationClosureResolver
                 $idsToExclude[] = $candidateSeed;
             } else {
                 // Check if candidateSeed is reachable from otherSeeds.
-                $closure = $this->walkRaw($otherSeeds, $from, $to);
+                $closure = $this->walkRaw(array_values($otherSeeds), $from, $to);
 
                 if (!in_array($candidateSeed, $closure, true)) {
                     // Not reachable from other seeds; exclude it.
@@ -158,6 +159,7 @@ final class ImplicationClosureResolver
             SELECT DISTINCT tag_id FROM closure
         SQL;
 
+        /** @var list<object{tag_id: int|string}> $rows */
         $rows = DB::select($sql, [...$tagIds, self::MAX_DEPTH]);
 
         return array_map(static fn (object $row): int => (int) $row->tag_id, $rows);

@@ -52,7 +52,7 @@ final class BrowseMediaRequest extends FormRequest
 
         return new BrowseFilters(
             ratings: $this->safetyRatings()
-                ?? SafetyRating::upTo($viewer?->default_safety_filter ?? SafetyRating::Safe),
+                ?? SafetyRating::upTo($viewer->default_safety_filter ?? SafetyRating::Safe),
             untagged: $this->boolean('untagged'),
             unlisted: $this->boolean('unlisted'),
         );
@@ -70,9 +70,9 @@ final class BrowseMediaRequest extends FormRequest
             return null;
         }
 
-        return array_map(
+        return array_values(array_map(
             fn (string $value): SafetyRating => SafetyRating::from($value),
             $this->array('safety'),
-        );
+        ));
     }
 }

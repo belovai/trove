@@ -50,7 +50,7 @@ final class ShowMediaController
                         'category' => $tag->category?->name,
                         'color' => $tag->category?->color,
                         'usage_count' => $tag->usage_count,
-                        'source' => $tag->pivot->source,
+                        'source' => $tag->getRelation('pivot')->getAttribute('source'),
                     ])
                     ->values(),
             ],
@@ -69,13 +69,13 @@ final class ShowMediaController
     private function uploader(Request $request, Media $item): ?string
     {
         if (!$item->is_anonymous) {
-            return $item->uploader->displayName();
+            return $item->uploader?->displayName();
         }
 
         $viewer = $request->user();
 
         if ($viewer !== null && ($viewer->id === $item->user_id || $viewer->can('media.moderate'))) {
-            return $item->uploader->displayName();
+            return $item->uploader?->displayName();
         }
 
         return null;

@@ -19,7 +19,7 @@ final class DestroyTagController
     {
         $model = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('delete', $model), 403);
+        abort_unless($request->user()?->can('delete', $model) ?? false, 403);
 
         $this->deleteTag->handle($model);
 

@@ -68,7 +68,7 @@ final class CreateUserCommand extends Command
             validate: $this->validator('email'),
         ));
 
-        $rank = $this->resolve($this->option('rank'), fn (): string => select(
+        $rank = $this->resolve($this->option('rank'), fn (): string => (string) select(
             label: 'Rank',
             options: array_column(UserRank::cases(), 'value', 'value'),
             default: UserRank::Regular->value,
@@ -95,9 +95,9 @@ final class CreateUserCommand extends Command
         }
 
         $user = $createUser->handle(
-            username: $attributes['username'],
+            username: (string) $attributes['username'],
             password: $password,
-            rank: UserRank::from($attributes['rank']),
+            rank: UserRank::from((string) $attributes['rank']),
             displayName: $attributes['display_name'],
             email: $attributes['email'],
         );

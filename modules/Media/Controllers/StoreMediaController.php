@@ -34,7 +34,7 @@ final class StoreMediaController
         if (config('trove.media.duplicate_policy') === DuplicatePolicy::Warn->value
             && !$request->boolean('confirm_duplicate')) {
             $duplicate = $this->storeUploadedMedia->findDuplicateFor(
-                hash_file('sha256', $request->file('file')->getRealPath()),
+                (string) hash_file('sha256', $request->file('file')->getRealPath()),
                 $user,
             );
 

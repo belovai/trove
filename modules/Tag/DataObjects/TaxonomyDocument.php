@@ -15,7 +15,7 @@ final readonly class TaxonomyDocument
     public const VERSION = 1;
 
     /**
-     * @param  list<array{name: string, color: string, sort_order: int}>  $categories
+     * @param  list<array{name: string, color?: string, sort_order?: int}>  $categories
      * @param  list<array{name: string, category: ?string, description: ?string}>  $tags
      * @param  list<array{alias: string, tag: string}>  $aliases
      * @param  list<array{tag: string, implies: string}>  $implications
