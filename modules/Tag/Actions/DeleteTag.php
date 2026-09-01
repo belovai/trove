@@ -32,12 +32,14 @@ final class DeleteTag
             $tag->delete();
 
             foreach (Media::query()->whereIn('id', $affectedMediaIds)->get() as $media) {
-                $humanIds = DB::table('media_tag')
-                    ->where('media_id', $media->id)
-                    ->where('source', TagSource::Human->value)
-                    ->pluck('tag_id')
-                    ->map(static fn ($id): int => (int) $id)
-                    ->all();
+                $humanIds = array_values(
+                    DB::table('media_tag')
+                        ->where('media_id', $media->id)
+                        ->where('source', TagSource::Human->value)
+                        ->pluck('tag_id')
+                        ->map(static fn ($id): int => (int) $id)
+                        ->all()
+                );
 
                 $this->sync->handle($media, $humanIds, null);
             }

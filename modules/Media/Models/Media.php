@@ -239,7 +239,7 @@ final class Media extends Model
     #[Scope]
     protected function withinSafetyFilter(Builder $query, ?User $viewer, ?array $ratings = null): void
     {
-        $ratings ??= SafetyRating::upTo($viewer?->default_safety_filter ?? SafetyRating::Safe);
+        $ratings ??= SafetyRating::upTo($viewer->default_safety_filter ?? SafetyRating::Safe);
 
         $query->whereIn('safety_rating', array_map(
             fn (SafetyRating $rating): string => $rating->value,

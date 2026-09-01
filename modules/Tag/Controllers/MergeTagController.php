@@ -19,7 +19,7 @@ final class MergeTagController
     {
         $source = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('merge', $source), 403);
+        abort_unless($request->user()?->can('merge', $source) ?? false, 403);
 
         $target = Tag::query()->where('name', $request->string('into')->value())->firstOrFail();
 

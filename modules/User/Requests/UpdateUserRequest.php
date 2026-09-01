@@ -23,6 +23,9 @@ final class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var User|null $user */
+        $user = $this->route('user');
+
         return [
             'display_name' => ['sometimes', 'nullable', 'string', 'max:64', new NotBlockedName],
             'email' => [
@@ -30,7 +33,7 @@ final class UpdateUserRequest extends FormRequest
                 'nullable',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($this->route('user')?->id),
+                Rule::unique('users', 'email')->ignore($user?->id),
             ],
             'rank' => ['sometimes', Rule::enum(UserRank::class)],
             'is_banned' => ['sometimes', 'boolean'],

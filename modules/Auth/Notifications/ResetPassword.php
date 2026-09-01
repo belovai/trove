@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Modules\Setting\Facades\Settings;
+use Modules\User\Models\User;
 
 final class ResetPassword extends Notification implements ShouldQueue
 {
@@ -26,6 +27,7 @@ final class ResetPassword extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        /** @var User $notifiable */
         $app = (string) Settings::get('app.name');
 
         return (new MailMessage)

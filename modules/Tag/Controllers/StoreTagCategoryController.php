@@ -18,7 +18,7 @@ final class StoreTagCategoryController
 
     public function __invoke(TagCategoryRequest $request): RedirectResponse
     {
-        abort_unless($request->user()?->can('create', TagCategory::class), 403);
+        abort_unless($request->user()?->can('create', TagCategory::class) ?? false, 403);
 
         try {
             $this->createTagCategory->handle(

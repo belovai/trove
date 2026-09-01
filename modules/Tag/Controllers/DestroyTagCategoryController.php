@@ -17,7 +17,7 @@ final class DestroyTagCategoryController
 
     public function __invoke(Request $request, TagCategory $category): RedirectResponse
     {
-        abort_unless($request->user()?->can('delete', $category), 403);
+        abort_unless($request->user()?->can('delete', $category) ?? false, 403);
 
         $this->deleteTagCategory->handle($category);
 

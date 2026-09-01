@@ -19,7 +19,7 @@ final class DestroyAliasController
     {
         $model = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('update', $model), 403);
+        abort_unless($request->user()?->can('update', $model) ?? false, 403);
 
         $this->deleteAlias->handle($model->aliases()->where('alias_name', $alias)->firstOrFail());
 

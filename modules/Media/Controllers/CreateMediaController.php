@@ -19,7 +19,7 @@ final class CreateMediaController
         /** @var User|null $user */
         $user = $request->user();
 
-        abort_unless($user?->can('media.upload'), 403);
+        abort_unless($user?->can('media.upload') ?? false, 403);
 
         return Inertia::render('media/Create', [
             'visibilities' => array_column(Visibility::cases(), 'value'),

@@ -22,7 +22,7 @@ final class ShowTagSettingsController
 
     public function __invoke(Request $request): Response
     {
-        abort_unless($request->user()?->can('tag.admin'), 403);
+        abort_unless($request->user()?->can('tag.admin') ?? false, 403);
 
         return Inertia::render('settings/Tags', [
             'sections' => SettingsSections::for($request->user()),

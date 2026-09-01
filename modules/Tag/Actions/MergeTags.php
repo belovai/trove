@@ -30,11 +30,13 @@ final class MergeTags
         }
 
         DB::transaction(function () use ($source, $target): void {
-            $affectedMediaIds = DB::table('media_tag')
-                ->where('tag_id', $source->id)
-                ->pluck('media_id')
-                ->map(static fn ($id): int => (int) $id)
-                ->all();
+            $affectedMediaIds = array_values(
+                DB::table('media_tag')
+                    ->where('tag_id', $source->id)
+                    ->pluck('media_id')
+                    ->map(static fn ($id): int => (int) $id)
+                    ->all()
+            );
 
             $this->movePivotRows($source, $target);
             $this->movePointers($source, $target);
@@ -128,12 +130,14 @@ final class MergeTags
     private function resync(array $mediaIds): void
     {
         foreach (Media::query()->whereIn('id', $mediaIds)->get() as $media) {
-            $humanIds = DB::table('media_tag')
-                ->where('media_id', $media->id)
-                ->where('source', TagSource::Human->value)
-                ->pluck('tag_id')
-                ->map(static fn ($id): int => (int) $id)
-                ->all();
+            $humanIds = array_values(
+                DB::table('media_tag')
+                    ->where('media_id', $media->id)
+                    ->where('source', TagSource::Human->value)
+                    ->pluck('tag_id')
+                    ->map(static fn ($id): int => (int) $id)
+                    ->all()
+            );
 
             $this->sync->handle($media, $humanIds, null);
         }

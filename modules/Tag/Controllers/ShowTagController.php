@@ -74,7 +74,11 @@ final class ShowTagController
      */
     private function names(array $ids): array
     {
-        return Tag::query()->whereIn('id', $ids)->orderBy('name')->pluck('name')->all();
+        return array_values(
+            Tag::query()->whereIn('id', $ids)->orderBy('name')->pluck('name')
+                ->map(static fn ($name): string => (string) $name)
+                ->all()
+        );
     }
 
     /**

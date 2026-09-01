@@ -16,7 +16,7 @@ final class ExportTaxonomyController
 
     public function __invoke(Request $request): JsonResponse
     {
-        abort_unless($request->user()?->can('tag.admin'), 403);
+        abort_unless($request->user()?->can('tag.admin') ?? false, 403);
 
         return response()
             ->json($this->exporter->export()->toArray(), 200, [

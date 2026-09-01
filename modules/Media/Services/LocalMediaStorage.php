@@ -9,6 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Modules\Media\Contracts\MediaStorage;
 use Modules\Media\Enums\ThumbnailSize;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class LocalMediaStorage implements MediaStorage
@@ -24,7 +25,13 @@ final class LocalMediaStorage implements MediaStorage
         $extension = $this->extensionFor($file->getMimeType());
         $path = "media/originals/{$hashId}/original.{$extension}";
 
-        $this->disk()->put($path, $file->get());
+        $contents = $file->get();
+
+        if ($contents === false) {
+            throw new RuntimeException("Unable to read the uploaded file for {$hashId}.");
+        }
+
+        $this->disk()->put($path, $contents);
 
         return $path;
     }

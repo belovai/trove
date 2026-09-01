@@ -30,6 +30,9 @@ jobs:
       - name: Pint (dry run)
         run: vendor/bin/pint --test
 
+      - name: PHPStan
+        run: php -d memory_limit=-1 vendor/bin/phpstan analyse --no-progress
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

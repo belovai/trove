@@ -84,7 +84,7 @@ final class StoreMediaRequest extends FormRequest
         $user = $this->user();
 
         $duplicate = app(StoreUploadedMedia::class)->findDuplicateFor(
-            hash_file('sha256', $this->file('file')->getRealPath()),
+            (string) hash_file('sha256', $this->file('file')->getRealPath()),
             $user,
         );
 

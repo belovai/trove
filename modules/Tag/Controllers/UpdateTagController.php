@@ -20,7 +20,7 @@ final class UpdateTagController
     {
         $model = Tag::query()->where('name', $tag)->firstOrFail();
 
-        abort_unless($request->user()?->can('update', $model), 403);
+        abort_unless($request->user()?->can('update', $model) ?? false, 403);
 
         try {
             $this->updateTag->handle(

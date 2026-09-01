@@ -37,12 +37,14 @@ final class RebuildImplications extends Command
 
         foreach ($mediaIds->chunk(200) as $chunk) {
             foreach ($chunk as $mediaId) {
-                $humanIds = DB::table('media_tag')
-                    ->where('media_id', $mediaId)
-                    ->where('source', TagSource::Human->value)
-                    ->pluck('tag_id')
-                    ->map(static fn ($id): int => (int) $id)
-                    ->all();
+                $humanIds = array_values(
+                    DB::table('media_tag')
+                        ->where('media_id', $mediaId)
+                        ->where('source', TagSource::Human->value)
+                        ->pluck('tag_id')
+                        ->map(static fn ($id): int => (int) $id)
+                        ->all()
+                );
 
                 $implied = $resolver->expand($humanIds);
 

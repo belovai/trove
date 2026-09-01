@@ -13,6 +13,9 @@ use DomainException;
  */
 final class UnknownTagCategory extends DomainException
 {
+    /**
+     * @param  array<string, string>  $replacements
+     */
     private function __construct(
         public readonly string $messageKey,
         public readonly array $replacements = [],

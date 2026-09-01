@@ -10,6 +10,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
 use Modules\Setting\Facades\Settings;
+use Modules\User\Models\User;
 
 final class VerifyEmail extends Notification implements ShouldQueue
 {
@@ -36,6 +37,7 @@ final class VerifyEmail extends Notification implements ShouldQueue
 
     private function verificationUrl(object $notifiable): string
     {
+        /** @var User $notifiable */
         return URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
             'id' => $notifiable->getKey(),
             'hash' => sha1((string) $notifiable->getEmailForVerification()),

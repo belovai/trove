@@ -18,7 +18,7 @@ final class UpdateTagCategoryController
 
     public function __invoke(TagCategoryRequest $request, TagCategory $category): RedirectResponse
     {
-        abort_unless($request->user()?->can('update', $category), 403);
+        abort_unless($request->user()?->can('update', $category) ?? false, 403);
 
         try {
             $this->updateTagCategory->handle(

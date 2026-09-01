@@ -67,7 +67,7 @@ final class UpdateAccount
         // false is a legitimate value here too, so absence is tracked the
         // same way as the visibility default.
         if ($touchesShowUnsafeContent) {
-            $user->show_unsafe_content = $showUnsafeContent;
+            $user->show_unsafe_content = (bool) $showUnsafeContent;
         }
 
         $user->save();

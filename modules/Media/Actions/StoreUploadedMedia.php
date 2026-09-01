@@ -33,7 +33,7 @@ final class StoreUploadedMedia
 
         try {
             $media = DB::transaction(function () use ($data, $contentHash, $hashId, $storagePath): Media {
-                $extracted = $this->metadata->extract($storagePath, $data->file->getMimeType());
+                $extracted = $this->metadata->extract($storagePath, (string) $data->file->getMimeType());
 
                 return Media::query()->create([
                     'hash_id' => $hashId,
