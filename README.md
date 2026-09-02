@@ -6,7 +6,7 @@ SQLite with no external services.
 
 ---
 
-> ## ⚠️ Early development — v0.1.0
+> ## ⚠️ Early development — v0.2.0
 >
 > Trove is **pre-1.0**. Core features work (accounts, upload, tagging,
 > settings, mail), but there is no upgrade path yet and the schema can still
@@ -54,6 +54,9 @@ system, search, visibility model and API surface.
 | Settings (registration, mail, system) | working |
 | Mail delivery, verification, password reset | working |
 | Admin UI (users, tags, settings) | working |
+| Public user profiles | working |
+| Per-user timezone and date/time formats | working |
+| Console user administration (`user:*`) | working |
 | Search | not started |
 | Invitations | not started |
 | Sanctum / external API clients | not started |
@@ -92,10 +95,9 @@ this codebase follows.
 Each GitHub release publishes a multi-arch (`amd64`/`arm64`) PHP runtime image
 to `ghcr.io/belovai/trove`, tagged with the release version, its `major.minor`
 and `latest`. See [`CHANGELOG.md`](CHANGELOG.md) for what changed per version.
-The image ships the PHP runtime and extensions only — the application code
-(`public/`, `resources/`, migrations) is still supplied by your checkout,
-bind-mounted the same way `compose.yaml` mounts it for `php`; there is no
-standalone deployment compose file yet.
+Since 0.1.1 the image bakes the full application and the built frontend, so it
+is deployable on its own — no source checkout bind-mounted alongside it. There
+is no standalone deployment compose file yet.
 
 ## Stack
 
