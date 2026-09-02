@@ -45,6 +45,9 @@ final class IndexUsersController
                 'ban_reason' => $user->ban_reason,
                 'registered_at' => $user->created_at?->toIso8601String(),
                 'uploads' => $user->media_count,
+                // The same policy the write endpoints enforce, so a row the
+                // viewer cannot touch offers no controls either.
+                'can_edit' => $request->user()->can('update', $user),
             ]);
 
         return Inertia::render('settings/Users', [

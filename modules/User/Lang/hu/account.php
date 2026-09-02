@@ -90,4 +90,11 @@ return [
     'all_statuses' => 'Minden állapot',
     'initial_password' => 'Kezdeti jelszó',
     'no_users' => 'Nincs találat.',
+
+    'generate_password' => 'Új jelszó generálása',
+    'generate_password_hint' => 'Azonnal lecseréli a jelszót, és kilépteti a felhasználót a megjegyzett eszközökről.',
+    'generate_password_confirm_title' => 'Generálsz új jelszót?',
+    'generate_password_confirm' => ':username jelenlegi jelszava azonnal érvénytelen lesz. Az újat csak egyszer mutatjuk meg — másold ki, mielőtt elhagyod az oldalt.',
+    'generated_password_title' => ':username új jelszava',
+    'generated_password_hint' => 'Csak most látszik. Másold ki — újra nem jeleníthető meg.',
 ];

@@ -40,4 +40,13 @@ enum UserRank: string implements HasLevel
     {
         return $this->level() >= $other->level();
     }
+
+    /**
+     * Strictly above. Administrative writes use this rather than
+     * outranksOrEquals, so nobody can act on their own rank.
+     */
+    public function outranks(self $other): bool
+    {
+        return $this->level() > $other->level();
+    }
 }

@@ -21,4 +21,6 @@ return [
     'nav_upload' => 'Upload',
     'nav_settings' => 'Settings',
     'nav_profile_menu' => 'Account menu',
+    'copy' => 'Copy',
+    'copied' => 'Copied.',
 ];

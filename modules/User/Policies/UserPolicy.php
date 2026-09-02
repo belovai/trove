@@ -20,10 +20,16 @@ final class UserPolicy
     }
 
     /**
-     * Three invariants beyond the gate: you never edit yourself here (the
-     * account section is for that), and you never touch someone who outranks
-     * you. The rank check is vacuous while the gate is Administrator-only —
-     * it is what makes lowering the gate later safe.
+     * The whole administrative write path — display name, email, rank, ban,
+     * generated password — passes through here, so the rule is one rule: you
+     * never act on yourself (the account section is for that), and you never
+     * act on your own rank or above. Strictly above, not "or equals": an
+     * administrator editing another administrator is a takeover, since a
+     * generated password hands over the account.
+     *
+     * That leaves a compromised administrator unreachable from the web on
+     * purpose. The escape hatch is the console (`user:ban`, `user:rank`,
+     * `user:password`), which needs server access and answers to no policy.
      */
     public function update(User $user, User $target): bool
     {
@@ -35,7 +41,7 @@ final class UserPolicy
             return false;
         }
 
-        return $user->rank->outranksOrEquals($target->rank);
+        return $user->rank->outranks($target->rank);
     }
 
     /**

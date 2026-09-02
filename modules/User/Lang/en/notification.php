@@ -14,4 +14,8 @@ return [
     'banned_subject' => 'Your :app account has been suspended',
     'banned_line' => 'Your account on :app has been suspended and can no longer be used to sign in.',
     'banned_reason' => 'Reason: :reason',
+
+    'password_reset_subject' => 'Your :app password has been changed',
+    'password_reset_line' => 'An administrator has set a new password for your account on :app.',
+    'password_reset_hint' => 'The new password is not in this email. Ask the administrator who changed it, or reset it yourself if you can still sign in.',
 ];
