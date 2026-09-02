@@ -64,6 +64,11 @@ return [
     'avatar_use_letter' => 'Kép eltávolítása',
     'avatar_gravatar_requires_email' => 'A Gravatar használatához előbb adj meg egy email címet.',
 
+    'section_privacy' => 'Adatvédelem',
+    'section_privacy_hint' => 'Ki mit lát a profilodon.',
+    'show_uploads' => 'Feltöltéseim látszanak a profilomon',
+    'show_uploads_hint' => 'Kikapcsolva csak te és a moderátorok látják a feltöltéseid listáját. A névtelenül feltöltött elemeket amúgy sem listázza senkinek.',
+
     'user_created' => 'A felhasználó létrehozva.',
     'user_saved' => 'A felhasználó frissítve.',
     'rank_too_high' => 'Nem adhatsz nálad magasabb rangot.',

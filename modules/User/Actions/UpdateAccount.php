@@ -24,11 +24,13 @@ final class UpdateAccount
         ?SafetyRating $defaultSafetyFilter = null,
         ?Visibility $defaultVisibility = null,
         ?bool $showUnsafeContent = null,
+        ?bool $showUploads = null,
         bool $touchesDisplayName = false,
         bool $touchesEmail = false,
         bool $touchesLocale = false,
         bool $touchesDefaultVisibility = false,
         bool $touchesShowUnsafeContent = false,
+        bool $touchesShowUploads = false,
     ): User {
         if ($touchesDisplayName) {
             // An empty string means "use my username", same as null.
@@ -68,6 +70,12 @@ final class UpdateAccount
         // same way as the visibility default.
         if ($touchesShowUnsafeContent) {
             $user->show_unsafe_content = (bool) $showUnsafeContent;
+        }
+
+        // false is a legitimate value here too, so absence is tracked the
+        // same way as the unsafe-content switch.
+        if ($touchesShowUploads) {
+            $user->show_uploads = (bool) $showUploads;
         }
 
         $user->save();

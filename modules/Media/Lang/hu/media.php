@@ -17,6 +17,7 @@ return [
     'safety_rating' => 'Besorolás',
     'anonymous' => 'Közzététel név nélkül',
     'anonymous_uploader' => 'Névtelen',
+    'anonymous_badge' => 'Névtelen',
     'edit' => 'Szerkesztés',
     'delete' => 'Törlés',
     'delete_confirm' => 'Törlöd ezt a tételt?',

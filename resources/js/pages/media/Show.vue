@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ArrowDownTrayIcon, PencilSquareIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AppButton from '@/components/ui/AppButton.vue';
@@ -137,7 +137,17 @@ const destroy = async (): Promise<void> => {
 
             <dl class="grid grid-cols-2 gap-x-4 gap-y-1 px-4 py-3 text-sm">
                 <dt class="text-muted">{{ t('media::media.uploaded_by') }}</dt>
-                <dd class="text-text">{{ props.media.uploader ?? t('media::media.anonymous_uploader') }}</dd>
+                <dd class="text-text">
+                    <Link
+                        v-if="props.media.uploader && props.media.uploader.linkable"
+                        :href="`/u/${props.media.uploader.username}`"
+                        class="text-accent hover:text-accent-hover"
+                    >
+                        {{ props.media.uploader.display_name }}
+                    </Link>
+                    <span v-else-if="props.media.uploader">{{ props.media.uploader.display_name }}</span>
+                    <span v-else>{{ t('media::media.anonymous_uploader') }}</span>
+                </dd>
                 <dt class="text-muted">{{ t('media::media.dimensions') }}</dt>
                 <dd class="text-text">{{ props.media.width }} &times; {{ props.media.height }}</dd>
                 <dt class="text-muted">{{ t('media::media.filesize') }}</dt>

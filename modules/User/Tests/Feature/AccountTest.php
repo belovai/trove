@@ -259,4 +259,31 @@ final class AccountTest extends TestCase
             ->patch('/account', ['display_name' => 'New'])
             ->assertRedirect('/settings/profile');
     }
+
+    public function test_it_defaults_show_uploads_to_true(): void
+    {
+        $user = User::factory()->create();
+
+        $this->assertTrue($user->fresh()->show_uploads);
+    }
+
+    public function test_it_updates_show_uploads(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->patch('/account', ['show_uploads' => false])
+            ->assertRedirect();
+
+        $this->assertFalse($user->fresh()->show_uploads);
+    }
+
+    public function test_it_leaves_show_uploads_alone_when_not_submitted(): void
+    {
+        $user = User::factory()->create(['show_uploads' => false]);
+
+        $this->actingAs($user)->patch('/account', ['display_name' => 'Ada']);
+
+        $this->assertFalse($user->fresh()->show_uploads);
+    }
 }

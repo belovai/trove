@@ -33,6 +33,7 @@ final class UpdateAccountRequest extends FormRequest
             // Null means "use the system default".
             'default_visibility' => ['sometimes', 'nullable', Rule::enum(Visibility::class)],
             'show_unsafe_content' => ['sometimes', 'boolean'],
+            'show_uploads' => ['sometimes', 'boolean'],
         ];
     }
 }

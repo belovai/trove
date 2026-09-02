@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { PencilSquareIcon } from '@heroicons/vue/24/outline';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/SettingsLayout.vue';
@@ -116,7 +116,9 @@ const formatDate = (iso: string | null): string => {
                                 >
                                     {{ initial(user) }}
                                 </span>
-                                <span class="text-text">{{ user.username }}</span>
+                                <Link :href="`/u/${user.username}`" class="text-accent hover:text-accent-hover">
+                                    {{ user.username }}
+                                </Link>
                             </span>
                         </td>
                         <td class="hidden text-muted md:table-cell">{{ user.display_name }}</td>

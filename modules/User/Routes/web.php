@@ -8,6 +8,7 @@ use Modules\User\Controllers\DeleteAccountController;
 use Modules\User\Controllers\IndexUsersController;
 use Modules\User\Controllers\ServeAvatarController;
 use Modules\User\Controllers\ShowAccountSettingsController;
+use Modules\User\Controllers\ShowProfileController;
 use Modules\User\Controllers\ShowProfileSettingsController;
 use Modules\User\Controllers\StoreUserController;
 use Modules\User\Controllers\UpdateAccountController;
@@ -16,6 +17,7 @@ use Modules\User\Controllers\UpdateUserController;
 
 Route::middleware('web')->group(function (): void {
     Route::get('avatars/{user:username}', ServeAvatarController::class)->name('avatar.show');
+    Route::get('u/{user:username}', ShowProfileController::class)->name('profile.show');
 });
 
 Route::middleware(['web', 'auth'])->group(function (): void {

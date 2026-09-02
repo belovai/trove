@@ -30,11 +30,13 @@ final class UpdateAccountController
             defaultSafetyFilter: $request->enum('default_safety_filter', SafetyRating::class),
             defaultVisibility: $request->enum('default_visibility', Visibility::class),
             showUnsafeContent: $request->boolean('show_unsafe_content'),
+            showUploads: $request->boolean('show_uploads'),
             touchesDisplayName: $request->has('display_name'),
             touchesEmail: $request->has('email'),
             touchesLocale: $request->has('locale'),
             touchesDefaultVisibility: $request->has('default_visibility'),
             touchesShowUnsafeContent: $request->has('show_unsafe_content'),
+            touchesShowUploads: $request->has('show_uploads'),
         );
 
         return redirect()->back(fallback: route('settings.account'))->with('success', __('user::account.saved'));
