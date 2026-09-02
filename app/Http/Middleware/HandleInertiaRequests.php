@@ -83,6 +83,9 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
+                // A password an administrator just generated, shown once on
+                // the next render and gone with the session flash.
+                'generated_password' => fn () => $request->session()->get('generated_password'),
             ],
         ];
     }

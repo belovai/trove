@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\User\Controllers\ChangeAccountPasswordController;
 use Modules\User\Controllers\DeleteAccountController;
+use Modules\User\Controllers\GenerateUserPasswordController;
 use Modules\User\Controllers\IndexUsersController;
 use Modules\User\Controllers\ServeAvatarController;
 use Modules\User\Controllers\ShowAccountSettingsController;
@@ -32,6 +33,7 @@ Route::middleware(['web', 'auth'])->group(function (): void {
         Route::get('users', IndexUsersController::class)->name('users');
         Route::post('users', StoreUserController::class)->name('users.store');
         Route::patch('users/{user}', UpdateUserController::class)->name('users.update');
+        Route::post('users/{user}/password', GenerateUserPasswordController::class)->name('users.password');
     });
 
     // Write endpoints keep their paths: only the pages moved.

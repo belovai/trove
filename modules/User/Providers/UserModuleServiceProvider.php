@@ -6,7 +6,11 @@ namespace Modules\User\Providers;
 
 use App\Providers\ModuleServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Modules\User\Console\BanUserCommand;
 use Modules\User\Console\CreateUserCommand;
+use Modules\User\Console\ResetUserPasswordCommand;
+use Modules\User\Console\SetUserRankCommand;
+use Modules\User\Console\UnbanUserCommand;
 use Modules\User\Contracts\AvatarStorage;
 use Modules\User\Models\User;
 use Modules\User\Policies\UserPolicy;
@@ -33,7 +37,13 @@ final class UserModuleServiceProvider extends ModuleServiceProvider
         Gate::before(fn (User $user): ?bool => $user->isBanned() ? false : null);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([CreateUserCommand::class]);
+            $this->commands([
+                CreateUserCommand::class,
+                BanUserCommand::class,
+                UnbanUserCommand::class,
+                SetUserRankCommand::class,
+                ResetUserPasswordCommand::class,
+            ]);
         }
     }
 }

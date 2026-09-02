@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { PencilSquareIcon } from '@heroicons/vue/24/outline';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/SettingsLayout.vue';
@@ -11,10 +11,12 @@ import AppButton from '@/components/ui/AppButton.vue';
 import AppLinkButton from '@/components/ui/AppLinkButton.vue';
 import AppBadge from '@/components/ui/AppBadge.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
+import Alert from '@/components/ui/Alert.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import UserFormSlideOver from '@/components/settings/UserFormSlideOver.vue';
 import { useDateFormat } from '@/composables/useDateFormat';
+import { useToast } from '@/composables/useToast';
 import { useTranslations } from '@/composables/useTranslations';
 import type { AdminUser, Paginated, SettingsSection, UserRank } from '@/types/inertia';
 
@@ -29,6 +31,17 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
+const { push } = useToast();
+const page = usePage();
+
+// Flashed by the generate-password endpoint and rendered once: a reload drops
+// it, and nothing stores it anywhere else.
+const generated = computed(() => page.props.flash.generated_password);
+
+const copyPassword = async (password: string): Promise<void> => {
+    await navigator.clipboard.writeText(password);
+    push('success', t('user::ui.copied'));
+};
 
 const search = ref(props.filters.search ?? '');
 const rank = ref(props.filters.rank ?? '');
@@ -90,6 +103,21 @@ const formatDate = (iso: string | null): string => formatViewerDate(iso, t('user
                 </AppSelect>
             </div>
 
+            <Alert v-if="generated" variant="warning">
+                <div class="flex flex-col gap-2">
+                    <span class="font-medium">
+                        {{ t('user::account.generated_password_title', { username: generated.username }) }}
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <code class="rounded-md bg-surface px-2 py-1 font-mono text-sm text-text">{{ generated.password }}</code>
+                        <AppButton variant="secondary" size="sm" @click="copyPassword(generated.password)">
+                            {{ t('user::ui.copy') }}
+                        </AppButton>
+                    </div>
+                    <span>{{ t('user::account.generated_password_hint') }}</span>
+                </div>
+            </Alert>
+
             <AppCard :padded="false">
                 <AppTable v-if="props.users.data.length > 0">
                     <template #head>
@@ -129,7 +157,13 @@ const formatDate = (iso: string | null): string => formatViewerDate(iso, t('user
                         <td class="hidden text-muted sm:table-cell">{{ user.uploads }}</td>
                         <td>
                             <span class="flex justify-end">
-                                <AppButton variant="ghost" size="icon" :aria-label="t('user::ui.edit')" @click="edit(user)">
+                                <AppButton
+                                    v-if="user.can_edit"
+                                    variant="ghost"
+                                    size="icon"
+                                    :aria-label="t('user::ui.edit')"
+                                    @click="edit(user)"
+                                >
                                     <PencilSquareIcon class="h-5 w-5" aria-hidden="true" />
                                 </AppButton>
                             </span>

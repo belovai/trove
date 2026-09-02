@@ -119,6 +119,8 @@ export interface AdminUser {
     ban_reason: string | null;
     registered_at: string | null;
     uploads: number;
+    /** Whether the viewer may edit this row — the UserPolicy, mirrored. */
+    can_edit: boolean;
 }
 
 export interface AccountStats {
@@ -150,6 +152,7 @@ export interface SharedProps {
     flash: {
         success: string | null;
         error: string | null;
+        generated_password: { username: string; password: string } | null;
     };
 }
 

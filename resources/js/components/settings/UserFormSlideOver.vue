@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { router, useForm } from '@inertiajs/vue3';
 import AppSlideOver from '@/components/ui/AppSlideOver.vue';
 import ModalFooter from '@/components/ui/ModalFooter.vue';
 import AppButton from '@/components/ui/AppButton.vue';
@@ -8,6 +9,7 @@ import TextInput from '@/components/ui/TextInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppToggle from '@/components/ui/AppToggle.vue';
 import AppTextarea from '@/components/ui/AppTextarea.vue';
+import { useConfirm } from '@/composables/useConfirm';
 import { useTranslations } from '@/composables/useTranslations';
 import type { AdminUser, UserRank } from '@/types/inertia';
 
@@ -28,6 +30,42 @@ const form = useForm({
     is_banned: props.user?.is_banned ?? false,
     ban_reason: props.user?.ban_reason ?? '',
 });
+
+const { confirm } = useConfirm();
+
+const isGenerating = ref(false);
+
+// The generated password itself arrives as a flash prop and is rendered by the
+// user list, which is still mounted behind this panel.
+const generatePassword = async (): Promise<void> => {
+    if (props.user === null) {
+        return;
+    }
+
+    const accepted = await confirm({
+        title: t('user::account.generate_password_confirm_title'),
+        message: t('user::account.generate_password_confirm', { username: props.user.username }),
+        confirmLabel: t('user::account.generate_password'),
+        variant: 'danger',
+    });
+
+    if (!accepted) {
+        return;
+    }
+
+    isGenerating.value = true;
+
+    router.post(
+        `/settings/users/${props.user.username}/password`,
+        {},
+        {
+            onSuccess: () => emit('close'),
+            onFinish: () => {
+                isGenerating.value = false;
+            },
+        },
+    );
+};
 
 const setRank = (value: string | number | null): void => {
     form.rank = value as UserRank;
@@ -99,6 +137,21 @@ const submit = (): void => {
                     </option>
                 </AppSelect>
             </FormField>
+
+            <div v-if="props.user" class="flex flex-col gap-2 border-t border-divider pt-4">
+                <span class="text-sm font-medium text-text">{{ t('user::account.password') }}</span>
+                <p class="text-sm text-muted">{{ t('user::account.generate_password_hint') }}</p>
+                <AppButton
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    class="self-start"
+                    :loading="isGenerating"
+                    @click="generatePassword"
+                >
+                    {{ t('user::account.generate_password') }}
+                </AppButton>
+            </div>
 
             <div v-if="props.user" class="flex flex-col gap-3">
                 <div class="flex items-center justify-between gap-4">

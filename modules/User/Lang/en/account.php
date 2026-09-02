@@ -90,4 +90,11 @@ return [
     'all_statuses' => 'All statuses',
     'initial_password' => 'Initial password',
     'no_users' => 'No users match that.',
+
+    'generate_password' => 'Generate a new password',
+    'generate_password_hint' => 'Replaces the password immediately and signs the user out of remembered devices.',
+    'generate_password_confirm_title' => 'Generate a new password?',
+    'generate_password_confirm' => 'The current password of :username stops working immediately. The new one is shown once — copy it before you leave the page.',
+    'generated_password_title' => 'New password for :username',
+    'generated_password_hint' => 'Shown once. Copy it now — it cannot be shown again.',
 ];

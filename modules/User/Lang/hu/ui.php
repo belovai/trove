@@ -21,4 +21,6 @@ return [
     'nav_upload' => 'Feltöltés',
     'nav_settings' => 'Beállítások',
     'nav_profile_menu' => 'Fiók menü',
+    'copy' => 'Másolás',
+    'copied' => 'Kimásolva.',
 ];

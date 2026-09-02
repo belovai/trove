@@ -33,4 +33,13 @@ final class UserRankTest extends TestCase
         $this->assertTrue(UserRank::Regular->notEquals(UserRank::Power));
         $this->assertTrue(UserRank::Power->in([UserRank::Power, UserRank::Moderator]));
     }
+
+    public function test_outranks_is_strict_while_outranks_or_equals_is_not(): void
+    {
+        $this->assertTrue(UserRank::Moderator->outranks(UserRank::Regular));
+        $this->assertFalse(UserRank::Administrator->outranks(UserRank::Administrator));
+        $this->assertFalse(UserRank::Regular->outranks(UserRank::Moderator));
+
+        $this->assertTrue(UserRank::Administrator->outranksOrEquals(UserRank::Administrator));
+    }
 }
