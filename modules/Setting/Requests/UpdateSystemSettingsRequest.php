@@ -17,6 +17,9 @@ final class UpdateSystemSettingsRequest extends FormRequest
      */
     public const KEYS = [
         'app.name',
+        'app.timezone',
+        'app.date_format',
+        'app.time_format',
         'registration.mode',
         'registration.email',
         'registration.approval',

@@ -7,6 +7,7 @@ import AppBadge from '@/components/ui/AppBadge.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
 import AppStatTile from '@/components/ui/AppStatTile.vue';
 import MediaCard from '@/components/MediaCard.vue';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
 import type { MediaCardData, Paginated, ProfileNotices, ProfileSummary } from '@/types/inertia';
 
@@ -19,12 +20,11 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
+const { formatDate } = useDateFormat();
 
 const initial = computed(() => props.profile.display_name.charAt(0).toUpperCase());
 
-const registered = computed(() =>
-    props.profile.registered_at === null ? '—' : new Date(props.profile.registered_at).toLocaleDateString(),
-);
+const registered = computed(() => formatDate(props.profile.registered_at));
 </script>
 
 <template>

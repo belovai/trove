@@ -23,6 +23,8 @@ use Modules\Media\Enums\Visibility;
 use Modules\Media\Models\Media;
 use Modules\User\Database\Factories\UserFactory;
 use Modules\User\Enums\AvatarSource;
+use Modules\User\Enums\DateFormat;
+use Modules\User\Enums\TimeFormat;
 use Modules\User\Enums\UserRank;
 
 /**
@@ -47,6 +49,9 @@ use Modules\User\Enums\UserRank;
  * @property AvatarSource $avatar_source
  * @property string|null $avatar_path
  * @property bool $show_uploads
+ * @property string|null $timezone
+ * @property DateFormat|null $date_format
+ * @property TimeFormat|null $time_format
  * @property-read Collection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
@@ -62,6 +67,7 @@ use Modules\User\Enums\UserRank;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBanReason($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBannedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDateFormat($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDefaultSafetyFilter($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDefaultVisibility($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
@@ -76,6 +82,8 @@ use Modules\User\Enums\UserRank;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereShowUnsafeContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereShowUploads($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTimeFormat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTimezone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUsername($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
@@ -90,6 +98,9 @@ use Modules\User\Enums\UserRank;
     'password',
     'rank',
     'locale',
+    'timezone',
+    'date_format',
+    'time_format',
     'default_safety_filter',
     'default_visibility',
     'show_unsafe_content',
@@ -200,6 +211,8 @@ final class User extends Authenticatable implements MustVerifyEmail
             'show_unsafe_content' => 'boolean',
             'show_uploads' => 'boolean',
             'avatar_source' => AvatarSource::class,
+            'date_format' => DateFormat::class,
+            'time_format' => TimeFormat::class,
         ];
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Setting\Controllers;
 
+use App\Support\DateTimeFormats;
 use App\Support\SettingsSections;
 use BackedEnum;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ use Modules\Auth\Enums\RegistrationMode;
 use Modules\Media\Enums\Visibility;
 use Modules\Setting\Facades\Settings;
 use Modules\Setting\Requests\UpdateSystemSettingsRequest;
+use Modules\User\Enums\DateFormat;
+use Modules\User\Enums\TimeFormat;
 
 final class ShowSystemSettingsController
 {
@@ -37,6 +40,9 @@ final class ShowSystemSettingsController
             'email_policies' => array_column(RegistrationEmailPolicy::cases(), 'value'),
             'verification_modes' => array_column(EmailVerificationMode::cases(), 'value'),
             'visibilities' => array_column(Visibility::cases(), 'value'),
+            'timezones' => DateTimeFormats::timezones(),
+            'date_formats' => array_column(DateFormat::cases(), 'value'),
+            'time_formats' => array_column(TimeFormat::cases(), 'value'),
         ]);
     }
 }

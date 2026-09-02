@@ -16,8 +16,9 @@ import TextInput from '@/components/ui/TextInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import DeleteAccountModal from '@/components/settings/DeleteAccountModal.vue';
 import { useAuth } from '@/composables/useAuth';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
-import type { AccountStats, SettingsSection } from '@/types/inertia';
+import type { AccountStats, SettingsSection, TimezoneOption } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
@@ -28,29 +29,57 @@ const props = defineProps<{
     email: string | null;
     stats: AccountStats;
     visibilities: string[];
+    timezones: TimezoneOption[];
+    date_formats: string[];
+    time_formats: string[];
 }>();
 
-const { t, locale } = useTranslations();
+const { t } = useTranslations();
 const { user } = useAuth();
+const { formatDate, preview } = useDateFormat();
 
 const initial = computed(() => (user.value?.display_name ?? '?').charAt(0).toUpperCase());
 
-const formatRelative = (iso: string | null): string => {
-    if (iso === null) {
-        return t('user::account.never');
-    }
-
-    return new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium' }).format(new Date(iso));
-};
+const formatRegistered = (iso: string | null): string => formatDate(iso, t('user::account.never'));
 
 // General block: email, language, default content filter.
 const generalForm = useForm({
     email: props.email ?? '',
     locale: user.value?.locale ?? '',
+    timezone: user.value?.timezone ?? '',
+    date_format: user.value?.date_format ?? '',
+    time_format: user.value?.time_format ?? '',
     default_safety_filter: user.value?.default_safety_filter ?? '',
     default_visibility: user.value?.default_visibility ?? '',
     show_unsafe_content: user.value?.show_unsafe_content ?? false,
 });
+
+// The timezone list is long, so it is grouped by region the way every OS
+// picker does; the offset is computed server-side and shown in the label.
+const timezoneGroups = computed(() => {
+    const groups = new Map<string, TimezoneOption[]>();
+
+    for (const zone of props.timezones) {
+        const region = zone.value.includes('/') ? zone.value.split('/')[0] : 'UTC';
+        const bucket = groups.get(region);
+
+        if (bucket === undefined) {
+            groups.set(region, [zone]);
+        } else {
+            bucket.push(zone);
+        }
+    }
+
+    return [...groups.entries()].map(([region, zones]) => ({ region, zones }));
+});
+
+const timezoneLabel = (zone: TimezoneOption): string =>
+    `${zone.value.replaceAll('_', ' ')} (${zone.offset})`;
+
+// Previews follow the timezone select's unsaved value, so the three fields
+// agree while they are being changed.
+const formatPreview = (pattern: string): string =>
+    preview(pattern, generalForm.timezone === '' ? undefined : generalForm.timezone);
 
 const generalJustSaved = ref(false);
 let generalSavedTimeout: ReturnType<typeof setTimeout> | undefined;
@@ -119,10 +148,10 @@ const isDeleteOpen = ref(false);
                     </span>
                 </AppCardRow>
                 <AppCardRow :label="t('user::account.registered')">
-                    {{ formatRelative(props.stats.registered_at) }}
+                    {{ formatRegistered(props.stats.registered_at) }}
                 </AppCardRow>
                 <AppCardRow :label="t('user::account.last_seen')">
-                    {{ formatRelative(props.stats.last_seen_at) }}
+                    {{ formatRegistered(props.stats.last_seen_at) }}
                 </AppCardRow>
                 <AppCardRow :label="t('user::account.rank')">
                     <AppBadge variant="accent">{{ props.stats.rank }}</AppBadge>
@@ -165,6 +194,60 @@ const isDeleteOpen = ref(false);
                             <AppSelect id="account-locale" v-model="generalForm.locale" :invalid="Boolean(generalForm.errors.locale)">
                                 <option value="">{{ t('user::account.locale_default') }}</option>
                                 <option v-for="item in props.locales" :key="item" :value="item">{{ item }}</option>
+                            </AppSelect>
+                        </FormField>
+
+                        <FormField
+                            id="account-timezone"
+                            :label="t('user::account.timezone')"
+                            :hint="t('user::account.timezone_hint')"
+                            :error="generalForm.errors.timezone"
+                        >
+                            <AppSelect
+                                id="account-timezone"
+                                v-model="generalForm.timezone"
+                                :invalid="Boolean(generalForm.errors.timezone)"
+                            >
+                                <option value="">{{ t('user::account.format_system') }}</option>
+                                <optgroup v-for="group in timezoneGroups" :key="group.region" :label="group.region">
+                                    <option v-for="zone in group.zones" :key="zone.value" :value="zone.value">
+                                        {{ timezoneLabel(zone) }}
+                                    </option>
+                                </optgroup>
+                            </AppSelect>
+                        </FormField>
+
+                        <FormField
+                            id="account-date-format"
+                            :label="t('user::account.date_format')"
+                            :error="generalForm.errors.date_format"
+                        >
+                            <AppSelect
+                                id="account-date-format"
+                                v-model="generalForm.date_format"
+                                :invalid="Boolean(generalForm.errors.date_format)"
+                            >
+                                <option value="">{{ t('user::account.format_system') }}</option>
+                                <option v-for="pattern in props.date_formats" :key="pattern" :value="pattern">
+                                    {{ formatPreview(pattern) }}
+                                </option>
+                            </AppSelect>
+                        </FormField>
+
+                        <FormField
+                            id="account-time-format"
+                            :label="t('user::account.time_format')"
+                            :error="generalForm.errors.time_format"
+                        >
+                            <AppSelect
+                                id="account-time-format"
+                                v-model="generalForm.time_format"
+                                :invalid="Boolean(generalForm.errors.time_format)"
+                            >
+                                <option value="">{{ t('user::account.format_system') }}</option>
+                                <option v-for="pattern in props.time_formats" :key="pattern" :value="pattern">
+                                    {{ formatPreview(pattern) }}
+                                </option>
                             </AppSelect>
                         </FormField>
 

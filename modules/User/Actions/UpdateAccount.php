@@ -8,6 +8,8 @@ use Modules\Auth\Enums\EmailVerificationMode;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
 use Modules\Setting\Facades\Settings;
+use Modules\User\Enums\DateFormat;
+use Modules\User\Enums\TimeFormat;
 use Modules\User\Models\User;
 
 final class UpdateAccount
@@ -21,6 +23,9 @@ final class UpdateAccount
         ?string $displayName = null,
         ?string $email = null,
         ?string $locale = null,
+        ?string $timezone = null,
+        ?DateFormat $dateFormat = null,
+        ?TimeFormat $timeFormat = null,
         ?SafetyRating $defaultSafetyFilter = null,
         ?Visibility $defaultVisibility = null,
         ?bool $showUnsafeContent = null,
@@ -28,6 +33,9 @@ final class UpdateAccount
         bool $touchesDisplayName = false,
         bool $touchesEmail = false,
         bool $touchesLocale = false,
+        bool $touchesTimezone = false,
+        bool $touchesDateFormat = false,
+        bool $touchesTimeFormat = false,
         bool $touchesDefaultVisibility = false,
         bool $touchesShowUnsafeContent = false,
         bool $touchesShowUploads = false,
@@ -53,6 +61,19 @@ final class UpdateAccount
 
         if ($touchesLocale) {
             $user->locale = $locale;
+        }
+
+        // Null is a legitimate value for all three: "use the system default".
+        if ($touchesTimezone) {
+            $user->timezone = $timezone === '' ? null : $timezone;
+        }
+
+        if ($touchesDateFormat) {
+            $user->date_format = $dateFormat;
+        }
+
+        if ($touchesTimeFormat) {
+            $user->time_format = $timeFormat;
         }
 
         // Absent means "leave it alone" — there is no "no filter" state.

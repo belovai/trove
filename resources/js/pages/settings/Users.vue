@@ -14,6 +14,7 @@ import AppEmptyState from '@/components/ui/AppEmptyState.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import UserFormSlideOver from '@/components/settings/UserFormSlideOver.vue';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
 import type { AdminUser, Paginated, SettingsSection, UserRank } from '@/types/inertia';
 
@@ -56,13 +57,9 @@ const edit = (user: AdminUser): void => {
 
 const initial = (user: AdminUser): string => user.display_name.charAt(0).toUpperCase();
 
-const formatDate = (iso: string | null): string => {
-    if (iso === null) {
-        return t('user::account.never');
-    }
+const { formatDate: formatViewerDate } = useDateFormat();
 
-    return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(iso));
-};
+const formatDate = (iso: string | null): string => formatViewerDate(iso, t('user::account.never'));
 </script>
 
 <template>

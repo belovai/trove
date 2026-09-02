@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\DateTimeFormats;
 use App\Support\Translations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -51,6 +52,9 @@ class HandleInertiaRequests extends Middleware
                     'email_verified' => $request->user()->hasVerifiedEmail(),
                     'rank' => $request->user()->rank->value,
                     'locale' => $request->user()->locale,
+                    'timezone' => $request->user()->timezone,
+                    'date_format' => $request->user()->date_format?->value,
+                    'time_format' => $request->user()->time_format?->value,
                     'default_safety_filter' => $request->user()->default_safety_filter,
                     'default_visibility' => $request->user()->default_visibility,
                     'show_unsafe_content' => $request->user()->show_unsafe_content,
@@ -64,6 +68,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'app_name' => Settings::get('app.name'),
             'locale' => $locale,
+            // How this viewer sees timestamps: their own preference when set,
+            // the system default otherwise. Payloads carry ISO 8601 and the
+            // client formats once, from here.
+            'formats' => DateTimeFormats::for($request->user()),
             'locales' => config('trove.locales'),
             // The rating vocabulary, in order. Both the account form and the
             // listing filter bar read it, so neither hardcodes the enum.

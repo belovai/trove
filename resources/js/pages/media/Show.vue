@@ -9,6 +9,7 @@ import TagChip from '@/components/TagChip.vue';
 import TagInput from '@/components/TagInput.vue';
 import MediaDetailsSlideOver from '@/components/media/MediaDetailsSlideOver.vue';
 import { useConfirm } from '@/composables/useConfirm';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
 import type { MediaDetail } from '@/types/inertia';
 
@@ -21,6 +22,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
+const { formatDateTime } = useDateFormat();
 const { confirm } = useConfirm();
 
 const isDetailsOpen = ref(false);
@@ -157,7 +159,7 @@ const destroy = async (): Promise<void> => {
                 <dt class="text-muted">{{ t('media::media.safety_rating') }}</dt>
                 <dd class="text-text">{{ t(`media::safety.${props.media.safety_rating}`) }}</dd>
                 <dt class="text-muted">{{ t('media::media.uploaded_at') }}</dt>
-                <dd class="text-text">{{ props.media.created_at ?? '—' }}</dd>
+                <dd class="text-text">{{ formatDateTime(props.media.created_at) }}</dd>
             </dl>
 
             <div class="px-4 py-3">

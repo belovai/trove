@@ -9,6 +9,8 @@ use Illuminate\Validation\Rule;
 use Modules\Auth\Rules\NotBlockedName;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\User\Enums\DateFormat;
+use Modules\User\Enums\TimeFormat;
 
 final class UpdateAccountRequest extends FormRequest
 {
@@ -29,6 +31,10 @@ final class UpdateAccountRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($this->user()?->id),
             ],
             'locale' => ['sometimes', 'nullable', 'string', Rule::in(config('trove.locales'))],
+            // Null on all three means "use the system default".
+            'timezone' => ['sometimes', 'nullable', 'string', 'timezone'],
+            'date_format' => ['sometimes', 'nullable', Rule::enum(DateFormat::class)],
+            'time_format' => ['sometimes', 'nullable', Rule::enum(TimeFormat::class)],
             'default_safety_filter' => ['sometimes', 'nullable', Rule::enum(SafetyRating::class)],
             // Null means "use the system default".
             'default_visibility' => ['sometimes', 'nullable', Rule::enum(Visibility::class)],

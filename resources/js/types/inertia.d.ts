@@ -1,3 +1,5 @@
+import type { ViewerFormats } from '@/support/datetime';
+
 export type UserRank = 'restricted' | 'regular' | 'power' | 'moderator' | 'administrator';
 export type AvatarSource = 'letter' | 'upload' | 'gravatar';
 
@@ -8,6 +10,10 @@ export interface AuthUser {
     email_verified: boolean;
     rank: UserRank;
     locale: string | null;
+    /** Null on all three means "use the system default". */
+    timezone: string | null;
+    date_format: string | null;
+    time_format: string | null;
     default_safety_filter: SafetyRating;
     default_visibility: Visibility | null;
     show_unsafe_content: boolean;
@@ -92,6 +98,12 @@ export interface DuplicateMatch {
     title: string | null;
 }
 
+/** One selectable timezone, with its current UTC offset for the label. */
+export interface TimezoneOption {
+    value: string;
+    offset: string;
+}
+
 export interface SettingsSection {
     key: string;
     label: string;
@@ -130,6 +142,8 @@ export interface SharedProps {
     app_name: string;
     locale: string;
     locales: string[];
+    /** How this viewer sees timestamps — see @/support/datetime. */
+    formats: ViewerFormats;
     /** The rating vocabulary, in order — never hardcoded on the client. */
     safety_ratings: SafetyRating[];
     translations: Record<string, string>;

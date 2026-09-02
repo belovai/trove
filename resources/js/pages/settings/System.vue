@@ -12,8 +12,9 @@ import AppToggle from '@/components/ui/AppToggle.vue';
 import AppTextarea from '@/components/ui/AppTextarea.vue';
 import Alert from '@/components/ui/Alert.vue';
 import TextInput from '@/components/ui/TextInput.vue';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
-import type { SettingsSection } from '@/types/inertia';
+import type { SettingsSection, TimezoneOption } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
@@ -25,9 +26,13 @@ const props = defineProps<{
     email_policies: string[];
     verification_modes: string[];
     visibilities: string[];
+    timezones: TimezoneOption[];
+    date_formats: string[];
+    time_formats: string[];
 }>();
 
 const { t } = useTranslations();
+const { preview } = useDateFormat();
 
 // General block: app.name. Each block is its own form and PATCHes only the
 // keys it owns — the endpoint is already partial-write, so blocks save
@@ -82,6 +87,62 @@ const submitMedia = (): void => {
 };
 
 const showMediaActions = computed(() => mediaForm.isDirty || mediaJustSaved.value);
+
+// Date & time block: the presentation every viewer without a preference of
+// their own gets, logged-out visitors included.
+const dateTimeForm = useForm({
+    timezone: String(props.settings['app.timezone'] ?? 'UTC'),
+    dateFormat: String(props.settings['app.date_format'] ?? 'Y-m-d'),
+    timeFormat: String(props.settings['app.time_format'] ?? 'H:i'),
+});
+
+const timezoneError = computed(() => (dateTimeForm.errors as Record<string, string>)['app.timezone']);
+
+const timezoneGroups = computed(() => {
+    const groups = new Map<string, TimezoneOption[]>();
+
+    for (const zone of props.timezones) {
+        const region = zone.value.includes('/') ? zone.value.split('/')[0] : 'UTC';
+        const bucket = groups.get(region);
+
+        if (bucket === undefined) {
+            groups.set(region, [zone]);
+        } else {
+            bucket.push(zone);
+        }
+    }
+
+    return [...groups.entries()].map(([region, zones]) => ({ region, zones }));
+});
+
+const timezoneLabel = (zone: TimezoneOption): string =>
+    `${zone.value.replaceAll('_', ' ')} (${zone.offset})`;
+
+const formatPreview = (pattern: string): string => preview(pattern, dateTimeForm.timezone);
+
+const dateTimeJustSaved = ref(false);
+let dateTimeSavedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+const submitDateTime = (): void => {
+    dateTimeForm
+        .transform((data) => ({
+            'app.timezone': data.timezone,
+            'app.date_format': data.dateFormat,
+            'app.time_format': data.timeFormat,
+        }))
+        .patch('/settings/system', {
+            preserveScroll: true,
+            onSuccess: () => {
+                dateTimeJustSaved.value = true;
+                clearTimeout(dateTimeSavedTimeout);
+                dateTimeSavedTimeout = setTimeout(() => {
+                    dateTimeJustSaved.value = false;
+                }, 3000);
+            },
+        });
+};
+
+const showDateTimeActions = computed(() => dateTimeForm.isDirty || dateTimeJustSaved.value);
 
 // Registration block: mode, email policy, approval.
 const registrationForm = useForm({
@@ -143,6 +204,7 @@ const showRecoveryWarning = computed(
 onUnmounted(() => {
     clearTimeout(generalSavedTimeout);
     clearTimeout(mediaSavedTimeout);
+    clearTimeout(dateTimeSavedTimeout);
     clearTimeout(registrationSavedTimeout);
 });
 </script>
@@ -198,6 +260,98 @@ onUnmounted(() => {
                                         size="sm"
                                         :disabled="!generalForm.isDirty"
                                         :loading="generalForm.processing"
+                                    >
+                                        {{ t('user::ui.save') }}
+                                    </AppButton>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </AppCard>
+            </AppSection>
+
+            <AppSection
+                :title="t('setting::setting.block_datetime')"
+                :description="t('setting::setting.block_datetime_hint')"
+            >
+                <AppCard :padded="false">
+                    <form @submit.prevent="submitDateTime">
+                        <AppCardRow
+                            :label="t('setting::setting.timezone')"
+                            :description="t('setting::setting.timezone_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppSelect
+                                    id="system-timezone"
+                                    v-model="dateTimeForm.timezone"
+                                    :invalid="Boolean(timezoneError)"
+                                >
+                                    <optgroup
+                                        v-for="group in timezoneGroups"
+                                        :key="group.region"
+                                        :label="group.region"
+                                    >
+                                        <option v-for="zone in group.zones" :key="zone.value" :value="zone.value">
+                                            {{ timezoneLabel(zone) }}
+                                        </option>
+                                    </optgroup>
+                                </AppSelect>
+                                <p v-if="timezoneError" class="mt-1 text-xs text-danger-strong">
+                                    {{ timezoneError }}
+                                </p>
+                            </div>
+                        </AppCardRow>
+
+                        <AppCardRow
+                            :label="t('setting::setting.date_format')"
+                            :description="t('setting::setting.date_format_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppSelect id="system-date-format" v-model="dateTimeForm.dateFormat">
+                                    <option v-for="pattern in props.date_formats" :key="pattern" :value="pattern">
+                                        {{ formatPreview(pattern) }}
+                                    </option>
+                                </AppSelect>
+                            </div>
+                        </AppCardRow>
+
+                        <AppCardRow
+                            :label="t('setting::setting.time_format')"
+                            :description="t('setting::setting.time_format_hint')"
+                        >
+                            <div class="sm:w-72">
+                                <AppSelect id="system-time-format" v-model="dateTimeForm.timeFormat">
+                                    <option v-for="pattern in props.time_formats" :key="pattern" :value="pattern">
+                                        {{ formatPreview(pattern) }}
+                                    </option>
+                                </AppSelect>
+                            </div>
+                        </AppCardRow>
+
+                        <div
+                            class="grid transition-all duration-150 ease-out"
+                            :class="showDateTimeActions ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                            :inert="!showDateTimeActions"
+                        >
+                            <div class="overflow-hidden">
+                                <div class="flex items-center justify-end gap-2 border-t border-divider bg-surface px-5 py-3">
+                                    <p v-if="dateTimeJustSaved" class="mr-auto text-xs text-muted">
+                                        {{ t('user::ui.saved') }}
+                                    </p>
+                                    <AppButton
+                                        type="button"
+                                        variant="secondary"
+                                        size="sm"
+                                        :disabled="!dateTimeForm.isDirty"
+                                        @click="dateTimeForm.reset()"
+                                    >
+                                        {{ t('user::ui.reset') }}
+                                    </AppButton>
+                                    <AppButton
+                                        type="submit"
+                                        size="sm"
+                                        :disabled="!dateTimeForm.isDirty"
+                                        :loading="dateTimeForm.processing"
                                     >
                                         {{ t('user::ui.save') }}
                                     </AppButton>
