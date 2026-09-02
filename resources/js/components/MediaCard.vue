@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/outline';
+import AppBadge from '@/components/ui/AppBadge.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import MediaThumbnail from '@/components/MediaThumbnail.vue';
 import { useAuth } from '@/composables/useAuth';
@@ -58,5 +59,11 @@ const isCovered = computed(
                 </div>
             </div>
         </div>
+
+        <!-- After the cover in DOM order, so it stacks above it and stays
+             visible on an item that is both anonymous and unsafe. -->
+        <span v-if="props.media.is_anonymous" class="pointer-events-none absolute left-1 top-1">
+            <AppBadge variant="warning">{{ t('media::media.anonymous_badge') }}</AppBadge>
+        </span>
     </div>
 </template>

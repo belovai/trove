@@ -8,6 +8,7 @@ import AppCard from '@/components/ui/AppCard.vue';
 import AppCardRow from '@/components/ui/AppCardRow.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import TextInput from '@/components/ui/TextInput.vue';
+import AppToggle from '@/components/ui/AppToggle.vue';
 import { useAuth } from '@/composables/useAuth';
 import { useTranslations } from '@/composables/useTranslations';
 import type { SettingsSection } from '@/types/inertia';
@@ -75,8 +76,29 @@ const submit = (): void => {
 
 const showActions = computed(() => form.isDirty || justSaved.value);
 
+const privacyForm = useForm({ show_uploads: user.value?.show_uploads ?? true });
+
+const privacyJustSaved = ref(false);
+let privacySavedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+const submitPrivacy = (): void => {
+    privacyForm.patch('/account', {
+        preserveScroll: true,
+        onSuccess: () => {
+            privacyJustSaved.value = true;
+            clearTimeout(privacySavedTimeout);
+            privacySavedTimeout = setTimeout(() => {
+                privacyJustSaved.value = false;
+            }, 3000);
+        },
+    });
+};
+
+const showPrivacyActions = computed(() => privacyForm.isDirty || privacyJustSaved.value);
+
 onUnmounted(() => {
     clearTimeout(savedTimeout);
+    clearTimeout(privacySavedTimeout);
 });
 </script>
 
@@ -182,6 +204,40 @@ onUnmounted(() => {
                         {{ avatarForm.errors.avatar }}
                     </p>
                 </AppCardRow>
+            </AppCard>
+        </AppSection>
+
+        <AppSection :title="t('user::account.section_privacy')" :description="t('user::account.section_privacy_hint')">
+            <AppCard :padded="false">
+                <form @submit.prevent="submitPrivacy">
+                    <AppCardRow :label="t('user::account.show_uploads')" :description="t('user::account.show_uploads_hint')">
+                        <AppToggle id="profile-show-uploads" v-model="privacyForm.show_uploads" />
+                    </AppCardRow>
+
+                    <div
+                        class="grid transition-all duration-150 ease-out"
+                        :class="showPrivacyActions ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'"
+                        :inert="!showPrivacyActions"
+                    >
+                        <div class="overflow-hidden">
+                            <div class="flex items-center justify-end gap-2 border-t border-divider bg-surface px-5 py-3">
+                                <p v-if="privacyJustSaved" class="mr-auto text-xs text-muted">{{ t('user::ui.saved') }}</p>
+                                <AppButton
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    :disabled="!privacyForm.isDirty"
+                                    @click="privacyForm.reset()"
+                                >
+                                    {{ t('user::ui.reset') }}
+                                </AppButton>
+                                <AppButton type="submit" size="sm" :disabled="!privacyForm.isDirty" :loading="privacyForm.processing">
+                                    {{ t('user::ui.save') }}
+                                </AppButton>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </AppCard>
         </AppSection>
     </SettingsLayout>

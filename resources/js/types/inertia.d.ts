@@ -11,6 +11,7 @@ export interface AuthUser {
     default_safety_filter: SafetyRating;
     default_visibility: Visibility | null;
     show_unsafe_content: boolean;
+    show_uploads: boolean;
     avatar_source: AvatarSource;
     avatar_url: string | null;
 }
@@ -35,6 +36,8 @@ export interface MediaCardData {
     has_thumbnail: boolean;
     /** Human-applied tags only; an untagged item is flagged in the grid. */
     tag_count: number;
+    /** Present only for the uploader themselves and for moderators. */
+    is_anonymous?: boolean;
 }
 
 export interface TagSummary {
@@ -71,7 +74,7 @@ export interface MediaDetail extends MediaCardData {
     frame_count: number | null;
     visibility: Visibility;
     is_anonymous: boolean;
-    uploader: string | null;
+    uploader: { display_name: string; username: string; linkable: boolean } | null;
     created_at: string | null;
     tags: TagOnMedia[];
 }
@@ -134,6 +137,23 @@ export interface SharedProps {
         success: string | null;
         error: string | null;
     };
+}
+
+export interface ProfileSummary {
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+    rank: UserRank;
+    rank_label: string;
+    registered_at: string | null;
+    upload_count: number;
+    is_banned: boolean;
+}
+
+/** Moderator-only flags explaining how this view differs from the public one. */
+export interface ProfileNotices {
+    uploads_hidden: boolean;
+    has_anonymous: boolean;
 }
 
 declare module '@inertiajs/core' {

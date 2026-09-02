@@ -11,6 +11,7 @@ use Inertia\Response;
 use Modules\Media\DataObjects\BrowseFilters;
 use Modules\Media\Models\Media;
 use Modules\Media\Requests\BrowseMediaRequest;
+use Modules\Media\Support\MediaCardPayload;
 use Modules\Tag\DataObjects\RelatedTag;
 use Modules\Tag\Models\Tag;
 use Modules\Tag\Models\TagCategory;
@@ -100,16 +101,7 @@ final class ShowTagController
             ->orderByDesc('created_at')
             ->limit(self::SAMPLE_SIZE)
             ->get()
-            ->map(fn (Media $item): array => [
-                'hash_id' => $item->hash_id,
-                'title' => $item->title,
-                'width' => $item->width,
-                'height' => $item->height,
-                'dominant_color' => $item->dominant_color,
-                'safety_rating' => $item->safety_rating->value,
-                'has_thumbnail' => $item->thumbnails !== null,
-                'tag_count' => $item->tag_count,
-            ])
+            ->map(static fn (Media $item): array => MediaCardPayload::for($item))
             ->all();
     }
 }

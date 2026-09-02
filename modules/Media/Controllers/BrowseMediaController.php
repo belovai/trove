@@ -9,6 +9,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Modules\Media\Models\Media;
 use Modules\Media\Requests\BrowseMediaRequest;
+use Modules\Media\Support\MediaCardPayload;
 
 final class BrowseMediaController
 {
@@ -31,31 +32,11 @@ final class BrowseMediaController
             ->latest()
             ->paginate(60)
             ->withQueryString()
-            ->through(fn (Media $item): array => $this->card($item));
+            ->through(fn (Media $item): array => MediaCardPayload::for($item));
 
         return Inertia::render('media/Index', [
             'media' => $media,
             'filters' => $filters->toArray(),
         ]);
-    }
-
-    /**
-     * The public shape of a grid item. The internal id, the storage path and
-     * an anonymous uploader's identity never leave the server.
-     *
-     * @return array<string, mixed>
-     */
-    private function card(Media $item): array
-    {
-        return [
-            'hash_id' => $item->hash_id,
-            'title' => $item->title,
-            'width' => $item->width,
-            'height' => $item->height,
-            'dominant_color' => $item->dominant_color,
-            'safety_rating' => $item->safety_rating->value,
-            'has_thumbnail' => $item->thumbnails !== null,
-            'tag_count' => $item->tag_count,
-        ];
     }
 }

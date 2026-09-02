@@ -64,6 +64,11 @@ return [
     'avatar_use_letter' => 'Remove photo',
     'avatar_gravatar_requires_email' => 'Add an email address first to use Gravatar.',
 
+    'section_privacy' => 'Privacy',
+    'section_privacy_hint' => 'Who sees what on your profile.',
+    'show_uploads' => 'Show my uploads on my profile',
+    'show_uploads_hint' => 'When off, only you and the moderators see the list of your uploads. Items you uploaded anonymously are never listed for anyone else.',
+
     'user_created' => 'The user has been created.',
     'user_saved' => 'The user has been updated.',
     'rank_too_high' => 'You cannot assign a rank above your own.',

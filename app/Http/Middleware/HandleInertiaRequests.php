@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                     'default_safety_filter' => $request->user()->default_safety_filter,
                     'default_visibility' => $request->user()->default_visibility,
                     'show_unsafe_content' => $request->user()->show_unsafe_content,
+                    'show_uploads' => $request->user()->show_uploads,
                     'avatar_source' => $request->user()->avatar_source,
                     'avatar_url' => $request->user()->avatarUrl(),
                 ],

@@ -53,6 +53,7 @@ use Modules\User\Models\User;
  * @property-read int|null $tags_count
  * @property-read User|null $uploader
  *
+ * @method static Builder<static>|Media attributedTo(\Modules\User\Models\User $uploader, ?\Modules\User\Models\User $viewer)
  * @method static \Modules\Media\Database\Factories\MediaFactory factory($count = null, $state = [])
  * @method static Builder<static>|Media listable()
  * @method static Builder<static>|Media newModelQuery()
@@ -224,6 +225,30 @@ final class Media extends Model
     {
         $query->where('visibility', Visibility::Unlisted->value)
             ->where('user_id', $viewer?->id);
+    }
+
+    /**
+     * ATTRIBUTION FILTER. The items a profile page may credit to a user.
+     * Anonymity is attribution, not access: an anonymous item stays reachable
+     * at its own URL, it simply is not listed under its uploader's name. The
+     * uploader themselves and moderators are the exceptions, matching
+     * ShowMediaController::uploader().
+     *
+     * Apply in addition to visibleTo(), never instead of it.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function attributedTo(Builder $query, User $uploader, ?User $viewer): void
+    {
+        $query->where('user_id', $uploader->id);
+
+        $attributable = $viewer !== null
+            && ($viewer->id === $uploader->id || Gate::forUser($viewer)->allows('media.moderate'));
+
+        if (!$attributable) {
+            $query->where('is_anonymous', false);
+        }
     }
 
     /**
