@@ -28,6 +28,7 @@
 CLAUDE.md
 Homestead.json
 Homestead.yaml
+/meta.json
 .mcp.json
 Thumbs.db
 compose.override.yaml

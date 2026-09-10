@@ -14,13 +14,14 @@ import Alert from '@/components/ui/Alert.vue';
 import TextInput from '@/components/ui/TextInput.vue';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
-import type { SettingsSection, TimezoneOption } from '@/types/inertia';
+import type { AppMeta, SettingsSection, TimezoneOption } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
 const props = defineProps<{
     sections: SettingsSection[];
     current: string;
+    meta: AppMeta;
     settings: Record<string, string | boolean | string[]>;
     registration_modes: string[];
     email_policies: string[];
@@ -32,7 +33,23 @@ const props = defineProps<{
 }>();
 
 const { t } = useTranslations();
-const { preview } = useDateFormat();
+const { preview, formatDateTime } = useDateFormat();
+
+// v0.2.0-672793e@2026-09-10 21:01 — version, commit, build time in the
+// viewer's own date/time preference, all in one line.
+const metaLine = computed(() => {
+    const parts = [props.meta.version];
+
+    if (props.meta.commit !== null) {
+        parts.push(`-${props.meta.commit}`);
+    }
+
+    if (props.meta.built_at !== null) {
+        parts.push(`@${formatDateTime(props.meta.built_at)}`);
+    }
+
+    return parts.join('');
+});
 
 // General block: app.name. Each block is its own form and PATCHes only the
 // keys it owns — the endpoint is already partial-write, so blocks save
@@ -214,6 +231,17 @@ onUnmounted(() => {
 
     <SettingsLayout :sections="props.sections" :current="props.current">
         <div class="flex flex-col gap-8">
+            <AppSection
+                :title="t('setting::setting.block_about')"
+                :description="t('setting::setting.block_about_hint')"
+            >
+                <AppCard :padded="false">
+                    <AppCardRow :label="t('setting::setting.version')">
+                        <span class="font-mono text-sm text-text">{{ metaLine }}</span>
+                    </AppCardRow>
+                </AppCard>
+            </AppSection>
+
             <AppSection
                 :title="t('setting::setting.block_general')"
                 :description="t('setting::setting.block_general_hint')"

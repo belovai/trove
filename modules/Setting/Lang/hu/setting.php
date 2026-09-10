@@ -8,6 +8,10 @@ return [
     'saved' => 'A beállítások elmentve.',
     'save' => 'Mentés',
 
+    'block_about' => 'Névjegy',
+    'block_about_hint' => 'A telepítés build-azonosítója.',
+    'version' => 'Verzió',
+
     'block_general' => 'Általános',
     'block_general_hint' => 'A telepítés alapvető adatai.',
     'app_name' => 'Oldal neve',

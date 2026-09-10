@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Setting\Controllers;
 
+use App\Support\AppMeta;
 use App\Support\DateTimeFormats;
 use App\Support\SettingsSections;
 use BackedEnum;
@@ -35,6 +36,7 @@ final class ShowSystemSettingsController
         return Inertia::render('settings/System', [
             'sections' => SettingsSections::for($request->user()),
             'current' => 'system',
+            'meta' => AppMeta::current(),
             'settings' => $values,
             'registration_modes' => array_column(RegistrationMode::cases(), 'value'),
             'email_policies' => array_column(RegistrationEmailPolicy::cases(), 'value'),

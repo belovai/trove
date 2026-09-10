@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Console\Commands\GenerateMeta;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -23,5 +24,9 @@ class AppServiceProvider extends ServiceProvider
         // No uncompromised(): it calls the Have I Been Pwned API, which is a poor
         // default for a self-hosted instance that may have no network at all.
         Password::defaults(fn () => Password::min(8)->letters()->numbers());
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([GenerateMeta::class]);
+        }
     }
 }

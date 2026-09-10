@@ -8,6 +8,10 @@ return [
     'saved' => 'The settings have been saved.',
     'save' => 'Save',
 
+    'block_about' => 'About',
+    'block_about_hint' => 'Build identity of this installation.',
+    'version' => 'Version',
+
     'block_general' => 'General',
     'block_general_hint' => 'Basic identity of this installation.',
     'app_name' => 'Site name',
