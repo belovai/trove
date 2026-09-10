@@ -19,6 +19,7 @@ return [
     'nav_browse' => 'Böngészés',
     'nav_tags' => 'Címkék',
     'nav_upload' => 'Feltöltés',
+    'nav_favorites' => 'Kedvencek',
     'nav_settings' => 'Beállítások',
     'nav_profile_menu' => 'Fiók menü',
     'copy' => 'Másolás',

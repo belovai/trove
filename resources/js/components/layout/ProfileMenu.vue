@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import { ChevronDownIcon, Cog6ToothIcon, ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
+import { ChevronDownIcon, Cog6ToothIcon, HeartIcon, ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
 import { useAuth } from '@/composables/useAuth';
 import { useTranslations } from '@/composables/useTranslations';
 
@@ -56,6 +56,14 @@ const signOut = (): void => {
             v-if="isOpen"
             class="absolute top-full right-0 z-20 mt-1.5 w-48 overflow-hidden rounded-lg border border-divider bg-panel shadow-pop"
         >
+            <Link
+                href="/favorites"
+                class="flex items-center gap-2 px-3 py-2.5 text-sm text-text hover:bg-surface"
+                @click="close"
+            >
+                <HeartIcon class="h-4 w-4" aria-hidden="true" />
+                {{ t('user::ui.nav_favorites') }}
+            </Link>
             <Link
                 href="/settings"
                 class="flex items-center gap-2 border-b border-divider px-3 py-2.5 text-sm text-text hover:bg-surface"

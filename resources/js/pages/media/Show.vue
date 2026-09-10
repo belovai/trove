@@ -8,7 +8,9 @@ import MediaViewer from '@/components/MediaViewer.vue';
 import TagChip from '@/components/TagChip.vue';
 import TagInput from '@/components/TagInput.vue';
 import MediaDetailsSlideOver from '@/components/media/MediaDetailsSlideOver.vue';
+import MediaFavorite from '@/components/media/MediaFavorite.vue';
 import MediaVote from '@/components/media/MediaVote.vue';
+import { useAuth } from '@/composables/useAuth';
 import { useConfirm } from '@/composables/useConfirm';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
@@ -18,7 +20,7 @@ defineOptions({ layout: AppLayout });
 
 const props = defineProps<{
     media: MediaDetail;
-    can: { update: boolean; delete: boolean; vote: boolean };
+    can: { update: boolean; delete: boolean; vote: boolean; favorite: boolean };
     vote_blocked_reason: VoteBlockedReason | null;
     visibilities: string[];
 }>();
@@ -26,6 +28,7 @@ const props = defineProps<{
 const { t } = useTranslations();
 const { formatDateTime } = useDateFormat();
 const { confirm } = useConfirm();
+const { user } = useAuth();
 
 const isDetailsOpen = ref(false);
 const isEditingTags = ref(false);
@@ -73,37 +76,45 @@ const destroy = async (): Promise<void> => {
         </div>
 
         <aside class="flex flex-col divide-y divide-divider rounded-lg border border-divider bg-panel">
-            <div class="flex items-start justify-between gap-3 px-4 py-3">
-                <h1 class="min-w-0 text-base font-semibold text-text">
+            <div class="flex flex-col gap-2 px-4 py-3">
+                <h1 class="text-base font-semibold text-text">
                     {{ props.media.title ?? props.media.hash_id }}
                 </h1>
-                <MediaVote
-                    :hash-id="props.media.hash_id"
-                    :score="props.media.score"
-                    :viewer-vote="props.media.viewer_vote"
-                    :can-vote="props.can.vote"
-                    :blocked-reason="props.vote_blocked_reason"
-                />
-                <div v-if="props.can.update || props.can.delete" class="flex shrink-0 gap-1">
-                    <AppButton
-                        v-if="props.can.update"
-                        variant="ghost"
-                        size="icon"
-                        :aria-label="t('media::media.edit_details')"
-                        @click="isDetailsOpen = true"
-                    >
-                        <PencilSquareIcon class="h-5 w-5" aria-hidden="true" />
-                    </AppButton>
-                    <AppButton
-                        v-if="props.can.delete"
-                        variant="ghost"
-                        size="icon"
-                        class="text-danger"
-                        :aria-label="t('media::media.delete')"
-                        @click="destroy"
-                    >
-                        <TrashIcon class="h-5 w-5" aria-hidden="true" />
-                    </AppButton>
+                <div class="flex items-center justify-center gap-3">
+                    <MediaVote
+                        :hash-id="props.media.hash_id"
+                        :score="props.media.score"
+                        :viewer-vote="props.media.viewer_vote"
+                        :can-vote="props.can.vote"
+                        :blocked-reason="props.vote_blocked_reason"
+                    />
+                    <MediaFavorite
+                        :hash-id="props.media.hash_id"
+                        :is-favorited="props.media.is_favorited"
+                        :can-favorite="props.can.favorite"
+                        :is-guest="user === null"
+                    />
+                    <div v-if="props.can.update || props.can.delete" class="flex shrink-0 gap-1">
+                        <AppButton
+                            v-if="props.can.update"
+                            variant="ghost"
+                            size="icon"
+                            :aria-label="t('media::media.edit_details')"
+                            @click="isDetailsOpen = true"
+                        >
+                            <PencilSquareIcon class="h-5 w-5" aria-hidden="true" />
+                        </AppButton>
+                        <AppButton
+                            v-if="props.can.delete"
+                            variant="ghost"
+                            size="icon"
+                            class="text-danger"
+                            :aria-label="t('media::media.delete')"
+                            @click="destroy"
+                        >
+                            <TrashIcon class="h-5 w-5" aria-hidden="true" />
+                        </AppButton>
+                    </div>
                 </div>
             </div>
 

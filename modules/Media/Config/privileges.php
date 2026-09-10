@@ -7,5 +7,6 @@ use Modules\User\Enums\UserRank;
 return [
     'upload' => UserRank::Regular,
     'vote' => UserRank::Regular,
+    'favorite' => UserRank::Regular,
     'moderate' => UserRank::Moderator,
 ];

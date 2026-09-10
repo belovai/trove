@@ -13,8 +13,10 @@ const props = withDefaults(
         url: string;
         /** Off where every listed item is tagged by definition, as on a tag page. */
         showUntagged?: boolean;
+        /** Off on a personal list like /favorites, where "my own unlisted uploads" is not a meaningful axis. */
+        showUnlisted?: boolean;
     }>(),
-    { showUntagged: true },
+    { showUntagged: true, showUnlisted: true },
 );
 
 const page = usePage();
@@ -128,7 +130,7 @@ const toggleRating = (rating: SafetyRating): void => {
         </button>
 
         <button
-            v-if="user"
+            v-if="user && props.showUnlisted"
             type="button"
             :aria-pressed="props.filters.unlisted"
             class="rounded-md border px-2 py-1 text-xs font-medium"
