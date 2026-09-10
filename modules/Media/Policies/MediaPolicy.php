@@ -28,6 +28,24 @@ final class MediaPolicy
         return $this->ownsOrModerates($user, $media);
     }
 
+    /**
+     * A vote ranks someone else's item. Two rules beyond the rank gate:
+     * you cannot vote on your own upload in either direction, and you cannot
+     * vote on what you cannot see.
+     *
+     * The self-vote rule applies to anonymous uploads as well. The server
+     * knows the real user_id, and refusing reveals nothing: the uploader is
+     * the only person who ever sees the refusal.
+     */
+    public function vote(User $user, Media $media): bool
+    {
+        if ($user->id === $media->user_id) {
+            return false;
+        }
+
+        return $user->can('media.vote') && $this->view($user, $media);
+    }
+
     public function update(User $user, Media $media): bool
     {
         return $this->ownsOrModerates($user, $media);

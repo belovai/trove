@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
+import AppSelect from '@/components/ui/AppSelect.vue';
 import { useAuth } from '@/composables/useAuth';
 import { useTranslations } from '@/composables/useTranslations';
-import type { MediaFilters, SafetyRating } from '@/types/inertia';
+import type { MediaFilters, MediaSort, SafetyRating } from '@/types/inertia';
 
 const props = withDefaults(
     defineProps<{
@@ -53,6 +54,7 @@ const isDefault = computed(
     () =>
         props.filters.untagged === false &&
         props.filters.unlisted === false &&
+        props.filters.sort === 'newest' &&
         props.filters.safety.length === defaultSafety.value.length &&
         defaultSafety.value.every((rating) => props.filters.safety.includes(rating)),
 );
@@ -72,8 +74,13 @@ const visit = (params: Record<string, string> = {}): void => {
     });
 };
 
-const apply = (safety: SafetyRating[], untagged: boolean, unlisted: boolean): void => {
-    visit({ safety: safety.join(','), untagged: untagged ? '1' : '0', unlisted: unlisted ? '1' : '0' });
+const apply = (safety: SafetyRating[], untagged: boolean, unlisted: boolean, sort: MediaSort): void => {
+    visit({
+        safety: safety.join(','),
+        untagged: untagged ? '1' : '0',
+        unlisted: unlisted ? '1' : '0',
+        sort,
+    });
 };
 
 const toggleRating = (rating: SafetyRating): void => {
@@ -81,7 +88,7 @@ const toggleRating = (rating: SafetyRating): void => {
         ? props.filters.safety.filter((value) => value !== rating)
         : ratings.value.filter((value) => value === rating || props.filters.safety.includes(value));
 
-    apply(next, props.filters.untagged, props.filters.unlisted);
+    apply(next, props.filters.untagged, props.filters.unlisted, props.filters.sort);
 };
 </script>
 
@@ -115,7 +122,7 @@ const toggleRating = (rating: SafetyRating): void => {
                     ? 'border-transparent bg-primary text-primary-fg'
                     : 'border-divider text-muted'
             "
-            @click="apply(props.filters.safety, !props.filters.untagged, props.filters.unlisted)"
+            @click="apply(props.filters.safety, !props.filters.untagged, props.filters.unlisted, props.filters.sort)"
         >
             {{ t('media::media.filter_untagged') }}
         </button>
@@ -130,10 +137,26 @@ const toggleRating = (rating: SafetyRating): void => {
                     ? 'border-transparent bg-primary text-primary-fg'
                     : 'border-divider text-muted'
             "
-            @click="apply(props.filters.safety, props.filters.untagged, !props.filters.unlisted)"
+            @click="apply(props.filters.safety, props.filters.untagged, !props.filters.unlisted, props.filters.sort)"
         >
             {{ t('media::media.filter_unlisted') }}
         </button>
+
+        <label class="flex items-center gap-2 text-sm text-muted">
+            {{ t('media::media.filter_sort') }}
+            <AppSelect
+                id="media-filter-sort"
+                :model-value="props.filters.sort"
+                class="text-xs"
+                @update:model-value="
+                    (value) => apply(props.filters.safety, props.filters.untagged, props.filters.unlisted, value as MediaSort)
+                "
+            >
+                <option value="newest">{{ t('media::media.sort_newest') }}</option>
+                <option value="oldest">{{ t('media::media.sort_oldest') }}</option>
+                <option value="score">{{ t('media::media.sort_score') }}</option>
+            </AppSelect>
+        </label>
 
         <button v-if="!isDefault" type="button" class="text-xs text-accent hover:text-accent-hover" @click="visit()">
             {{ t('media::media.filter_reset') }}

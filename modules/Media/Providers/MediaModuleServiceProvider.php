@@ -10,6 +10,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 use Modules\Media\Console\PruneDeletedMedia;
+use Modules\Media\Console\RebuildMediaScores;
 use Modules\Media\Contracts\MediaStorage;
 use Modules\Media\Contracts\MetadataExtractor;
 use Modules\Media\Contracts\ThumbnailGenerator;
@@ -45,7 +46,7 @@ final class MediaModuleServiceProvider extends ModuleServiceProvider
         Gate::policy(Media::class, MediaPolicy::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([PruneDeletedMedia::class]);
+            $this->commands([PruneDeletedMedia::class, RebuildMediaScores::class]);
         }
     }
 }

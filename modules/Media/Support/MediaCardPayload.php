@@ -30,6 +30,10 @@ final class MediaCardPayload
             'safety_rating' => $item->safety_rating->value,
             'has_thumbnail' => $item->thumbnails !== null,
             'tag_count' => $item->tag_count,
+            // Read-only in the grid: voting happens on the item's own page.
+            // The grid needs no viewer_vote and no policy answer, which would
+            // otherwise cost sixty lookups a page.
+            'score' => $item->score,
         ];
 
         if ($withAnonymousFlag) {

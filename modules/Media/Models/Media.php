@@ -14,12 +14,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Modules\Media\Database\Factories\MediaFactory;
 use Modules\Media\Enums\SafetyRating;
 use Modules\Media\Enums\Visibility;
+use Modules\Media\Enums\VoteValue;
 use Modules\Tag\Models\Tag;
 use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
@@ -49,9 +51,12 @@ use Modules\User\Models\User;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property int $score
  * @property-read Collection<int, Tag> $tags
  * @property-read int|null $tags_count
  * @property-read User|null $uploader
+ * @property-read Collection<int, Vote> $votes
+ * @property-read int|null $votes_count
  *
  * @method static Builder<static>|Media attributedTo(\Modules\User\Models\User $uploader, ?\Modules\User\Models\User $viewer)
  * @method static \Modules\Media\Database\Factories\MediaFactory factory($count = null, $state = [])
@@ -78,6 +83,7 @@ use Modules\User\Models\User;
  * @method static Builder<static>|Media whereMimeType($value)
  * @method static Builder<static>|Media whereOriginalFilename($value)
  * @method static Builder<static>|Media whereSafetyRating($value)
+ * @method static Builder<static>|Media whereScore($value)
  * @method static Builder<static>|Media whereSource($value)
  * @method static Builder<static>|Media whereStoragePath($value)
  * @method static Builder<static>|Media whereTagCount($value)
@@ -127,6 +133,16 @@ final class Media extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * score is not Fillable — this is the only place a fresh model gets one,
+     * so a newly created item reads 0 without a round-trip to the database.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'score' => 0,
+    ];
+
+    /**
      * The route key is the public hash_id: the auto-increment id is never
      * exposed in a URL.
      */
@@ -154,6 +170,30 @@ final class Media extends Model
         return $this->belongsToMany(Tag::class, 'media_tag')
             ->withPivot('source', 'tagged_by')
             ->withTimestamps('created_at', false);
+    }
+
+    /**
+     * Read-only from everywhere except CastVote: media.score is derived from
+     * these rows and must not drift from them.
+     *
+     * @return HasMany<Vote, $this>
+     */
+    public function votes(): HasMany
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    /**
+     * This viewer's own vote on this item, or null. A plain lookup rather than
+     * a query scope: only the detail page needs it, one item at a time.
+     */
+    public function voteOf(?User $viewer): ?VoteValue
+    {
+        if ($viewer === null) {
+            return null;
+        }
+
+        return $this->votes()->where('user_id', $viewer->id)->first()?->value;
     }
 
     /**
