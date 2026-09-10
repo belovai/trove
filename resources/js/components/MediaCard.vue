@@ -65,5 +65,13 @@ const isCovered = computed(
         <span v-if="props.media.is_anonymous" class="pointer-events-none absolute left-1 top-1">
             <AppBadge variant="warning">{{ t('media::media.anonymous_badge') }}</AppBadge>
         </span>
+
+        <!-- Read-only: voting lives on the item's own page. Hidden at zero,
+             which is most of the grid — a column of "0" would be noise. -->
+        <span v-if="props.media.score !== 0" class="pointer-events-none absolute bottom-1 right-1">
+            <AppBadge :variant="props.media.score > 0 ? 'success' : 'danger'">
+                {{ props.media.score > 0 ? `+${props.media.score}` : props.media.score }}
+            </AppBadge>
+        </span>
     </div>
 </template>

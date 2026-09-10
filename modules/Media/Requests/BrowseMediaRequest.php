@@ -7,6 +7,7 @@ namespace Modules\Media\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Modules\Media\DataObjects\BrowseFilters;
+use Modules\Media\Enums\MediaSort;
 use Modules\Media\Enums\SafetyRating;
 use Modules\User\Models\User;
 
@@ -27,6 +28,7 @@ final class BrowseMediaRequest extends FormRequest
             'safety.*' => [Rule::enum(SafetyRating::class)],
             'untagged' => ['nullable', 'boolean'],
             'unlisted' => ['nullable', 'boolean'],
+            'sort' => ['nullable', Rule::enum(MediaSort::class)],
         ];
     }
 
@@ -55,6 +57,9 @@ final class BrowseMediaRequest extends FormRequest
                 ?? SafetyRating::upTo($viewer->default_safety_filter ?? SafetyRating::Safe),
             untagged: $this->boolean('untagged'),
             unlisted: $this->boolean('unlisted'),
+            sort: $this->has('sort')
+                ? MediaSort::from($this->string('sort')->value())
+                : MediaSort::Newest,
         );
     }
 

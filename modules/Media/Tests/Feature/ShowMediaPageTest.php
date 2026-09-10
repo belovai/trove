@@ -7,6 +7,7 @@ namespace Modules\Media\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Modules\Media\Models\Media;
+use Modules\User\Enums\UserRank;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -104,5 +105,54 @@ final class ShowMediaPageTest extends TestCase
             ->get('/m/'.$item->hash_id)
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->where('media.uploader.linkable', false));
+    }
+
+    public function test_the_score_and_the_viewers_own_vote_are_sent(): void
+    {
+        $media = Media::factory()->create();
+        $voter = User::factory()->create(['rank' => UserRank::Regular]);
+
+        $this->actingAs($voter)->post("/m/{$media->hash_id}/vote", ['value' => -1]);
+
+        $this->actingAs($voter)->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.score', -1)
+                ->where('media.viewer_vote', -1)
+                ->where('can.vote', true)
+                ->where('vote_blocked_reason', null));
+    }
+
+    public function test_a_guest_gets_the_score_but_no_vote(): void
+    {
+        $media = Media::factory()->create();
+
+        $this->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.score', 0)
+                ->where('media.viewer_vote', null)
+                ->where('can.vote', false)
+                ->where('vote_blocked_reason', 'guest'));
+    }
+
+    public function test_the_uploader_is_told_why_they_cannot_vote(): void
+    {
+        $uploader = User::factory()->create(['rank' => UserRank::Regular]);
+        $media = Media::factory()->for($uploader, 'uploader')->create();
+
+        $this->actingAs($uploader)->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('can.vote', false)
+                ->where('vote_blocked_reason', 'own'));
+    }
+
+    public function test_a_restricted_viewer_is_told_why_they_cannot_vote(): void
+    {
+        $media = Media::factory()->create();
+
+        $this->actingAs(User::factory()->create(['rank' => UserRank::Restricted]))
+            ->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('can.vote', false)
+                ->where('vote_blocked_reason', 'restricted'));
     }
 }

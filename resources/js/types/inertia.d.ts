@@ -25,12 +25,18 @@ export interface AuthUser {
 export type Visibility = 'public' | 'authenticated' | 'unlisted' | 'private';
 export type SafetyRating = 'safe' | 'sketchy' | 'unsafe';
 
+export type MediaSort = 'newest' | 'oldest' | 'score';
+
 /** The browse filters that actually applied, echoed back by the server. */
 export interface MediaFilters {
     safety: SafetyRating[];
     untagged: boolean;
     unlisted: boolean;
+    sort: MediaSort;
 }
+
+export type VoteValue = 1 | -1;
+export type VoteBlockedReason = 'guest' | 'restricted' | 'own';
 
 export interface MediaCardData {
     hash_id: string;
@@ -44,6 +50,8 @@ export interface MediaCardData {
     tag_count: number;
     /** Present only for the uploader themselves and for moderators. */
     is_anonymous?: boolean;
+    /** Net of the up and down votes. May be negative. */
+    score: number;
 }
 
 export interface TagSummary {
@@ -83,6 +91,8 @@ export interface MediaDetail extends MediaCardData {
     uploader: { display_name: string; username: string; linkable: boolean } | null;
     created_at: string | null;
     tags: TagOnMedia[];
+    /** The current viewer's own vote, null for a guest or a non-voter. */
+    viewer_vote: VoteValue | null;
 }
 
 export interface Paginated<T> {

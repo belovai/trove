@@ -182,6 +182,7 @@ The supported locale list (`config('trove.locales')`) is not `.env`-driven; it i
 | thumbnails | json | `{"thumb": "...", "preview": "..."}` |
 | dominant_color | varchar(7) | Hex color code, e.g. `#A3C4F3` |
 | tag_count | integer | Denormalized, default 0 — for sorting and untagged discovery |
+| score | integer | Denormalized net of `votes`. May be negative. Default 0 |
 | timestamps | | |
 
 **Indexes:**
@@ -190,6 +191,7 @@ The supported locale list (`config('trove.locales')`) is not `.env`-driven; it i
 - `INDEX (content_hash)` — duplicate detection, deliberately not a unique constraint
 - `INDEX (visibility)`, `INDEX (safety_rating)`, `INDEX (user_id)`, `INDEX (created_at)`, `INDEX (mime_type)`
 - `INDEX (visibility, safety_rating, created_at)` — the common browse path
+- `INDEX (score)`, `INDEX (visibility, safety_rating, score)` — the score-ordered browse path
 
 **On `content_hash`:** a unique constraint is wrong for a multi-user system. A user would be blocked from uploading a file that already exists in someone else's private collection, which leaks information and produces a confusing error. Duplicates are detected at upload time and handled per `duplicate_upload_policy`: `warn` shows the existing item (if the user may see it) and lets them proceed, `reject` blocks the upload.
 
@@ -278,6 +280,23 @@ The `source` column carries three responsibilities at once: it makes implication
 | created_at | timestamp | |
 
 **Composite unique:** `(user_id, media_id)`
+
+### `votes`
+
+| Column | Type | Notes |
+|---|---|---|
+| id | bigint | |
+| user_id | bigint FK → users | Cascades: a vote has no meaning without its voter |
+| media_id | bigint FK → media | Cascades: `media:prune` carries votes with it |
+| value | tinyint | `1` or `-1`. No `0` row — withdrawing deletes |
+| created_at, updated_at | timestamp | |
+
+**Composite unique:** `(user_id, media_id)`
+**Indexes:** `INDEX (media_id)` — the unique index leads with `user_id`
+
+A vote is a ranking signal, not a sentiment: up means "this belongs higher in
+the gallery". `favorites` is the other axis and stays separate — "save this
+for me" is not "the collection ranks this highly".
 
 ---
 
@@ -403,8 +422,13 @@ cat crying -politics rating:safe sort:newest
 - `rating:safe` — filter by safety rating
 - `user:alice` — filter by uploader
 - `tags:0` — items with no tags (discovery of untagged uploads)
-- `sort:newest` — `newest`, `oldest`, `random`, `filesize`, `tag_count`
+- `sort:newest` — `newest`, `oldest`, `random`, `filesize`, `tag_count`, `score`
 - Bare non-tag terms are matched as fulltext against title and description
+
+`score` orders by the denormalized `media.score` descending, breaking ties by
+recency — without the secondary key, items sharing a score reorder between
+pages. It ships first as the `?sort=` URL parameter on the browse listing; the
+search-string form resolves to the same column.
 
 Aliases are resolved at parse time. Because implications are materialized, no query-time tree expansion is needed: searching `cat` matches items tagged `calico` because those items already carry a `cat` row.
 
@@ -657,6 +681,7 @@ POST   /api/v1/media/{hash_id}/tags         # Add tags
 DELETE /api/v1/media/{hash_id}/tags         # Remove tags
 POST   /api/v1/media/{hash_id}/favorite
 DELETE /api/v1/media/{hash_id}/favorite
+POST   /api/v1/media/{hash_id}/vote
 
 # Tags
 GET    /api/v1/tags                         # List / autocomplete
@@ -709,6 +734,16 @@ Rate limiting via Laravel's built-in limiter; Cloudflare as an optional addition
 - **One media per post.** No albums, ever. This constraint is what keeps the data model and the URL space simple.
 - **i18n from day one.** No hardcoded user-facing strings.
 - **No premature abstraction.** Five ranks and a privilege map, no RBAC package. Simple favorites, no collections.
+- **Up/down voting, not like/dislike.** The vote's job here is to order a
+  browsed feed, which makes it a ranking scalar rather than a sentiment
+  reading — and a net score that may go negative only coheres in the ranking
+  frame. It also keeps the moderation boundary clean: "belongs lower" is not
+  "should not be here", which `safety_rating` and `visibility` already answer.
+  Favourites stay the separate "save this for me" axis.
+- **Score is denormalized on `media`, recalculated from `SUM`.** Recalculation
+  rather than increment, so a retried write cannot leave the column drifting;
+  `media:rebuild-scores` re-derives every row for the cases outside the
+  counter's reach.
 
 ---
 

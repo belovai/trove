@@ -8,16 +8,18 @@ import MediaViewer from '@/components/MediaViewer.vue';
 import TagChip from '@/components/TagChip.vue';
 import TagInput from '@/components/TagInput.vue';
 import MediaDetailsSlideOver from '@/components/media/MediaDetailsSlideOver.vue';
+import MediaVote from '@/components/media/MediaVote.vue';
 import { useConfirm } from '@/composables/useConfirm';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { useTranslations } from '@/composables/useTranslations';
-import type { MediaDetail } from '@/types/inertia';
+import type { MediaDetail, VoteBlockedReason } from '@/types/inertia';
 
 defineOptions({ layout: AppLayout });
 
 const props = defineProps<{
     media: MediaDetail;
-    can: { update: boolean; delete: boolean };
+    can: { update: boolean; delete: boolean; vote: boolean };
+    vote_blocked_reason: VoteBlockedReason | null;
     visibilities: string[];
 }>();
 
@@ -75,6 +77,13 @@ const destroy = async (): Promise<void> => {
                 <h1 class="min-w-0 text-base font-semibold text-text">
                     {{ props.media.title ?? props.media.hash_id }}
                 </h1>
+                <MediaVote
+                    :hash-id="props.media.hash_id"
+                    :score="props.media.score"
+                    :viewer-vote="props.media.viewer_vote"
+                    :can-vote="props.can.vote"
+                    :blocked-reason="props.vote_blocked_reason"
+                />
                 <div v-if="props.can.update || props.can.delete" class="flex shrink-0 gap-1">
                     <AppButton
                         v-if="props.can.update"

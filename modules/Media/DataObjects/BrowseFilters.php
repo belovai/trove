@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Media\DataObjects;
 
+use Modules\Media\Enums\MediaSort;
 use Modules\Media\Enums\SafetyRating;
 
 /**
@@ -21,6 +22,7 @@ final readonly class BrowseFilters
         public array $ratings,
         public bool $untagged,
         public bool $unlisted,
+        public MediaSort $sort,
     ) {}
 
     /**
@@ -32,6 +34,7 @@ final readonly class BrowseFilters
             'safety' => array_map(fn (SafetyRating $rating): string => $rating->value, $this->ratings),
             'untagged' => $this->untagged,
             'unlisted' => $this->unlisted,
+            'sort' => $this->sort->value,
         ];
     }
 }

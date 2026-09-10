@@ -145,4 +145,62 @@ final class BrowseMediaTest extends TestCase
 
         $response->assertDontSee('arpad');
     }
+
+    public function test_the_default_sort_is_newest(): void
+    {
+        $older = Media::factory()->create(['created_at' => now()->subDay()]);
+        $newer = Media::factory()->create(['created_at' => now()]);
+
+        $this->get('/posts')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('filters.sort', 'newest')
+                ->where('media.data.0.hash_id', $newer->hash_id)
+                ->where('media.data.1.hash_id', $older->hash_id));
+    }
+
+    public function test_sorting_by_score_puts_the_highest_first(): void
+    {
+        $low = Media::factory()->create();
+        $high = Media::factory()->create();
+        $negative = Media::factory()->create();
+
+        $low->forceFill(['score' => 1])->save();
+        $high->forceFill(['score' => 5])->save();
+        $negative->forceFill(['score' => -3])->save();
+
+        $this->get('/posts?sort=score')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('filters.sort', 'score')
+                ->where('media.data.0.hash_id', $high->hash_id)
+                ->where('media.data.1.hash_id', $low->hash_id)
+                ->where('media.data.2.hash_id', $negative->hash_id));
+    }
+
+    public function test_equal_scores_break_the_tie_by_recency(): void
+    {
+        $older = Media::factory()->create(['created_at' => now()->subDay()]);
+        $newer = Media::factory()->create(['created_at' => now()]);
+
+        $older->forceFill(['score' => 2])->save();
+        $newer->forceFill(['score' => 2])->save();
+
+        $this->get('/posts?sort=score')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.data.0.hash_id', $newer->hash_id));
+    }
+
+    public function test_sorting_oldest_first(): void
+    {
+        $older = Media::factory()->create(['created_at' => now()->subDay()]);
+        Media::factory()->create(['created_at' => now()]);
+
+        $this->get('/posts?sort=oldest')
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.data.0.hash_id', $older->hash_id));
+    }
+
+    public function test_an_unknown_sort_is_rejected(): void
+    {
+        $this->get('/posts?sort=chaos')->assertSessionHasErrors('sort');
+    }
 }

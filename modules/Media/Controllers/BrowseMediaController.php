@@ -29,7 +29,7 @@ final class BrowseMediaController
             )
             ->withinSafetyFilter($viewer, $filters->ratings)
             ->when($filters->untagged, fn (Builder $query) => $query->untagged())
-            ->latest()
+            ->tap(fn (Builder $query) => $filters->sort->apply($query))
             ->paginate(60)
             ->withQueryString()
             ->through(fn (Media $item): array => MediaCardPayload::for($item));

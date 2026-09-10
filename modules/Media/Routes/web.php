@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Modules\Auth\Middleware\EnsureEmailIsVerified;
 use Modules\Media\Controllers\BrowseMediaController;
+use Modules\Media\Controllers\CastVoteController;
 use Modules\Media\Controllers\CreateMediaController;
 use Modules\Media\Controllers\DestroyMediaController;
 use Modules\Media\Controllers\ServeMediaFileController;
@@ -29,4 +30,11 @@ Route::middleware(['web', 'auth', EnsureEmailIsVerified::class])->group(function
     Route::post('upload', StoreMediaController::class)->name('media.store');
     Route::patch('m/{media}', UpdateMediaController::class)->name('media.update');
     Route::delete('m/{media}', DestroyMediaController::class)->name('media.destroy');
+});
+
+// Voting sits outside the verified group on purpose: it adds nothing to the
+// collection, and gating it on email verification would silence most readers
+// on an install that has no mail transport configured.
+Route::middleware(['web', 'auth'])->group(function (): void {
+    Route::post('m/{media}/vote', CastVoteController::class)->name('media.vote');
 });

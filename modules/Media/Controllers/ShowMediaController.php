@@ -40,6 +40,8 @@ final class ShowMediaController
                 'is_anonymous' => $item->is_anonymous,
                 'has_thumbnail' => $item->thumbnails !== null,
                 'tag_count' => $item->tag_count,
+                'score' => $item->score,
+                'viewer_vote' => $item->voteOf($request->user())?->value,
                 'uploader' => $this->uploader($request, $item),
                 'created_at' => $item->created_at?->toIso8601String(),
                 'tags' => $item->tags()
@@ -58,9 +60,35 @@ final class ShowMediaController
             'can' => [
                 'update' => $request->user()?->can('update', $item) ?? false,
                 'delete' => $request->user()?->can('delete', $item) ?? false,
+                'vote' => $request->user()?->can('vote', $item) ?? false,
             ],
+            'vote_blocked_reason' => $this->voteBlockedReason($request->user(), $item),
             'visibilities' => array_map(static fn (Visibility $case): string => $case->value, Visibility::cases()),
         ]);
+    }
+
+    /**
+     * Why the arrows are disabled, as a key the frontend translates. The
+     * component cannot derive this: a guest has no rank to inspect, and an
+     * anonymous item does not carry its uploader, so "your own upload" is only
+     * answerable here.
+     *
+     * `own` is checked before the rank, so the uploader always gets the
+     * accurate reason.
+     *
+     * @return 'guest'|'restricted'|'own'|null
+     */
+    private function voteBlockedReason(?User $viewer, Media $item): ?string
+    {
+        if ($viewer === null) {
+            return 'guest';
+        }
+
+        if ($viewer->id === $item->user_id) {
+            return 'own';
+        }
+
+        return $viewer->can('vote', $item) ? null : 'restricted';
     }
 
     /**
