@@ -110,6 +110,13 @@ export interface SettingsSection {
     href: string;
 }
 
+/** Build identity shown on the System settings About block. */
+export interface AppMeta {
+    version: string;
+    commit: string | null;
+    built_at: string | null;
+}
+
 export interface AdminUser {
     username: string;
     display_name: string;

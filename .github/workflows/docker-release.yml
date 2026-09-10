@@ -41,6 +41,16 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
 
+      - name: Write meta.json
+        run: |
+          cat > meta.json <<EOF
+          {
+            "version": "${{ github.event.release.tag_name }}",
+            "commit": "${GITHUB_SHA:0:7}",
+            "built_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

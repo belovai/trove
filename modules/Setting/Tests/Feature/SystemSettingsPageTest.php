@@ -46,6 +46,16 @@ final class SystemSettingsPageTest extends TestCase
                     && $settings['registration.mode'] === 'open'));
     }
 
+    public function test_the_page_exposes_a_meta_block(): void
+    {
+        $this->actingAs($this->administrator())
+            ->get('/settings/system')
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('settings/System')
+                ->has('meta.version'));
+    }
+
     public function test_an_administrator_can_save_a_value(): void
     {
         $this->actingAs($this->administrator())
