@@ -6,7 +6,7 @@ SQLite with no external services.
 
 ---
 
-> ## ⚠️ Early development — v0.2.0
+> ## ⚠️ Early development — v0.3.0
 >
 > Trove is **pre-1.0**. Core features work (accounts, upload, tagging,
 > settings, mail), but there is no upgrade path yet and the schema can still
@@ -57,6 +57,8 @@ system, search, visibility model and API surface.
 | Public user profiles | working |
 | Per-user timezone and date/time formats | working |
 | Console user administration (`user:*`) | working |
+| Voting and score sort | working |
+| Favorites | working |
 | Search | not started |
 | Invitations | not started |
 | Sanctum / external API clients | not started |
