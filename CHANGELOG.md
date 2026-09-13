@@ -3,6 +3,36 @@
 All notable changes to Trove are documented here. Dates are release dates,
 not merge dates.
 
+## [0.3.0] — 2026-09-13
+
+Voting, favorites and a build-identity block in system settings. Three new
+migrations (`votes`, `favorites`, `media.score`) — run `php artisan migrate`
+after upgrading.
+
+### Added
+
+- Up/down voting on media (`POST /m/{hash_id}/vote`, body `{ value: 1 | -1 |
+  0 }`): cast, switch or withdraw. `media.score` holds the denormalized net,
+  always recomputed in full by `VoteScoreCounter`; `media:rebuild-scores`
+  re-derives every row from the `votes` table. Voting on your own upload is
+  refused, anonymous ones included, and requires the `media.vote` privilege
+  (Regular). Vote arrows on the media page, a score badge on cards, and a
+  `sort` control on `/posts` (`newest` / `oldest` / `score`, score breaks ties
+  by recency).
+- Favorites: `POST|DELETE /m/{hash_id}/favorite` toggles, `GET /favorites`
+  lists the viewer's own saved items, with a nav entry. Requires the
+  `media.favorite` privilege (Regular) and only ever applies to items the
+  viewer can see.
+- About block on `/settings/system` showing version, commit and build time.
+  Sourced from `meta.json` at the repo root — written by the Docker release
+  workflow before the image is built, or locally by `php artisan
+  meta:generate`; falls back to `composer.json`'s version when absent.
+
+### Known limitations
+
+Unchanged from 0.2.0: no search, no invitations, no follower feed, no
+`laravel/sanctum`, and no upgrade-path guarantee between 0.x releases.
+
 ## [0.2.0] — 2026-09-02
 
 Public user profiles, per-user date/time preferences, and a console escape
