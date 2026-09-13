@@ -17,6 +17,8 @@ final class IndexFavoritesController
     {
         $viewer = $request->user();
 
+        abort_unless($viewer !== null, 403);
+
         $filters = $request->filters();
 
         $media = Media::query()->visibleTo($viewer)
