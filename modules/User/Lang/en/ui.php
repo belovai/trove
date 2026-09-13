@@ -19,6 +19,7 @@ return [
     'nav_browse' => 'Browse',
     'nav_tags' => 'Tags',
     'nav_upload' => 'Upload',
+    'nav_favorites' => 'Favorites',
     'nav_settings' => 'Settings',
     'nav_profile_menu' => 'Account menu',
     'copy' => 'Copy',

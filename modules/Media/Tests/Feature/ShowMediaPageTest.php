@@ -155,4 +155,45 @@ final class ShowMediaPageTest extends TestCase
                 ->where('can.vote', false)
                 ->where('vote_blocked_reason', 'restricted'));
     }
+
+    public function test_the_viewers_own_favorite_state_is_sent(): void
+    {
+        $media = Media::factory()->create();
+        $viewer = User::factory()->create(['rank' => UserRank::Regular]);
+
+        $this->actingAs($viewer)->post("/m/{$media->hash_id}/favorite");
+
+        $this->actingAs($viewer)->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.is_favorited', true)
+                ->where('can.favorite', true));
+    }
+
+    public function test_a_guest_gets_is_favorited_false_and_cannot_favorite(): void
+    {
+        $media = Media::factory()->create();
+
+        $this->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('media.is_favorited', false)
+                ->where('can.favorite', false));
+    }
+
+    public function test_a_restricted_viewer_cannot_favorite(): void
+    {
+        $media = Media::factory()->create();
+
+        $this->actingAs(User::factory()->create(['rank' => UserRank::Restricted]))
+            ->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('can.favorite', false));
+    }
+
+    public function test_the_uploader_can_favorite_their_own_item(): void
+    {
+        $uploader = User::factory()->create(['rank' => UserRank::Regular]);
+        $media = Media::factory()->for($uploader, 'uploader')->create();
+
+        $this->actingAs($uploader)->get("/m/{$media->hash_id}")
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('can.favorite', true));
+    }
 }

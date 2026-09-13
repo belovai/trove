@@ -46,6 +46,16 @@ final class MediaPolicy
         return $user->can('media.vote') && $this->view($user, $media);
     }
 
+    /**
+     * Unlike a vote, favoriting your own upload is fine — it is a personal
+     * bookmark ("save this for me"), not a ranking judgement, so there is no
+     * self-block here.
+     */
+    public function favorite(User $user, Media $media): bool
+    {
+        return $user->can('media.favorite') && $this->view($user, $media);
+    }
+
     public function update(User $user, Media $media): bool
     {
         return $this->ownsOrModerates($user, $media);

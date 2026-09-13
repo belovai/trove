@@ -52,6 +52,8 @@ use Modules\User\Models\User;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int $score
+ * @property-read Collection<int, Favorite> $favorites
+ * @property-read int|null $favorites_count
  * @property-read Collection<int, Tag> $tags
  * @property-read int|null $tags_count
  * @property-read User|null $uploader
@@ -60,6 +62,7 @@ use Modules\User\Models\User;
  *
  * @method static Builder<static>|Media attributedTo(\Modules\User\Models\User $uploader, ?\Modules\User\Models\User $viewer)
  * @method static \Modules\Media\Database\Factories\MediaFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Media favoritedBy(\Modules\User\Models\User $viewer)
  * @method static Builder<static>|Media listable()
  * @method static Builder<static>|Media newModelQuery()
  * @method static Builder<static>|Media newQuery()
@@ -197,6 +200,27 @@ final class Media extends Model
     }
 
     /**
+     * @return HasMany<Favorite, $this>
+     */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    /**
+     * A plain existence check, not a query scope: only the detail page needs
+     * it, for one item at a time, exactly like voteOf().
+     */
+    public function isFavoritedBy(?User $viewer): bool
+    {
+        if ($viewer === null) {
+            return false;
+        }
+
+        return $this->favorites()->where('user_id', $viewer->id)->exists();
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
@@ -289,6 +313,19 @@ final class Media extends Model
         if (!$attributable) {
             $query->where('is_anonymous', false);
         }
+    }
+
+    /**
+     * LISTING FILTER for /favorites. The items a given viewer has personally
+     * saved — an explicit action, not a discovery concept, which is why this
+     * does not compose with listable()/ownUnlisted() the way browse does.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function favoritedBy(Builder $query, User $viewer): void
+    {
+        $query->whereHas('favorites', fn (Builder $sub) => $sub->where('user_id', $viewer->id));
     }
 
     /**

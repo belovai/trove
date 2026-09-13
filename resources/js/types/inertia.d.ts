@@ -93,6 +93,8 @@ export interface MediaDetail extends MediaCardData {
     tags: TagOnMedia[];
     /** The current viewer's own vote, null for a guest or a non-voter. */
     viewer_vote: VoteValue | null;
+    /** Whether the current viewer has this item in their favorites. */
+    is_favorited: boolean;
 }
 
 export interface Paginated<T> {

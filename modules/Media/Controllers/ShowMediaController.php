@@ -42,6 +42,7 @@ final class ShowMediaController
                 'tag_count' => $item->tag_count,
                 'score' => $item->score,
                 'viewer_vote' => $item->voteOf($request->user())?->value,
+                'is_favorited' => $item->isFavoritedBy($request->user()),
                 'uploader' => $this->uploader($request, $item),
                 'created_at' => $item->created_at?->toIso8601String(),
                 'tags' => $item->tags()
@@ -61,6 +62,7 @@ final class ShowMediaController
                 'update' => $request->user()?->can('update', $item) ?? false,
                 'delete' => $request->user()?->can('delete', $item) ?? false,
                 'vote' => $request->user()?->can('vote', $item) ?? false,
+                'favorite' => $request->user()?->can('favorite', $item) ?? false,
             ],
             'vote_blocked_reason' => $this->voteBlockedReason($request->user(), $item),
             'visibilities' => array_map(static fn (Visibility $case): string => $case->value, Visibility::cases()),

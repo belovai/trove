@@ -7,10 +7,13 @@ use Modules\Auth\Middleware\EnsureEmailIsVerified;
 use Modules\Media\Controllers\BrowseMediaController;
 use Modules\Media\Controllers\CastVoteController;
 use Modules\Media\Controllers\CreateMediaController;
+use Modules\Media\Controllers\DestroyFavoriteController;
 use Modules\Media\Controllers\DestroyMediaController;
+use Modules\Media\Controllers\IndexFavoritesController;
 use Modules\Media\Controllers\ServeMediaFileController;
 use Modules\Media\Controllers\ServeMediaThumbnailController;
 use Modules\Media\Controllers\ShowMediaController;
+use Modules\Media\Controllers\StoreFavoriteController;
 use Modules\Media\Controllers\StoreMediaController;
 use Modules\Media\Controllers\UpdateMediaController;
 
@@ -37,4 +40,7 @@ Route::middleware(['web', 'auth', EnsureEmailIsVerified::class])->group(function
 // on an install that has no mail transport configured.
 Route::middleware(['web', 'auth'])->group(function (): void {
     Route::post('m/{media}/vote', CastVoteController::class)->name('media.vote');
+    Route::post('m/{media}/favorite', StoreFavoriteController::class)->name('media.favorites.store');
+    Route::delete('m/{media}/favorite', DestroyFavoriteController::class)->name('media.favorites.destroy');
+    Route::get('favorites', IndexFavoritesController::class)->name('favorites.index');
 });
